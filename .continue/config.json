@@ -1,0 +1,143 @@
+{
+  "models": [
+        {
+      "title": "Claude Sonnet 4.5",
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-5-20250929",
+      "apiKey": "${ANTHROPIC_API_KEY}"
+    },
+    {
+      "title": "Claude Sonnet 4",
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-20250514",
+      "apiKey": "${ANTHROPIC_API_KEY}"
+    },
+    {
+      "title": "Claude Opus 4",
+      "provider": "anthropic",
+      "model": "claude-opus-4-20250514",
+      "apiKey": "${ANTHROPIC_API_KEY}"
+    },
+    {
+      "title": "GPT-5 Turbo",
+      "provider": "openai",
+      "model": "gpt-5-turbo",
+      "apiKey": "${OPENAI_API_KEY}"
+    },
+    {
+      "title": "GPT-4 Turbo",
+      "provider": "openai",
+      "model": "gpt-4-turbo",
+      "apiKey": "${OPENAI_API_KEY}"
+    },
+    {
+      "title": "o1",
+      "provider": "openai",
+      "model": "o1",
+      "apiKey": "${OPENAI_API_KEY}"
+    },
+    {
+      "title": "o1-mini",
+      "provider": "openai",
+      "model": "o1-mini",
+      "apiKey": "${OPENAI_API_KEY}"
+    },
+    {
+      "title": "Gemini 2.0 Flash",
+      "provider": "gemini",
+      "model": "gemini-2.0-flash-exp",
+      "apiKey": "${GOOGLE_API_KEY}"
+    },
+    {
+      "title": "Gemini 1.5 Pro",
+      "provider": "gemini",
+      "model": "gemini-1.5-pro",
+      "apiKey": "${GOOGLE_API_KEY}"
+    },
+    {
+      "title": "Claude 3.5 Sonnet",
+      "provider": "anthropic",
+      "model": "claude-3-5-sonnet-20241022",
+      "apiKey": "${ANTHROPIC_API_KEY}"
+    },
+    {
+      "title": "Claude 3 Haiku",
+      "provider": "anthropic",
+      "model": "claude-3-haiku-20240307",
+      "apiKey": "${ANTHROPIC_API_KEY}"
+    }
+  ],
+  "tabAutocompleteModel": {
+    "title": "Claude Sonnet 4.5",
+    "provider": "anthropic",
+    "model": "claude-sonnet-4-5-20250929",
+    "apiKey": "${ANTHROPIC_API_KEY}"
+  },
+  "embeddingsProvider": {
+    "provider": "openai",
+    "model": "text-embedding-3-small",
+    "apiKey": "${OPENAI_API_KEY}"
+  },
+
+  "slashCommands": [
+    {
+      "name": "explain",
+      "description": "Explain selected code",
+      "prompt": ".vscode/prompts/explain.md"
+    },
+    {
+      "name": "refactor",
+      "description": "Refactor selected code",
+      "prompt": ".vscode/prompts/refactor.md"
+    },
+    {
+      "name": "test",
+      "description": "Generate tests",
+      "prompt": ".vscode/prompts/test.md"
+    },
+    {
+      "name": "document",
+      "description": "Generate documentation",
+      "prompt": ".vscode/prompts/document.md"
+    },
+    {
+      "name": "optimize",
+      "description": "Optimize performance",
+      "prompt": ".vscode/prompts/optimize.md"
+    },
+    {
+      "name": "debug",
+      "description": "Debug issue",
+      "prompt": ".vscode/prompts/debug.md"
+    },
+    {
+      "name": "architecture",
+      "description": "Analyze architecture",
+      "prompt": ".vscode/prompts/architecture.md"
+    },
+    {
+      "name": "security",
+      "description": "Security review",
+      "prompt": ".vscode/prompts/security.md"
+    }
+  ],
+  "contextProviders": [
+    {
+      "name": "files",
+      "params": {
+        "useWorkspace": true,
+        "maxTokens": 8000
+      }
+    },
+    {
+      "name": "git",
+      "params": {
+        "maxCommits": 10
+      }
+    },
+    {
+      "name": "terminal"
+    }
+  ],
+  "allowAnonymousTelemetry": false
+}

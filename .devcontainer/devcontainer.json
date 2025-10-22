@@ -1,0 +1,67 @@
+{
+  "name": "Dev Environment",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "dev",
+  "workspaceFolder": "/workspace",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-vscode.makefile-tools",
+        "ms-vscode-remote.remote-containers",
+        "GitHub.copilot",
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "charliermarsh.ruff",
+        "ms-python.debugpy"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/bin/python3.11",
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": true,
+        "python.formatting.provider": "black",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.python",
+          "editor.formatOnSave": true
+        },
+        "[cpp]": {
+          "editor.defaultFormatter": "ms-vscode.cpptools"
+        },
+        "files.watcherExclude": {
+          "**/node_modules": true,
+          "**/.git": true,
+          "**/venv": true
+        }
+      }
+    }
+  },
+
+  "hostRequirements": {
+    "memory": "4gb",
+    "cpus": 2
+  },
+
+  "copyExtensionsToContainerFolder": false,
+
+ "postCreateCommand": "bash .devcontainer/post-create.sh",
+   
+  "remoteUser": "devuser",
+  "remoteEnv": {
+    "PATH": "${containerEnv:PATH}:/home/devuser/.local/bin"
+  },
+  
+  "mounts": [
+    "source=${localEnv:HOME}/.ssh,target=/home/devuser/.ssh,readonly"
+  ]
+}

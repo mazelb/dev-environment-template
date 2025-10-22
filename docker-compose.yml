@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  # Main development environment
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dev-environment
+    volumes:
+      # Mount entire project directory
+      - .:/workspace
+      # Keep node_modules separate to avoid sync issues
+      - /workspace/node_modules
+      # Keep Python venv separate
+      - /workspace/venv
+    ports:
+      - "3000:3000"   # Node.js default
+      - "8000:8000"   # Python/Flask default
+      - "5173:5173"   # Vite default
+      - "5000:5000"   # Flask default
+      - "8080:8080"   # Generic web service
+    environment:
+      - NODE_ENV=development
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+    stdin_open: true
+    tty: true
+    networks:
+      - dev-network
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: dev-postgres
+    environment:
+      POSTGRES_USER: devuser
+      POSTGRES_PASSWORD: devpass
+      POSTGRES_DB: dev_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - dev-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U devuser"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Optional: Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: dev-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - dev-network
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Optional: LocalStack (AWS emulation)
+  # Uncomment to use
+  # localstack:
+  #   image: localstack/localstack:latest
+  #   container_name: dev-localstack
+  #   ports:
+  #     - "4566:4566"
+  #     - "4571:4571"
+  #   environment:
+  #     - DEBUG=1
+  #     - DATA_DIR=/tmp/localstack/data
+  #     - SERVICES=s3,dynamodb,sqs,sns,lambda,iam
+  #   volumes:
+  #     - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
+  #     - "/var/run/docker.sock:/var/run/docker.sock"
+  #   networks:
+  #     - dev-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  dev-network:
+    driver: bridge
+    

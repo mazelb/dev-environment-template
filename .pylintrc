@@ -1,0 +1,17 @@
+[MASTER]
+disable=missing-docstring,line-too-long,too-few-public-methods
+
+[MESSAGES CONTROL]
+disable=
+    C0111,
+    C0103,
+    W0212,
+    R0801
+
+[FORMAT]
+max-line-length=100
+indent-string='    '
+
+[DESIGN]
+max-attributes=10
+max-arguments=6
