@@ -19,7 +19,7 @@ NC='\033[0m'
 TEMPLATE_REPO=""
 PROJECT_NAME=""
 PROJECT_DIR=""
-USE_GIT=false
+SKIP_GIT=false
 BUILD_IMAGE=true
 OPTIONAL_TOOLS=()
 USE_PRESET=""
@@ -39,6 +39,16 @@ ARCHETYPES_DIR="$SCRIPT_DIR/archetypes"
 # Source archetype loader
 if [ -f "$SCRIPT_DIR/scripts/archetype-loader.sh" ]; then
     source "$SCRIPT_DIR/scripts/archetype-loader.sh"
+fi
+
+# Source git helper
+if [ -f "$SCRIPT_DIR/scripts/git-helper.sh" ]; then
+    source "$SCRIPT_DIR/scripts/git-helper.sh"
+fi
+
+# Source gitignore generator
+if [ -f "$SCRIPT_DIR/scripts/gitignore-generator.sh" ]; then
+    source "$SCRIPT_DIR/scripts/gitignore-generator.sh"
 fi
 
 # Functions
@@ -75,7 +85,7 @@ OPTIONS:
     -n, --name NAME              Project name (required)
     -d, --dir PATH               Project directory (default: current directory)
     -t, --template URL           Template repository URL
-    -g, --git                    Initialize as git repository
+    --no-git                     Skip Git repository initialization (default: init)
     --no-build                   Skip Docker image build
 
 OPTIONAL TOOLS:
@@ -394,8 +404,8 @@ parse_args() {
                 TEMPLATE_REPO="$2"
                 shift 2
                 ;;
-            -g|--git)
-                USE_GIT=true
+            --no-git)
+                SKIP_GIT=true
                 shift
                 ;;
             --no-build)
@@ -525,13 +535,59 @@ main() {
     # Create basic project structure
     mkdir -p src tests docs
 
-    # Initialize git if requested
-    if [ "$USE_GIT" = true ]; then
-        print_info "Initializing git repository..."
-        git init
-        git add .
-        git commit -m "Initial commit: Project created with optional tools: ${OPTIONAL_TOOLS[*]}"
-        print_success "Git repository initialized"
+    # Generate smart .gitignore
+    print_info "Generating .gitignore..."
+    if command -v generate_gitignore &> /dev/null; then
+        local archetypes_list="$BASE_ARCHETYPE ${FEATURE_ARCHETYPES[*]}"
+        local tools_list="${OPTIONAL_TOOLS[*]}"
+        generate_gitignore "$FULL_PROJECT_PATH/.gitignore" "$archetypes_list" "$tools_list"
+    else
+        print_warning "gitignore generator not available, using basic .gitignore"
+        # Create basic .gitignore if generator not available
+        cat > "$FULL_PROJECT_PATH/.gitignore" << 'EOF'
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Node
+node_modules/
+
+# Environment
+.env
+*.env
+
+# IDE
+.vscode/
+.idea/
+EOF
+        print_success "Basic .gitignore created"
+    fi
+
+    # Initialize git repository (automatic unless --no-git specified)
+    if [ "$SKIP_GIT" != true ]; then
+        if command -v initialize_git_repository &> /dev/null; then
+            # Use smart Git initialization with archetype information
+            local archetypes_list="$BASE_ARCHETYPE ${FEATURE_ARCHETYPES[*]}"
+            local tools_list="${OPTIONAL_TOOLS[*]}"
+            initialize_git_repository "$FULL_PROJECT_PATH" "$PROJECT_NAME" "$archetypes_list" "$tools_list" "$USE_PRESET"
+        else
+            # Fallback to basic Git initialization
+            print_info "Initializing git repository..."
+            if command -v git &> /dev/null; then
+                cd "$FULL_PROJECT_PATH"
+                git init
+                git add .
+                git commit -m "Initial commit: Project created with optional tools: ${OPTIONAL_TOOLS[*]}"
+                cd - > /dev/null
+                print_success "Git repository initialized"
+            else
+                print_warning "Git not found, skipping repository initialization"
+            fi
+        fi
+    else
+        print_info "Skipping Git initialization (--no-git specified)"
     fi
 
     # Build Docker image

@@ -14,6 +14,7 @@ This document provides a comprehensive, step-by-step implementation strategy for
 **Goal:** Enable single-command creation of production-ready projects with independent Git repositories.
 
 **Success Criteria:**
+
 - ✅ One command creates complete, working project
 - ✅ Automatic Git initialization (no manual steps)
 - ✅ Optional GitHub repository creation
@@ -42,15 +43,19 @@ This document provides a comprehensive, step-by-step implementation strategy for
 ## Phase 1: Foundation & Infrastructure (Week 1-2)
 
 ### Overview
+
 Set up the core archetype system infrastructure including metadata schemas, directory structure, and basic loading mechanisms.
 
 ### Todos
 
 #### 1.1 Create Configuration Directory Structure
+
 - [ ] **Task:** Create `config/` directory in template root
+
   ```bash
   mkdir -p config
   ```
+
 - [ ] **Task:** Create `config/optional-tools.json` with current tools
   - Extract from `create-project.sh` lines 92-104 (presets)
   - Add tool definitions with metadata
@@ -63,10 +68,13 @@ Set up the core archetype system infrastructure including metadata schemas, dire
 - [ ] **Test:** Validate JSON files with `jq` or JSON validator
 
 #### 1.2 Create Archetypes Directory Structure
+
 - [ ] **Task:** Create `archetypes/` directory in template root
+
   ```bash
   mkdir -p archetypes/{base,rag-project}
   ```
+
 - [ ] **Task:** Create `archetypes/README.md` with system documentation
   - What are archetypes
   - How to use them
@@ -75,7 +83,9 @@ Set up the core archetype system infrastructure including metadata schemas, dire
 - [ ] **Test:** Verify directory structure exists
 
 #### 1.3 Define Archetype Metadata Schema
+
 - [ ] **Task:** Create `archetypes/__archetype_schema__.json` defining metadata format
+
   ```json
   {
     "version": "2.0",
@@ -86,16 +96,19 @@ Set up the core archetype system infrastructure including metadata schemas, dire
     "services": { ... }
   }
   ```
+
 - [ ] **Task:** Document all fields and their purposes
 - [ ] **Deliverable:** Schema definition file
 - [ ] **Test:** Validate schema is valid JSON
 
 #### 1.4 Create Base Archetype
+
 - [ ] **Task:** Create `archetypes/base/__archetype__.json`
   - Minimal starter archetype
   - No services, just structure
   - Role: "base"
 - [ ] **Task:** Create minimal directory structure in `archetypes/base/`
+
   ```
   base/
   ├── __archetype__.json
@@ -104,11 +117,14 @@ Set up the core archetype system infrastructure including metadata schemas, dire
   ├── docs/
   └── README.md
   ```
+
 - [ ] **Deliverable:** Working base archetype
 - [ ] **Test:** Load metadata and validate against schema
 
 #### 1.5 Create Archetype Loader Script
+
 - [ ] **Task:** Create `scripts/archetype-loader.sh`
+
   ```bash
   #!/bin/bash
 
@@ -125,6 +141,7 @@ Set up the core archetype system infrastructure including metadata schemas, dire
       # Check file references exist
   }
   ```
+
 - [ ] **Task:** Implement JSON parsing with `jq`
 - [ ] **Task:** Add validation logic
 - [ ] **Task:** Add error handling
@@ -132,23 +149,29 @@ Set up the core archetype system infrastructure including metadata schemas, dire
 - [ ] **Test:** Load base archetype successfully
 
 #### 1.6 Update create-project.sh Structure
+
 - [ ] **Task:** Add archetype-related variables to `create-project.sh`
+
   ```bash
   BASE_ARCHETYPE=""
   FEATURE_ARCHETYPES=()
   ARCHETYPES_DIR="$SCRIPT_DIR/archetypes"
   USE_ARCHETYPE=false
   ```
+
 - [ ] **Task:** Add source for archetype-loader.sh
+
   ```bash
   source "$SCRIPT_DIR/scripts/archetype-loader.sh"
   ```
+
 - [ ] **Task:** Add `--archetype` flag to argument parser
 - [ ] **Task:** Add `--list-archetypes` flag implementation
 - [ ] **Deliverable:** Updated `create-project.sh` with archetype support
 - [ ] **Test:** Run `--list-archetypes` and see base archetype
 
 ### Phase 1 Success Criteria
+
 - [ ] `config/` directory with JSON files exists
 - [ ] `archetypes/` directory structure in place
 - [ ] Base archetype loads successfully
@@ -160,27 +183,33 @@ Set up the core archetype system infrastructure including metadata schemas, dire
 ## Phase 2: Git Integration (Week 3)
 
 ### Overview
+
 Implement automatic Git repository initialization for every project with smart commit messages.
 
 ### Todos
 
 #### 2.1 Remove Conditional Git Initialization
+
 - [ ] **Task:** Update `create-project.sh` to initialize Git by default
   - Current: `if [ "$USE_GIT" = true ]; then git init; fi`
   - New: Git initialization happens automatically
 - [ ] **Task:** Remove `--git` flag from CLI (no longer needed)
 - [ ] **Task:** Add `--no-git` flag for opt-out
+
   ```bash
   --no-git)
       SKIP_GIT=true
       shift
       ;;
   ```
+
 - [ ] **Deliverable:** Updated flag handling in `create-project.sh`
 - [ ] **Test:** Create project, verify `.git/` exists
 
 #### 2.2 Implement Smart Commit Message Generator
+
 - [ ] **Task:** Create `scripts/git-helper.sh`
+
   ```bash
   #!/bin/bash
 
@@ -201,6 +230,7 @@ Implement automatic Git repository initialization for every project with smart c
   EOF
   }
   ```
+
 - [ ] **Task:** Implement `list_archetypes_with_versions()`
 - [ ] **Task:** Implement `list_services_from_archetypes()`
 - [ ] **Task:** Implement `get_template_version()` (read from VERSION file or git tag)
@@ -208,7 +238,9 @@ Implement automatic Git repository initialization for every project with smart c
 - [ ] **Test:** Generate commit message and verify format
 
 #### 2.3 Implement Git Initialization Function
+
 - [ ] **Task:** Create `initialize_git_repository()` in `scripts/git-helper.sh`
+
   ```bash
   initialize_git_repository() {
       local project_path=$1
@@ -229,13 +261,16 @@ Implement automatic Git repository initialization for every project with smart c
       cd - > /dev/null
   }
   ```
+
 - [ ] **Task:** Add error handling for git command failures
 - [ ] **Task:** Check if git is installed before proceeding
 - [ ] **Deliverable:** Git initialization function
 - [ ] **Test:** Initialize git in test project
 
 #### 2.4 Generate Smart .gitignore
+
 - [ ] **Task:** Create `scripts/gitignore-generator.sh`
+
   ```bash
   generate_gitignore() {
       local archetypes=$1
@@ -250,8 +285,10 @@ Implement automatic Git repository initialization for every project with smart c
       done
   }
   ```
+
 - [ ] **Task:** Create base `.gitignore` template in `templates/`
 - [ ] **Task:** Add archetype-specific patterns to archetype metadata
+
   ```json
   {
     "gitignore_patterns": [
@@ -261,11 +298,14 @@ Implement automatic Git repository initialization for every project with smart c
     ]
   }
   ```
+
 - [ ] **Deliverable:** Smart `.gitignore` generator
 - [ ] **Test:** Generate .gitignore for rag-project
 
 #### 2.5 Integrate Git Initialization into Main Flow
+
 - [ ] **Task:** Update main() function in `create-project.sh`
+
   ```bash
   # After project creation and file copying
 
@@ -274,12 +314,14 @@ Implement automatic Git repository initialization for every project with smart c
       initialize_git_repository "$FULL_PROJECT_PATH" "$PROJECT_NAME" "$ALL_ARCHETYPES"
   fi
   ```
+
 - [ ] **Task:** Update help text to reflect automatic git initialization
 - [ ] **Task:** Update success message to mention git repository
 - [ ] **Deliverable:** Integrated Git initialization
 - [ ] **Test:** Create project and verify initial commit exists
 
 ### Phase 2 Success Criteria
+
 - [ ] Every new project has `.git/` directory
 - [ ] Initial commit includes all files
 - [ ] Commit message includes archetype metadata
@@ -291,12 +333,15 @@ Implement automatic Git repository initialization for every project with smart c
 ## Phase 3: Multi-Archetype Core (Week 4-5)
 
 ### Overview
+
 Implement the core multi-archetype composition system with conflict detection and resolution.
 
 ### Todos
 
 #### 3.1 Create Conflict Detection System
+
 - [ ] **Task:** Create `scripts/conflict-resolver.sh`
+
   ```bash
   #!/bin/bash
 
@@ -318,6 +363,7 @@ Implement the core multi-archetype composition system with conflict detection an
       # Check Python package version conflicts
   }
   ```
+
 - [ ] **Task:** Implement port conflict detection
 - [ ] **Task:** Implement service name conflict detection
 - [ ] **Task:** Implement dependency conflict detection
@@ -325,7 +371,9 @@ Implement the core multi-archetype composition system with conflict detection an
 - [ ] **Test:** Detect conflicts between test archetypes
 
 #### 3.2 Implement Port Offset Resolver
+
 - [ ] **Task:** Create `resolve_port_conflicts()` function
+
   ```bash
   resolve_port_conflicts() {
       local feature_archetype=$1
@@ -335,13 +383,16 @@ Implement the core multi-archetype composition system with conflict detection an
       # Keep internal ports unchanged
   }
   ```
+
 - [ ] **Task:** Use `yq` or `jq` to modify YAML/JSON
 - [ ] **Task:** Update environment variables with new ports
 - [ ] **Deliverable:** Port offset resolver
 - [ ] **Test:** Apply offset to test docker-compose file
 
 #### 3.3 Implement Service Name Prefixing
+
 - [ ] **Task:** Create `apply_service_prefix()` function
+
   ```bash
   apply_service_prefix() {
       local archetype=$1
@@ -352,26 +403,32 @@ Implement the core multi-archetype composition system with conflict detection an
       # Update environment variables
   }
   ```
+
 - [ ] **Task:** Handle service name references in configs
 - [ ] **Task:** Update depends_on relationships
 - [ ] **Deliverable:** Service name prefixing
 - [ ] **Test:** Prefix services in test docker-compose
 
 #### 3.4 Add Multi-Archetype CLI Flags
+
 - [ ] **Task:** Add `--add-features` flag to `create-project.sh`
+
   ```bash
   --add-features)
       IFS=',' read -ra FEATURE_ARCHETYPES <<< "$2"
       shift 2
       ;;
   ```
+
 - [ ] **Task:** Validate feature archetypes exist
 - [ ] **Task:** Check compatibility with base archetype
 - [ ] **Deliverable:** Multi-archetype CLI support
 - [ ] **Test:** Parse multiple features from command line
 
 #### 3.5 Implement Archetype Composition Logic
+
 - [ ] **Task:** Create `compose_archetypes()` function
+
   ```bash
   compose_archetypes() {
       local base=$1
@@ -396,13 +453,16 @@ Implement the core multi-archetype composition system with conflict detection an
       merge_archetypes "$base" "${features[@]}"
   }
   ```
+
 - [ ] **Task:** Implement each step
 - [ ] **Task:** Add progress indicators
 - [ ] **Deliverable:** Archetype composition system
 - [ ] **Test:** Compose base + 1 feature archetype
 
 #### 3.6 Implement Compatibility Checking
+
 - [ ] **Task:** Create `check_compatibility()` function
+
   ```bash
   check_compatibility() {
       local base=$1
@@ -413,12 +473,14 @@ Implement the core multi-archetype composition system with conflict detection an
       # Check if they're compatible
   }
   ```
+
 - [ ] **Task:** Add `--check-compatibility` flag
 - [ ] **Task:** Display compatibility report
 - [ ] **Deliverable:** Compatibility checker
 - [ ] **Test:** Check various archetype combinations
 
 ### Phase 3 Success Criteria
+
 - [ ] Can detect port conflicts between archetypes
 - [ ] Can apply port offsets automatically
 - [ ] Can prefix service names to avoid collisions
@@ -430,12 +492,15 @@ Implement the core multi-archetype composition system with conflict detection an
 ## Phase 4: File Merging System (Week 6-7)
 
 ### Overview
+
 Implement intelligent file merging for configuration files, Docker Compose, Makefiles, and source code.
 
 ### Todos
 
 #### 4.1 Create Docker Compose Merger
+
 - [ ] **Task:** Create `scripts/docker-compose-merger.sh`
+
   ```bash
   merge_docker_compose_files() {
       local base_file=$1
@@ -447,6 +512,7 @@ Implement intelligent file merging for configuration files, Docker Compose, Make
       # docker-compose.agentic.yml (agentic archetype)
   }
   ```
+
 - [ ] **Task:** Use `yq` for YAML manipulation
 - [ ] **Task:** Apply service prefixes
 - [ ] **Task:** Apply port offsets
@@ -455,7 +521,9 @@ Implement intelligent file merging for configuration files, Docker Compose, Make
 - [ ] **Test:** Merge 2 docker-compose files
 
 #### 4.2 Create .env File Merger
+
 - [ ] **Task:** Create `scripts/env-merger.sh`
+
   ```bash
   merge_env_files() {
       local base_env=$1
@@ -470,6 +538,7 @@ Implement intelligent file merging for configuration files, Docker Compose, Make
       # FEATURE1_VAR=value
   }
   ```
+
 - [ ] **Task:** Add section headers for clarity
 - [ ] **Task:** Deduplicate variables
 - [ ] **Task:** Handle conflicts (warn user)
@@ -477,7 +546,9 @@ Implement intelligent file merging for configuration files, Docker Compose, Make
 - [ ] **Test:** Merge multiple .env files
 
 #### 4.3 Create Makefile Merger
+
 - [ ] **Task:** Create `scripts/makefile-merger.sh`
+
   ```bash
   merge_makefiles() {
       local base_makefile=$1
@@ -489,6 +560,7 @@ Implement intelligent file merging for configuration files, Docker Compose, Make
       # Create composite targets: run, test
   }
   ```
+
 - [ ] **Task:** Parse and namespace targets
 - [ ] **Task:** Create composite targets
 - [ ] **Task:** Preserve PHONY declarations
@@ -496,7 +568,9 @@ Implement intelligent file merging for configuration files, Docker Compose, Make
 - [ ] **Test:** Merge Makefiles with namespace
 
 #### 4.4 Create Source File Smart Merger
+
 - [ ] **Task:** Create `scripts/source-file-merger.sh`
+
   ```bash
   merge_fastapi_main() {
       local base_main=$1
@@ -508,6 +582,7 @@ Implement intelligent file merging for configuration files, Docker Compose, Make
       # Add prefix to routes
   }
   ```
+
 - [ ] **Task:** Implement FastAPI main.py merger
 - [ ] **Task:** Add patterns for other frameworks (Express, Flask)
 - [ ] **Task:** Use AST parsing if available (Python: `ast` module)
@@ -515,7 +590,9 @@ Implement intelligent file merging for configuration files, Docker Compose, Make
 - [ ] **Test:** Merge FastAPI main.py files
 
 #### 4.5 Create Directory Structure Merger
+
 - [ ] **Task:** Create `merge_directory_structures()` function
+
   ```bash
   merge_directory_structures() {
       local base_dir=$1
@@ -527,6 +604,7 @@ Implement intelligent file merging for configuration files, Docker Compose, Make
       # Handle file conflicts
   }
   ```
+
 - [ ] **Task:** Implement recursive directory traversal
 - [ ] **Task:** Define merge strategies per file type
 - [ ] **Task:** Handle file conflicts (overwrite, merge, skip)
@@ -534,7 +612,9 @@ Implement intelligent file merging for configuration files, Docker Compose, Make
 - [ ] **Test:** Merge directory trees
 
 #### 4.6 Integrate Merging into Composition Flow
+
 - [ ] **Task:** Update `compose_archetypes()` to use mergers
+
   ```bash
   # After conflict resolution
 
@@ -543,12 +623,14 @@ Implement intelligent file merging for configuration files, Docker Compose, Make
   merge_makefiles "$base_makefile" "${feature_makefiles[@]}"
   merge_directory_structures "$base_dir" "${feature_dirs[@]}"
   ```
+
 - [ ] **Task:** Add progress indicators for each merge operation
 - [ ] **Task:** Handle merge failures gracefully
 - [ ] **Deliverable:** Integrated file merging
 - [ ] **Test:** Full archetype composition with file merging
 
 ### Phase 4 Success Criteria
+
 - [ ] Docker Compose files merge correctly
 - [ ] .env files merge with sections
 - [ ] Makefiles merge with namespaced targets
@@ -560,12 +642,15 @@ Implement intelligent file merging for configuration files, Docker Compose, Make
 ## Phase 5: GitHub Integration (Week 8)
 
 ### Overview
+
 Implement GitHub CLI integration for automatic repository creation and initial push.
 
 ### Todos
 
 #### 5.1 Create GitHub Repository Creator Script
+
 - [ ] **Task:** Create `scripts/github-repo-creator.sh`
+
   ```bash
   #!/bin/bash
 
@@ -582,6 +667,7 @@ Implement GitHub CLI integration for automatic repository creation and initial p
       # Push initial commit
   }
   ```
+
 - [ ] **Task:** Implement prerequisite checks
 - [ ] **Task:** Implement repository creation
 - [ ] **Task:** Implement initial push
@@ -589,7 +675,9 @@ Implement GitHub CLI integration for automatic repository creation and initial p
 - [ ] **Test:** Create test repository on GitHub
 
 #### 5.2 Add GitHub CLI Flags
+
 - [ ] **Task:** Add flags to `create-project.sh`
+
   ```bash
   --github)
       CREATE_GITHUB_REPO=true
@@ -612,13 +700,16 @@ Implement GitHub CLI integration for automatic repository creation and initial p
       shift 2
       ;;
   ```
+
 - [ ] **Task:** Set default values
 - [ ] **Task:** Update help text
 - [ ] **Deliverable:** GitHub CLI flags
 - [ ] **Test:** Parse GitHub flags correctly
 
 #### 5.3 Implement Repository Configuration
+
 - [ ] **Task:** Create `configure_repo_settings()` in github-repo-creator.sh
+
   ```bash
   configure_repo_settings() {
       local repo_name=$1
@@ -630,13 +721,16 @@ Implement GitHub CLI integration for automatic repository creation and initial p
       # Add topics
   }
   ```
+
 - [ ] **Task:** Extract topics from archetype metadata
 - [ ] **Task:** Apply settings via `gh api`
 - [ ] **Deliverable:** Repository configuration
 - [ ] **Test:** Verify settings on created repo
 
 #### 5.4 Add Error Handling and Graceful Degradation
+
 - [ ] **Task:** Check if gh CLI is installed
+
   ```bash
   if ! command -v gh &> /dev/null; then
       print_warning "GitHub CLI not found"
@@ -644,7 +738,9 @@ Implement GitHub CLI integration for automatic repository creation and initial p
       return 1
   fi
   ```
+
 - [ ] **Task:** Check if authenticated
+
   ```bash
   if ! gh auth status &> /dev/null; then
       print_warning "Not authenticated with GitHub"
@@ -652,13 +748,16 @@ Implement GitHub CLI integration for automatic repository creation and initial p
       return 1
   fi
   ```
+
 - [ ] **Task:** Handle repository already exists
 - [ ] **Task:** Handle network errors
 - [ ] **Deliverable:** Error handling
 - [ ] **Test:** Test without gh CLI, without auth, etc.
 
 #### 5.5 Integrate GitHub Creation into Main Flow
+
 - [ ] **Task:** Update main() in `create-project.sh`
+
   ```bash
   # After Git initialization
 
@@ -673,11 +772,13 @@ Implement GitHub CLI integration for automatic repository creation and initial p
           "$FULL_PROJECT_PATH"
   fi
   ```
+
 - [ ] **Task:** Update success message with GitHub URL
 - [ ] **Deliverable:** Integrated GitHub creation
 - [ ] **Test:** Create project with GitHub repo
 
 #### 5.6 Generate CI/CD Workflows
+
 - [ ] **Task:** Create `templates/.github/workflows/ci.yml`
 - [ ] **Task:** Create `templates/.github/workflows/docker-build.yml`
 - [ ] **Task:** Copy workflows to project during creation
@@ -686,6 +787,7 @@ Implement GitHub CLI integration for automatic repository creation and initial p
 - [ ] **Test:** Workflows run on GitHub Actions
 
 ### Phase 5 Success Criteria
+
 - [ ] `--github` flag creates GitHub repository
 - [ ] Repository settings configured automatically
 - [ ] Initial commit pushed successfully
@@ -697,13 +799,14 @@ Implement GitHub CLI integration for automatic repository creation and initial p
 ## Phase 6: Create Real Archetypes (Week 9-10)
 
 ### Overview
+
 Build a library of real, working archetypes including RAG, Agentic, Monitoring, and composite archetypes.
 
 ### Todos
 
 #### 6.1 Create RAG Project Archetype (FROM ARXIV-PAPER-CURATOR)
 
-**Reference:** https://github.com/mazelb/arxiv-paper-curator
+**Reference:** <https://github.com/mazelb/arxiv-paper-curator>
 **Purpose:** Extract production-ready RAG implementation and templatize for general use
 
 **Context:** The arxiv-paper-curator repository contains a production RAG system with FastAPI, OpenSearch, and Ollama. We'll extract template-worthy components (Pydantic Settings, FastAPI structure, Docker configs, testing infrastructure) and templatize ArXiv-specific code (ArxivClient, Paper models) into generic placeholders. See Appendix B for detailed component analysis.
@@ -713,6 +816,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 ##### 6.1.1 Setup and Clone Reference Repository
 
 - [ ] **Task:** Clone arxiv-paper-curator for reference
+
   ```bash
   # Clone in temp directory for extraction
   git clone https://github.com/mazelb/arxiv-paper-curator.git /tmp/arxiv-curator
@@ -720,6 +824,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   git log --oneline -n 5  # Note latest commit for reference
   ls -la src/              # Review structure
   ```
+
   - **Purpose:** Maintain reference to original implementation
   - **Note:** This is temporary - will delete after extraction
 
@@ -733,13 +838,16 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 ##### 6.1.2 Create Archetype Directory Structure
 
 - [ ] **Task:** Create complete `archetypes/rag-project/` structure
+
   ```bash
   mkdir -p archetypes/rag-project/{src/{api/{routers,},services,models},tests/{unit,integration},config,docker,docs}
   mkdir -p archetypes/rag-project/.vscode
   ```
+
   - Creates: API layer, services, models, tests, config, Docker files, docs
 
 - [ ] **Task:** Create `__archetype__.json` with comprehensive metadata
+
   ```json
   {
     "version": "2.0",
@@ -805,6 +913,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
     ]
   }
   ```
+
   - **Deliverable:** Complete archetype metadata
   - **Test:** Validate JSON with `jq . archetypes/rag-project/__archetype__.json`
 
@@ -813,6 +922,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 ##### 6.1.3 Extract FastAPI Application Structure
 
 - [ ] **Task:** Copy API main application
+
   ```bash
   # Copy main FastAPI app initialization
   cp /tmp/arxiv-curator/src/main.py archetypes/rag-project/src/api/main.py
@@ -823,17 +933,21 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   # - Router mounting
   # - Exception handlers
   ```
+
   - **Keep as-is:** FastAPI app structure, CORS, lifespan
   - **Update:** Import paths if needed
 
 - [ ] **Task:** Copy dependency injection container
+
   ```bash
   cp /tmp/arxiv-curator/src/dependencies.py archetypes/rag-project/src/api/dependencies.py
   ```
+
   - **Purpose:** DI pattern for service initialization
   - **Review:** Update service imports to match archetype structure
 
 - [ ] **Task:** Copy API routers
+
   ```bash
   # Copy all routers
   cp -r /tmp/arxiv-curator/src/routers/* archetypes/rag-project/src/api/routers/
@@ -843,6 +957,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   # - search.py (semantic search endpoints)
   # - documents.py (document CRUD)
   ```
+
   - **Keep:** Health checks, search patterns, CRUD structure
   - **Update:** Replace Paper → Document model references
 
@@ -857,22 +972,27 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 ##### 6.1.4 Extract and Templatize Services Layer
 
 - [ ] **Task:** Copy embedding service (generic, keep as-is)
+
   ```bash
   cp /tmp/arxiv-curator/src/services/embedding_service.py \
      archetypes/rag-project/src/services/
   ```
+
   - **Why keep:** Embedding logic is generic (Jina AI)
   - **No changes needed:** Works for any document type
 
 - [ ] **Task:** Copy search service (generic, keep as-is)
+
   ```bash
   cp /tmp/arxiv-curator/src/services/search_service.py \
      archetypes/rag-project/src/services/
   ```
+
   - **Why keep:** OpenSearch interaction is generic
   - **Minor update:** Change Paper → Document in type hints
 
 - [ ] **Task:** Templatize ArXiv-specific client → Generic data client
+
   ```bash
   # Copy and rename to template file
   cp /tmp/arxiv-curator/src/services/arxiv_client.py \
@@ -880,6 +1000,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   ```
 
   **Transform the code:**
+
   ```python
   # ADD TO TOP OF FILE:
   """
@@ -918,6 +1039,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   ```
 
 - [ ] **Task:** Create service initialization file
+
   ```bash
   cat > archetypes/rag-project/src/services/__init__.py << 'EOF'
   """
@@ -942,12 +1064,14 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 ##### 6.1.5 Extract and Adapt Data Models
 
 - [ ] **Task:** Copy and rename Paper model → Document model
+
   ```bash
   cp /tmp/arxiv-curator/src/models/paper.py \
      archetypes/rag-project/src/models/document.py
   ```
 
   **Transform the model:**
+
   ```python
   # BEFORE (ArXiv-specific):
   class Paper(BaseModel):
@@ -984,6 +1108,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   ```
 
 - [ ] **Task:** Copy other shared models
+
   ```bash
   # Copy query models if they exist
   cp /tmp/arxiv-curator/src/models/query.py \
@@ -993,9 +1118,11 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   cp /tmp/arxiv-curator/src/models/response.py \
      archetypes/rag-project/src/models/ 2>/dev/null || true
   ```
+
   - **Review:** Ensure models are generic (SearchQuery, SearchResponse, etc.)
 
 - [ ] **Task:** Create models `__init__.py`
+
   ```python
   from .document import Document
   # Add other models as needed
@@ -1008,6 +1135,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 ##### 6.1.6 Extract Pydantic Settings Configuration
 
 - [ ] **Task:** Copy and adapt configuration
+
   ```bash
   # Copy settings.py (excellent pattern from arxiv-curator)
   cp /tmp/arxiv-curator/src/config.py \
@@ -1015,6 +1143,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   ```
 
   **Update configuration:**
+
   ```python
   from pydantic_settings import BaseSettings, SettingsConfigDict
   from typing import Optional
@@ -1083,11 +1212,13 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
           case_sensitive=False
       )
   ```
+
   - **Removed:** ArXiv-specific settings
   - **Kept:** All infrastructure settings (OpenSearch, Ollama, Langfuse)
   - **Added:** TODO section for custom data source
 
 - [ ] **Task:** Create config `__init__.py`
+
   ```python
   from .settings import Settings
 
@@ -1101,18 +1232,22 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 ##### 6.1.7 Extract Testing Infrastructure
 
 - [ ] **Task:** Copy pytest configuration
+
   ```bash
   cp /tmp/arxiv-curator/pytest.ini archetypes/rag-project/
   ```
+
   - **Review:** Update paths if needed
   - **Ensure:** Coverage settings are appropriate
 
 - [ ] **Task:** Copy test fixtures and configuration
+
   ```bash
   cp /tmp/arxiv-curator/tests/conftest.py archetypes/rag-project/tests/
   ```
 
   **Expected fixtures:**
+
   ```python
   @pytest.fixture
   def client():
@@ -1141,6 +1276,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   ```
 
 - [ ] **Task:** Copy and adapt unit tests
+
   ```bash
   # Copy test structure
   cp -r /tmp/arxiv-curator/tests/unit/* archetypes/rag-project/tests/unit/
@@ -1153,14 +1289,17 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   - Add TODO comments for data-source-specific tests
 
 - [ ] **Task:** Copy and adapt integration tests
+
   ```bash
   cp -r /tmp/arxiv-curator/tests/integration/* archetypes/rag-project/tests/integration/ 2>/dev/null || true
   ```
+
   - **Update:** Replace ArXiv API mocks with generic mocks
   - **Keep:** OpenSearch integration test patterns
   - **Keep:** FastAPI endpoint tests
 
 - [ ] **Task:** Create test README
+
   ```bash
   cat > archetypes/rag-project/tests/README.md << 'EOF'
   # Testing Guide
@@ -1194,9 +1333,11 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   2. Add domain-specific validation tests
   3. Update mock data to match your Document schema
   EOF
+
   ```
 
 - [ ] **Task:** Create `tests/__init__.py`
+
   ```bash
   touch archetypes/rag-project/tests/__init__.py
   touch archetypes/rag-project/tests/unit/__init__.py
@@ -1208,6 +1349,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 ##### 6.1.8 Create Docker Configuration
 
 - [ ] **Task:** Create comprehensive `docker-compose.yml`
+
   ```yaml
   # archetypes/rag-project/docker-compose.yml
   version: '3.8'
@@ -1316,11 +1458,13 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
     rag-network:
       driver: bridge
   ```
+
   - **Includes:** API, OpenSearch, Ollama, Redis (optional)
   - **Features:** Health checks, resource limits, volume persistence
   - **Note:** Redis uses Docker Compose profiles (enable with `--profile caching`)
 
 - [ ] **Task:** Create Dockerfile for API service
+
   ```bash
   # Copy from arxiv-curator or create optimized version
   cp /tmp/arxiv-curator/Dockerfile archetypes/rag-project/
@@ -1334,6 +1478,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   - Proper WORKDIR setup
 
 - [ ] **Task:** Create `.dockerignore`
+
   ```bash
   cat > archetypes/rag-project/.dockerignore << 'EOF'
   .git
@@ -1366,6 +1511,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 ##### 6.1.9 Create Environment Configuration
 
 - [ ] **Task:** Create comprehensive `.env.example`
+
   ```bash
   cat > archetypes/rag-project/.env.example << 'EOF'
   # =============================================================================
@@ -1465,6 +1611,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   DEBUG=false
   EOF
   ```
+
   - **Comprehensive:** All services configured
   - **Documented:** Inline comments explain each section
   - **Actionable:** TODOs for customization
@@ -1477,82 +1624,87 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 ##### 6.1.10 Extract Build and Automation Scripts
 
 - [ ] **Task:** Copy and adapt Makefile
+
   ```bash
   cp /tmp/arxiv-curator/Makefile archetypes/rag-project/
   ```
 
   **Update Makefile targets:**
+
   ```makefile
   .PHONY: help setup run stop test lint format clean
 
   help:  ## Show this help message
-  	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+   @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
   setup: ## Initial setup (create .env, download models)
-  	@echo "Setting up RAG project..."
-  	@if [ ! -f .env ]; then cp .env.example .env; echo "Created .env file"; fi
-  	@docker-compose up -d opensearch ollama
-  	@echo "Waiting for services to start..."
-  	@sleep 10
-  	@docker exec rag-ollama ollama pull llama3.2:1b
-  	@echo "Setup complete! Update .env with your configuration."
+   @echo "Setting up RAG project..."
+   @if [ ! -f .env ]; then cp .env.example .env; echo "Created .env file"; fi
+   @docker-compose up -d opensearch ollama
+   @echo "Waiting for services to start..."
+   @sleep 10
+   @docker exec rag-ollama ollama pull llama3.2:1b
+   @echo "Setup complete! Update .env with your configuration."
 
   run: ## Start all services
-  	docker-compose up -d
+   docker-compose up -d
 
   run-dev: ## Start with hot reload
-  	docker-compose up api
+   docker-compose up api
 
   stop: ## Stop all services
-  	docker-compose down
+   docker-compose down
 
   logs: ## View logs
-  	docker-compose logs -f api
+   docker-compose logs -f api
 
   test: ## Run tests
-  	docker-compose exec api pytest tests/ -v
+   docker-compose exec api pytest tests/ -v
 
   test-cov: ## Run tests with coverage
-  	docker-compose exec api pytest tests/ -v --cov=src --cov-report=html
-  	@echo "Coverage report: htmlcov/index.html"
+   docker-compose exec api pytest tests/ -v --cov=src --cov-report=html
+   @echo "Coverage report: htmlcov/index.html"
 
   lint: ## Run linters
-  	docker-compose exec api pylint src/ tests/
-  	docker-compose exec api mypy src/
+   docker-compose exec api pylint src/ tests/
+   docker-compose exec api mypy src/
 
   format: ## Format code
-  	docker-compose exec api black src/ tests/
-  	docker-compose exec api isort src/ tests/
+   docker-compose exec api black src/ tests/
+   docker-compose exec api isort src/ tests/
 
   shell: ## Open shell in API container
-  	docker-compose exec api /bin/bash
+   docker-compose exec api /bin/bash
 
   opensearch-shell: ## Open OpenSearch DevTools
-  	@echo "OpenSearch available at: http://localhost:9200"
-  	@echo "Try: curl http://localhost:9200/_cat/indices"
+   @echo "OpenSearch available at: http://localhost:9200"
+   @echo "Try: curl http://localhost:9200/_cat/indices"
 
   download-model: ## Download Ollama model (MODEL=llama3.2:3b make download-model)
-  	docker exec rag-ollama ollama pull $(MODEL)
+   docker exec rag-ollama ollama pull $(MODEL)
 
   list-models: ## List available Ollama models
-  	docker exec rag-ollama ollama list
+   docker exec rag-ollama ollama list
 
   clean: ## Clean up containers and volumes
-  	docker-compose down -v
-  	rm -rf __pycache__ .pytest_cache .coverage htmlcov/
+   docker-compose down -v
+   rm -rf __pycache__ .pytest_cache .coverage htmlcov/
 
   reset: clean setup ## Reset environment (clean + setup)
   ```
+
   - **Removed:** ArXiv-specific commands
   - **Added:** Generic RAG commands
   - **Kept:** All best practices (lint, format, test)
 
 - [ ] **Task:** Extract and adapt `pyproject.toml`
+
   ```bash
   cp /tmp/arxiv-curator/pyproject.toml archetypes/rag-project/
   ```
 
   **Update pyproject.toml:**
+
   ```toml
   [project]
   name = "{{PROJECT_NAME}}"  # Template variable
@@ -1609,6 +1761,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   profile = "black"
   line_length = 100
   ```
+
   - **Updated:** Package name with template variable
   - **Removed:** ArXiv-specific dependencies
   - **Kept:** All infrastructure dependencies
@@ -1618,6 +1771,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 ##### 6.1.11 Create Documentation
 
 - [ ] **Task:** Create comprehensive archetype README
+
   ```bash
   cat > archetypes/rag-project/README.md << 'EOF'
   # RAG Project Archetype
@@ -1660,6 +1814,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   ```
 
   ### Setup Environment
+
   ```bash
   # Create .env from template
   cp .env.example .env
@@ -1672,6 +1827,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   ```
 
   ### Start Application
+
   ```bash
   # Start all services
   make run
@@ -1684,6 +1840,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   ```
 
   ### Verify Services
+
   ```bash
   # OpenSearch
   curl http://localhost:9200
@@ -1863,23 +2020,28 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 
   ### Langfuse (Tracing & Analytics)
 
-  1. Get API keys from https://cloud.langfuse.com
+  1. Get API keys from <https://cloud.langfuse.com>
   2. Update `.env`:
+
      ```bash
      LANGFUSE__PUBLIC_KEY=pk-...
      LANGFUSE__SECRET_KEY=sk-...
      LANGFUSE__ENABLED=true
      ```
+
   3. Restart: `make stop && make run`
   4. View traces in Langfuse dashboard
 
   ### Redis (Caching)
 
   1. Enable in `.env`:
+
      ```bash
      REDIS__ENABLED=true
      ```
+
   2. Start with profile:
+
      ```bash
      docker-compose --profile caching up -d
      ```
@@ -1948,6 +2110,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   ## 🐛 Troubleshooting
 
   ### Services won't start
+
   ```bash
   # Check logs
   docker-compose logs
@@ -1960,6 +2123,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   ```
 
   ### OpenSearch errors
+
   ```bash
   # Increase vm.max_map_count (Linux/Mac)
   sudo sysctl -w vm.max_map_count=262144
@@ -1970,6 +2134,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   ```
 
   ### Ollama model issues
+
   ```bash
   # Re-download model
   docker exec rag-ollama ollama pull llama3.2:1b
@@ -1986,12 +2151,14 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 
   See template repository contribution guidelines.
   EOF
+
   ```
   - **Comprehensive:** Complete usage guide
   - **Actionable:** Clear customization steps
   - **Referenced:** Links to original arxiv-curator
 
 - [ ] **Task:** Create migration guide for arxiv-curator users
+
   ```bash
   cat > archetypes/rag-project/docs/MIGRATION_FROM_ARXIV_CURATOR.md << 'EOF'
   # Migration Guide: ArXiv Paper Curator → RAG Project Archetype
@@ -2047,6 +2214,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
      ```
 
   2. **Copy your customizations:**
+
      ```bash
      # Your ArXiv client → Template
      cp arxiv-curator/src/services/arxiv_client.py \
@@ -2056,12 +2224,14 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
      ```
 
   3. **Update configuration:**
+
      ```bash
      # Copy relevant .env variables
      # Add your data source configuration
      ```
 
   4. **Test migration:**
+
      ```bash
      cd my-rag
      make test
@@ -2074,15 +2244,19 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 
   1. Create from archetype
   2. Restore ArXiv client:
+
      ```bash
      cp arxiv-curator/src/services/arxiv_client.py \
         my-rag/src/services/
      ```
+
   3. Restore Paper model:
+
      ```bash
      cp arxiv-curator/src/models/paper.py \
         my-rag/src/models/
      ```
+
   4. Update imports in routers
   5. Restore ArXiv settings in config/settings.py
 
@@ -2093,6 +2267,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 
   **Q: What if I need Airflow DAGs?**
   A: Add the agentic-workflows feature archetype:
+
   ```bash
   ./create-project.sh --name my-rag \
     --archetype rag-project \
@@ -2105,9 +2280,11 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   **Q: Can I contribute improvements back?**
   A: Yes! Improvements to the archetype benefit all users.
   EOF
+
   ```
 
 - [ ] **Task:** Create API documentation
+
   ```bash
   mkdir -p archetypes/rag-project/docs
   # Add API.md, SEARCH.md, DEPLOYMENT.md as needed
@@ -2118,6 +2295,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 ##### 6.1.12 Validation and Testing
 
 - [ ] **Task:** Syntax validation
+
   ```bash
   # Validate JSON
   jq . archetypes/rag-project/__archetype__.json
@@ -2130,6 +2308,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   ```
 
 - [ ] **Task:** Create test project from archetype
+
   ```bash
   ./create-project.sh --name test-rag-archetype --archetype rag-project --dry-run
   ./create-project.sh --name test-rag-archetype --archetype rag-project
@@ -2137,6 +2316,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   ```
 
 - [ ] **Task:** Verify environment setup
+
   ```bash
   # Check .env exists
   ls -la .env.example
@@ -2149,6 +2329,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   ```
 
 - [ ] **Task:** Start services and verify
+
   ```bash
   # Initial setup
   make setup
@@ -2174,6 +2355,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   ```
 
 - [ ] **Task:** Run test suite
+
   ```bash
   # Run all tests
   make test
@@ -2184,6 +2366,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   ```
 
 - [ ] **Task:** Verify customization points
+
   ```bash
   # Check template file exists
   ls -la src/services/__template__data_client.py
@@ -2196,6 +2379,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   ```
 
 - [ ] **Task:** Clean up test project
+
   ```bash
   cd ..
   rm -rf test-rag-archetype
@@ -2206,6 +2390,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 ##### 6.1.13 Documentation and Finalization
 
 - [ ] **Task:** Update archetype registry
+
   ```bash
   # Add to config/archetypes.json
   {
@@ -2225,6 +2410,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
   ```
 
 - [ ] **Task:** Create archetype changelog
+
   ```bash
   cat > archetypes/rag-project/CHANGELOG.md << 'EOF'
   # Changelog: RAG Project Archetype
@@ -2324,8 +2510,10 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
    - [ ] All template variables identified: `grep -r "{{.*}}" .`
 
 #### 6.2 Create Agentic Workflows Archetype
+
 - [ ] **Task:** Create `archetypes/agentic-workflows/` structure
 - [ ] **Task:** Create `__archetype__.json`
+
   ```json
   {
     "name": "agentic-workflows",
@@ -2336,6 +2524,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
     "port_offset": 100
   }
   ```
+
 - [ ] **Task:** Create agent orchestration code
   - `src/agents/` - Agent definitions
   - `src/workflows/` - Workflow orchestration
@@ -2346,6 +2535,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 - [ ] **Test:** Compose rag-project + agentic-workflows
 
 #### 6.3 Create Monitoring Archetype
+
 - [ ] **Task:** Create `archetypes/monitoring/` structure
 - [ ] **Task:** Create `__archetype__.json`
 - [ ] **Task:** Add Prometheus configuration
@@ -2356,6 +2546,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 - [ ] **Test:** Add monitoring to existing project
 
 #### 6.4 Create API Service Archetype
+
 - [ ] **Task:** Create `archetypes/api-service/` structure
 - [ ] **Task:** Production-ready FastAPI template
 - [ ] **Task:** Add authentication/authorization
@@ -2365,8 +2556,10 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 - [ ] **Test:** Create standalone API service
 
 #### 6.5 Create Composite Archetype
+
 - [ ] **Task:** Create `archetypes/rag-agentic-system/`
 - [ ] **Task:** Create `__archetype__.json`
+
   ```json
   {
     "archetype_type": "composite",
@@ -2379,12 +2572,14 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
     ]
   }
   ```
+
 - [ ] **Task:** Create integration scripts
 - [ ] **Task:** Pre-resolve known conflicts
 - [ ] **Deliverable:** Composite archetype
 - [ ] **Test:** Create project from composite
 
 #### 6.6 Document All Archetypes
+
 - [ ] **Task:** Update `archetypes/README.md` with full list
 - [ ] **Task:** Create setup guide for each archetype
 - [ ] **Task:** Create architecture diagrams
@@ -2393,6 +2588,7 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 - [ ] **Test:** Documentation is accurate
 
 ### Phase 6 Success Criteria
+
 - [ ] At least 3 base archetypes created
 - [ ] At least 3 feature archetypes created
 - [ ] At least 1 composite archetype created
@@ -2404,11 +2600,13 @@ Build a library of real, working archetypes including RAG, Agentic, Monitoring, 
 ## Phase 7: Testing, Documentation & Polish (Week 11-12)
 
 ### Overview
+
 Comprehensive testing, documentation, and user experience improvements.
 
 ### Todos
 
 #### 7.1 Create Test Suite
+
 - [ ] **Task:** Create `tests/` directory in template root
 - [ ] **Task:** Create `tests/test-archetype-loading.sh`
   - Test loading each archetype
@@ -2435,8 +2633,10 @@ Comprehensive testing, documentation, and user experience improvements.
 - [ ] **Test:** All tests pass
 
 #### 7.2 Add Dry Run Mode
+
 - [ ] **Task:** Add `--dry-run` flag to `create-project.sh`
 - [ ] **Task:** Implement preview generation
+
   ```bash
   show_preview() {
       # Show project structure
@@ -2445,11 +2645,13 @@ Comprehensive testing, documentation, and user experience improvements.
       # Ask for confirmation
   }
   ```
+
 - [ ] **Task:** Skip actual file creation in dry-run
 - [ ] **Deliverable:** Dry-run mode
 - [ ] **Test:** Dry-run shows accurate preview
 
 #### 7.3 Add Interactive Mode Improvements
+
 - [ ] **Task:** Enhance `--interactive` mode
   - Show archetype descriptions
   - Allow feature selection from menu
@@ -2460,6 +2662,7 @@ Comprehensive testing, documentation, and user experience improvements.
 - [ ] **Test:** Interactive mode is user-friendly
 
 #### 7.4 Generate Project Documentation
+
 - [ ] **Task:** Auto-generate README.md for each project
   - Include quick start
   - List services and ports
@@ -2473,6 +2676,7 @@ Comprehensive testing, documentation, and user experience improvements.
 - [ ] **Test:** Generated docs are accurate
 
 #### 7.5 Create Comprehensive User Documentation
+
 - [ ] **Task:** Update main README.md
   - Add archetype system overview
   - Add usage examples
@@ -2487,6 +2691,7 @@ Comprehensive testing, documentation, and user experience improvements.
 - [ ] **Test:** Documentation is clear and accurate
 
 #### 7.6 Performance Optimization
+
 - [ ] **Task:** Profile project creation time
 - [ ] **Task:** Optimize slow operations
   - Parallelize file copying
@@ -2497,6 +2702,7 @@ Comprehensive testing, documentation, and user experience improvements.
 - [ ] **Test:** Measure creation time
 
 #### 7.7 Error Messages and Help Text
+
 - [ ] **Task:** Review all error messages
   - Make them actionable
   - Provide solutions
@@ -2509,6 +2715,7 @@ Comprehensive testing, documentation, and user experience improvements.
 - [ ] **Test:** Error messages are helpful
 
 ### Phase 7 Success Criteria
+
 - [ ] Comprehensive test suite with >80% coverage
 - [ ] All tests pass
 - [ ] Documentation is complete and accurate
@@ -2522,6 +2729,7 @@ Comprehensive testing, documentation, and user experience improvements.
 If you want to get a minimal working version quickly, implement in this order:
 
 ### Sprint 1 (Week 1): Minimal Viable Product
+
 1. ✅ Create `config/optional-tools.json`
 2. ✅ Create `archetypes/` directory
 3. ✅ Create base archetype
@@ -2530,6 +2738,7 @@ If you want to get a minimal working version quickly, implement in this order:
 6. ✅ Test: Create project from base archetype
 
 ### Sprint 2 (Week 2): Git Integration
+
 1. ✅ Remove conditional Git initialization
 2. ✅ Create `scripts/git-helper.sh`
 3. ✅ Implement smart commit messages
@@ -2537,12 +2746,14 @@ If you want to get a minimal working version quickly, implement in this order:
 5. ✅ Test: Git initialization works
 
 ### Sprint 3 (Week 3): First Real Archetype
+
 1. ✅ Create rag-project archetype
 2. ✅ Copy code from arxiv-curator
 3. ✅ Templatize project-specific parts
 4. ✅ Test: Create working RAG project
 
 ### Sprint 4 (Week 4): Multi-Archetype Support
+
 1. ✅ Create conflict detector
 2. ✅ Implement port offset
 3. ✅ Add `--add-features` flag
@@ -2550,6 +2761,7 @@ If you want to get a minimal working version quickly, implement in this order:
 5. ✅ Test: Compose RAG + monitoring
 
 ### Sprint 5 (Week 5): GitHub Integration
+
 1. ✅ Create github-repo-creator.sh
 2. ✅ Add `--github` flag
 3. ✅ Implement repository creation
@@ -2560,6 +2772,7 @@ If you want to get a minimal working version quickly, implement in this order:
 ## Dependencies and Prerequisites
 
 ### Development Tools
+
 - [ ] **Bash** 4.0+ installed
 - [ ] **jq** for JSON parsing
 - [ ] **yq** for YAML manipulation
@@ -2568,6 +2781,7 @@ If you want to get a minimal working version quickly, implement in this order:
 - [ ] **Docker** and **Docker Compose** for testing
 
 ### Installation Commands
+
 ```bash
 # macOS
 brew install jq yq gh
@@ -2581,6 +2795,7 @@ choco install jq yq gh
 ```
 
 ### Verification
+
 ```bash
 ./scripts/check-prerequisites.sh
 ```
@@ -2590,31 +2805,41 @@ choco install jq yq gh
 ## Risk Mitigation
 
 ### Risk: Breaking Existing Functionality
+
 **Mitigation:**
+
 - Keep existing preset system functional
 - Add archetypes alongside, not replacing
 - Comprehensive testing before each release
 
 ### Risk: Archetype Complexity
+
 **Mitigation:**
+
 - Start with simple archetypes
 - Add complexity incrementally
 - Document patterns clearly
 
 ### Risk: Merge Conflicts in User Code
+
 **Mitigation:**
+
 - Use `__template__` prefix for replaceable files
 - Clear documentation on customization points
 - Provide conflict resolution guides
 
 ### Risk: GitHub CLI Dependency
+
 **Mitigation:**
+
 - Make GitHub integration optional
 - Graceful degradation without gh CLI
 - Provide manual instructions as fallback
 
 ### Risk: Performance Issues
+
 **Mitigation:**
+
 - Profile early and often
 - Optimize critical paths
 - Cache expensive operations
@@ -2624,12 +2849,14 @@ choco install jq yq gh
 ## Success Metrics
 
 ### Quantitative
+
 - [ ] Project creation time < 60 seconds
 - [ ] Test coverage > 80%
 - [ ] Zero breaking changes to existing projects
 - [ ] Support 10+ archetype combinations
 
 ### Qualitative
+
 - [ ] User can create project in one command
 - [ ] Documentation is clear and comprehensive
 - [ ] Error messages are actionable
@@ -2640,6 +2867,7 @@ choco install jq yq gh
 ## Post-Implementation
 
 ### Version 2.0 Release Checklist
+
 - [ ] All tests pass
 - [ ] Documentation complete
 - [ ] Changelog updated
@@ -2649,12 +2877,14 @@ choco install jq yq gh
 - [ ] Update propagation tested
 
 ### Community Engagement
+
 - [ ] Announce on relevant forums
 - [ ] Create example projects
 - [ ] Invite contributions
 - [ ] Set up issue templates
 
 ### Maintenance Plan
+
 - [ ] Monitor issue reports
 - [ ] Regular archetype updates
 - [ ] Quarterly security reviews
@@ -2675,6 +2905,7 @@ mkdir -p config archetypes scripts
 ```
 
 **Questions?** Review the detailed design documents:
+
 - [MULTI_ARCHETYPE_COMPOSITION_DESIGN.md](MULTI_ARCHETYPE_COMPOSITION_DESIGN.md)
 - [GIT_GITHUB_INTEGRATION.md](docs/GIT_GITHUB_INTEGRATION.md)
 - [SINGLE_COMMAND_PROJECT_CREATION.md](SINGLE_COMMAND_PROJECT_CREATION.md)
@@ -2766,6 +2997,7 @@ The arxiv-paper-curator repository contains a production-ready RAG system that s
 These components from arxiv-curator are production-ready patterns that work for any RAG project:
 
 #### 1. Pydantic Settings Pattern
+
 ```python
 # config/settings.py - Excellent configuration management
 from pydantic_settings import BaseSettings
@@ -2783,6 +3015,7 @@ class Settings(BaseSettings):
 **Why keep:** Generic configuration pattern used across all projects.
 
 #### 2. FastAPI Project Structure
+
 ```
 src/api/
 ├── main.py              # App initialization, CORS, lifespan
@@ -2796,6 +3029,7 @@ src/api/
 **Why keep:** Standard FastAPI best practices, not ArXiv-specific.
 
 #### 3. Docker Service Configurations
+
 - **OpenSearch 2.19:** Hybrid search (BM25 + vector), single-node config
 - **Ollama:** LLM inference with model management
 - **Volume persistence:** opensearch_data, ollama_data
@@ -2804,6 +3038,7 @@ src/api/
 **Why keep:** Infrastructure configuration is domain-agnostic.
 
 #### 4. Testing Infrastructure
+
 - `pytest.ini` - Test configuration
 - `conftest.py` - Shared fixtures (TestClient, mock services)
 - Unit tests structure - Fast, isolated tests
@@ -2812,6 +3047,7 @@ src/api/
 **Why keep:** Test patterns are universal, just update model names.
 
 #### 5. Makefile Commands
+
 ```makefile
 run:     # Start services
 test:    # Run test suite
@@ -2827,6 +3063,7 @@ setup:   # Initial setup + download models
 These components are specific to ArXiv and need to be made generic:
 
 #### 1. ArxivClient → DataClient
+
 ```python
 # BEFORE: src/services/arxiv_client.py
 class ArxivClient:
@@ -2847,6 +3084,7 @@ class DataClient:
 **Action:** Copy file, rename methods, add TODO comments, include examples.
 
 #### 2. Paper Model → Document Model
+
 ```python
 # BEFORE: src/models/paper.py
 class Paper(BaseModel):
@@ -2873,6 +3111,7 @@ class Document(BaseModel):
 **Action:** Rename class/file, generalize fields, add TODO section.
 
 #### 3. Configuration Variables
+
 ```python
 # REMOVE: ArXiv-specific settings
 ARXIV_API_BASE_URL = "http://export.arxiv.org/api"
@@ -2889,6 +3128,7 @@ ARXIV_SORT_BY = "relevance"
 ### Key Architectural Decisions
 
 #### 1. Directory Structure
+
 ```
 archetypes/rag-project/
 ├── src/
@@ -2906,6 +3146,7 @@ archetypes/rag-project/
 ```
 
 #### 2. Services to Include
+
 - ✅ **API Service:** FastAPI with hot reload
 - ✅ **OpenSearch:** Vector + BM25 hybrid search
 - ✅ **Ollama:** Local LLM inference
@@ -2913,6 +3154,7 @@ archetypes/rag-project/
 - ❌ **Airflow:** Exclude (available in agentic-workflows feature archetype)
 
 #### 3. Customization Strategy
+
 Provide **four main customization points**:
 
 1. **Data Source** - `__template__data_client.py` with implementation examples
@@ -2927,12 +3169,14 @@ Each with clear TODO comments and examples.
 For existing arxiv-curator users who want to use this archetype:
 
 **Option A: Generic RAG (Recommended)**
+
 1. Create project from rag-project archetype
 2. Implement custom data source in `__template__data_client.py`
 3. Customize Document model for domain
 4. Update tests with new model names
 
 **Option B: Keep ArXiv-Specific**
+
 1. Create project from rag-project archetype
 2. Restore `arxiv_client.py` from original repo
 3. Restore `Paper` model from original repo
@@ -2956,6 +3200,7 @@ From `/tmp/arxiv-curator` to `archetypes/rag-project/`:
 ### Code Transformation Examples
 
 #### Example 1: Service Method Renaming
+
 ```python
 # arxiv-curator: src/services/arxiv_client.py
 async def fetch_papers(self, query: str, max_results: int = 10) -> List[Paper]:
@@ -2980,6 +3225,7 @@ async def fetch_documents(self, query: str, limit: int = 10) -> List[Document]:
 ```
 
 #### Example 2: Model Generalization
+
 ```python
 # arxiv-curator: src/models/paper.py
 class Paper(BaseModel):
@@ -3016,6 +3262,7 @@ class Document(BaseModel):
 ```
 
 #### Example 3: Configuration Updates
+
 ```python
 # arxiv-curator: src/config.py
 class Settings(BaseSettings):
@@ -3110,7 +3357,7 @@ volumes:
 
 ### References
 
-- **Original Project:** https://github.com/mazelb/arxiv-paper-curator
+- **Original Project:** <https://github.com/mazelb/arxiv-paper-curator>
 - **Full Analysis:** `docs/ARXIV_CURATOR_MERGE_STRATEGIES.md` (1588 lines)
 - **Archetype Metadata Schema:** See Phase 1.3 in main document
 

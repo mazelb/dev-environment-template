@@ -39,12 +39,14 @@ project-root/
 ## Services
 
 ### PostgreSQL
+
 - **Port:** 5432
 - **User:** devuser
 - **Password:** devpass
 - **Database:** dev_db
 
 ### Redis
+
 - **Port:** 6379
 - **Persistence:** AOF enabled
 
@@ -55,6 +57,7 @@ After creating a project with this archetype:
 1. Review and customize the `.env` file
 2. Update `README.md` with your project details
 3. Add feature archetypes as needed:
+
    ```bash
    # Example: Add RAG capabilities
    ./create-project.sh --name my-project --archetype base --add-features rag-project
