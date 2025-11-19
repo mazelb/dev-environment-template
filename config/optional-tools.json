@@ -1,0 +1,204 @@
+{
+  "version": "1.0.0",
+  "tools": {
+    "docling": {
+      "name": "Docling",
+      "description": "Document understanding and parsing",
+      "python_packages": ["docling"],
+      "category": "ai-ml"
+    },
+    "llamaindex": {
+      "name": "LlamaIndex",
+      "description": "Data framework for LLM applications",
+      "python_packages": ["llama-index"],
+      "category": "ai-ml"
+    },
+    "fastapi": {
+      "name": "FastAPI",
+      "description": "Modern Python web framework",
+      "python_packages": ["fastapi[all]", "uvicorn[standard]"],
+      "category": "web"
+    },
+    "playwright": {
+      "name": "Playwright",
+      "description": "Browser automation and testing",
+      "python_packages": ["playwright", "pytest-playwright"],
+      "category": "testing"
+    },
+    "langfuse": {
+      "name": "Langfuse",
+      "description": "LLM observability and analytics",
+      "python_packages": ["langfuse"],
+      "docker_compose_service": {
+        "langfuse": {
+          "image": "langfuse/langfuse:latest",
+          "ports": ["3000:3000"],
+          "environment": {
+            "DATABASE_URL": "postgresql://postgres:postgres@postgresql:5432/langfuse",
+            "NEXTAUTH_SECRET": "your-secret-key-here",
+            "NEXTAUTH_URL": "http://localhost:3000",
+            "TELEMETRY_ENABLED": "false"
+          },
+          "depends_on": ["postgresql"]
+        }
+      },
+      "category": "ai-ml"
+    },
+    "postgresql": {
+      "name": "PostgreSQL",
+      "description": "Relational database",
+      "docker_compose_service": {
+        "postgresql": {
+          "image": "postgres:16-alpine",
+          "ports": ["5432:5432"],
+          "environment": {
+            "POSTGRES_USER": "postgres",
+            "POSTGRES_PASSWORD": "postgres",
+            "POSTGRES_DB": "postgres"
+          },
+          "volumes": ["postgres-data:/var/lib/postgresql/data"]
+        }
+      },
+      "volumes": ["postgres-data"],
+      "category": "database"
+    },
+    "ollama": {
+      "name": "Ollama",
+      "description": "Local LLM runtime",
+      "docker_compose_service": {
+        "ollama": {
+          "image": "ollama/ollama:latest",
+          "ports": ["11434:11434"],
+          "volumes": ["ollama-data:/root/.ollama"]
+        }
+      },
+      "volumes": ["ollama-data"],
+      "category": "ai-ml"
+    },
+    "opensearch": {
+      "name": "OpenSearch",
+      "description": "Search and analytics engine",
+      "docker_compose_service": {
+        "opensearch": {
+          "image": "opensearchproject/opensearch:latest",
+          "ports": ["9200:9200", "9600:9600"],
+          "environment": {
+            "discovery.type": "single-node",
+            "OPENSEARCH_JAVA_OPTS": "-Xms512m -Xmx512m",
+            "DISABLE_SECURITY_PLUGIN": "true"
+          },
+          "volumes": ["opensearch-data:/usr/share/opensearch/data"]
+        }
+      },
+      "volumes": ["opensearch-data"],
+      "category": "search"
+    },
+    "airflow": {
+      "name": "Apache Airflow",
+      "description": "Apache Airflow workflow orchestration",
+      "python_packages": ["apache-airflow"],
+      "docker_compose_service": {
+        "airflow": {
+          "image": "apache/airflow:latest",
+          "ports": ["8080:8080"],
+          "environment": {
+            "AIRFLOW__CORE__EXECUTOR": "LocalExecutor",
+            "AIRFLOW__DATABASE__SQL_ALCHEMY_CONN": "postgresql+psycopg2://postgres:postgres@postgresql:5432/airflow",
+            "AIRFLOW__CORE__LOAD_EXAMPLES": "false"
+          },
+          "volumes": [
+            "./dags:/opt/airflow/dags",
+            "./logs:/opt/airflow/logs",
+            "./plugins:/opt/airflow/plugins"
+          ],
+          "depends_on": ["postgresql"]
+        }
+      },
+      "category": "workflow"
+    },
+    "grafana": {
+      "name": "Grafana",
+      "description": "Metrics visualization dashboard",
+      "docker_compose_service": {
+        "grafana": {
+          "image": "grafana/grafana:latest",
+          "ports": ["3001:3000"],
+          "environment": {
+            "GF_SECURITY_ADMIN_PASSWORD": "admin"
+          },
+          "volumes": ["grafana-data:/var/lib/grafana"]
+        }
+      },
+      "volumes": ["grafana-data"],
+      "category": "monitoring"
+    },
+    "prometheus": {
+      "name": "Prometheus",
+      "description": "Metrics monitoring system",
+      "docker_compose_service": {
+        "prometheus": {
+          "image": "prom/prometheus:latest",
+          "ports": ["9090:9090"],
+          "volumes": [
+            "./prometheus.yml:/etc/prometheus/prometheus.yml",
+            "prometheus-data:/prometheus"
+          ],
+          "command": [
+            "--config.file=/etc/prometheus/prometheus.yml",
+            "--storage.tsdb.path=/prometheus"
+          ]
+        }
+      },
+      "volumes": ["prometheus-data"],
+      "config_files": {
+        "prometheus.yml": "global:\n  scrape_interval: 15s\nscrape_configs:\n  - job_name: 'prometheus'\n    static_configs:\n      - targets: ['localhost:9090']\n"
+      },
+      "category": "monitoring"
+    },
+    "langchain": {
+      "name": "LangChain",
+      "description": "Framework for LLM applications",
+      "python_packages": ["langchain", "langchain-community", "langchain-openai"],
+      "category": "ai-ml"
+    },
+    "claude-sdk": {
+      "name": "Claude Computer Use SDK",
+      "description": "Anthropic's agentic SDK",
+      "python_packages": ["anthropic[computer-use]"],
+      "category": "ai-ml"
+    },
+    "docusaurus": {
+      "name": "Docusaurus",
+      "description": "Documentation website generator",
+      "node_packages": ["@docusaurus/core", "@docusaurus/preset-classic"],
+      "category": "documentation"
+    }
+  },
+  "presets": {
+    "ai-agent": {
+      "name": "AI Agent Development",
+      "description": "Complete setup for AI agent development with LLM tools and observability",
+      "tools": ["langchain", "llamaindex", "langfuse", "postgresql", "docling"]
+    },
+    "web-fullstack": {
+      "name": "Full-Stack Web Development",
+      "description": "Modern web development stack with API, database, and monitoring",
+      "tools": ["fastapi", "postgresql", "prometheus", "playwright"]
+    },
+    "ml-pipeline": {
+      "name": "ML/Data Pipeline",
+      "description": "Data processing and ML workflow orchestration",
+      "tools": ["airflow", "postgresql", "prometheus", "opensearch"]
+    },
+    "claude-computer-use": {
+      "name": "Claude Computer Use",
+      "description": "Claude's computer use capabilities with API and observability",
+      "tools": ["claude-sdk", "langfuse", "fastapi"]
+    },
+    "documentation": {
+      "name": "Documentation Site",
+      "description": "Modern documentation website with testing",
+      "tools": ["docusaurus", "playwright"]
+    }
+  }
+}

@@ -1,0 +1,356 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Archetype Metadata Schema",
+  "description": "Schema definition for project archetype metadata files (__archetype__.json)",
+  "version": "2.0",
+  "type": "object",
+  "required": ["version", "metadata", "composition"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema version for this archetype metadata",
+      "pattern": "^\\d+\\.\\d+$",
+      "examples": ["2.0"]
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["name", "description", "role", "archetype_version"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Human-readable name of the archetype"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of what this archetype provides"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["base", "feature", "composite"],
+          "description": "Archetype role in the composition system"
+        },
+        "archetype_version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Semantic version of this archetype"
+        },
+        "author": {
+          "type": "string",
+          "description": "Archetype author or maintainer"
+        },
+        "license": {
+          "type": "string",
+          "description": "License for this archetype"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Tags for categorization and search"
+        }
+      }
+    },
+    "composition": {
+      "type": "object",
+      "description": "Defines how this archetype can be composed with others",
+      "properties": {
+        "compatible_bases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of base archetypes this feature is compatible with (only for role=feature)"
+        },
+        "compatible_features": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of feature archetypes compatible with this base (only for role=base)"
+        },
+        "conflicts_with": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of archetypes that conflict with this one"
+        },
+        "requires_features": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of features that must be included with this archetype"
+        },
+        "included_archetypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Archetypes included in this composite (only for role=composite)"
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "description": "External dependencies required by this archetype",
+      "properties": {
+        "required_tools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of required tool IDs from optional-tools.json"
+        },
+        "optional_tools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of optional tool IDs"
+        },
+        "python_packages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Additional Python packages beyond those from tools"
+        },
+        "node_packages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Additional Node.js packages beyond those from tools"
+        },
+        "system_packages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "System packages required (apt, yum, etc.)"
+        },
+        "min_python_version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+$",
+          "description": "Minimum Python version required"
+        },
+        "min_node_version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+$",
+          "description": "Minimum Node.js version required"
+        }
+      }
+    },
+    "services": {
+      "type": "object",
+      "description": "Docker services defined by this archetype",
+      "patternProperties": {
+        "^[a-zA-Z0-9_-]+$": {
+          "type": "object",
+          "properties": {
+            "ports": {
+              "type": "object",
+              "properties": {
+                "external": {
+                  "type": "integer",
+                  "description": "External port (can be auto-adjusted for conflicts)"
+                },
+                "internal": {
+                  "type": "integer",
+                  "description": "Internal container port (fixed)"
+                }
+              }
+            },
+            "environment": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "Environment variables for the service"
+            },
+            "volumes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Volume mounts for the service"
+            },
+            "depends_on": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Service dependencies"
+            }
+          }
+        }
+      }
+    },
+    "structure": {
+      "type": "object",
+      "description": "Project structure definition",
+      "properties": {
+        "directories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Directories to create in the project"
+        },
+        "files": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string",
+                "description": "Source file path relative to archetype directory"
+              },
+              "destination": {
+                "type": "string",
+                "description": "Destination path relative to project root"
+              },
+              "merge_strategy": {
+                "type": "string",
+                "enum": ["replace", "append", "merge", "skip_if_exists"],
+                "description": "How to handle file conflicts"
+              }
+            }
+          }
+        }
+      }
+    },
+    "configuration": {
+      "type": "object",
+      "description": "Configuration settings for this archetype",
+      "properties": {
+        "env_variables": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "required": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "port_offset_base": {
+          "type": "integer",
+          "description": "Base port offset for this archetype (e.g., 1000, 2000)"
+        },
+        "service_prefix": {
+          "type": "string",
+          "description": "Prefix to apply to all service names to avoid conflicts"
+        },
+        "gitignore_patterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Additional .gitignore patterns specific to this archetype"
+        }
+      }
+    },
+    "hooks": {
+      "type": "object",
+      "description": "Scripts to run at various stages",
+      "properties": {
+        "pre_create": {
+          "type": "string",
+          "description": "Script to run before creating project structure"
+        },
+        "post_create": {
+          "type": "string",
+          "description": "Script to run after creating project structure"
+        },
+        "pre_compose": {
+          "type": "string",
+          "description": "Script to run before composing with other archetypes"
+        },
+        "post_compose": {
+          "type": "string",
+          "description": "Script to run after composition is complete"
+        }
+      }
+    },
+    "documentation": {
+      "type": "object",
+      "description": "Documentation and help information",
+      "properties": {
+        "readme": {
+          "type": "string",
+          "description": "Path to archetype README file"
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Example usage commands"
+        },
+        "guides": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Links to guides and documentation"
+        }
+      }
+    },
+    "testing": {
+      "type": "object",
+      "description": "Testing configuration for archetype validation",
+      "properties": {
+        "validation_script": {
+          "type": "string",
+          "description": "Script to validate archetype structure"
+        },
+        "test_commands": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Commands to test generated project"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "version": "2.0",
+      "metadata": {
+        "name": "Base Project",
+        "description": "Minimal project structure",
+        "role": "base",
+        "archetype_version": "1.0.0"
+      },
+      "composition": {
+        "compatible_features": ["rag-project", "monitoring"]
+      }
+    },
+    {
+      "version": "2.0",
+      "metadata": {
+        "name": "RAG Project",
+        "description": "RAG system with vector search",
+        "role": "feature",
+        "archetype_version": "1.0.0"
+      },
+      "composition": {
+        "compatible_bases": ["base"]
+      },
+      "dependencies": {
+        "required_tools": ["opensearch", "ollama", "langchain"]
+      }
+    }
+  ]
+}

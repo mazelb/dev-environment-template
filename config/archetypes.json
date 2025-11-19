@@ -1,0 +1,35 @@
+{
+  "version": "1.0.0",
+  "description": "Registry of available project archetypes",
+  "archetypes": {
+    "base": {
+      "name": "Base Project",
+      "description": "Minimal project structure with essential development tools",
+      "role": "base",
+      "version": "1.0.0",
+      "status": "stable",
+      "compatible_features": ["rag-project"],
+      "path": "archetypes/base"
+    },
+    "rag-project": {
+      "name": "RAG Project",
+      "description": "Retrieval-Augmented Generation system with vector search",
+      "role": "feature",
+      "version": "1.0.0",
+      "status": "stable",
+      "compatible_bases": ["base"],
+      "requires": ["opensearch", "ollama", "langchain"],
+      "path": "archetypes/rag-project"
+    }
+  },
+  "compatibility_matrix": {
+    "base": {
+      "rag-project": true
+    }
+  },
+  "metadata": {
+    "last_updated": "2025-11-19",
+    "total_archetypes": 2,
+    "schema_version": "2.0"
+  }
+}

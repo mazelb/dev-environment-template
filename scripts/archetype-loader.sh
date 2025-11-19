@@ -7,9 +7,49 @@
 
 set -e
 
-# Source common functions
+# Color codes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+# Source common functions if available
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source "$SCRIPT_DIR/../scripts/common.sh" 2>/dev/null || true
+
+# Define print functions if not already defined
+if ! command -v print_header &> /dev/null; then
+    print_header() {
+        echo -e "${BLUE}╔════════════════════════════════════════╗${NC}"
+        echo -e "${BLUE}║${NC}   ${GREEN}$1${NC}                       "
+        echo -e "${BLUE}╚════════════════════════════════════════╝${NC}"
+    }
+fi
+
+if ! command -v print_success &> /dev/null; then
+    print_success() {
+        echo -e "${GREEN}✓${NC} $1"
+    }
+fi
+
+if ! command -v print_error &> /dev/null; then
+    print_error() {
+        echo -e "${RED}✗${NC} $1"
+    }
+fi
+
+if ! command -v print_info &> /dev/null; then
+    print_info() {
+        echo -e "${CYAN}ℹ${NC} $1"
+    }
+fi
+
+if ! command -v print_warning &> /dev/null; then
+    print_warning() {
+        echo -e "${YELLOW}⚠${NC} $1"
+    }
+fi
 
 # Load archetype metadata
 load_archetype() {
@@ -175,16 +215,18 @@ validate_archetype() {
     fi
 }
 
-# Main execution
-if [ "$1" == "--list" ]; then
-    list_archetypes
-elif [ "$1" == "--validate" ] && [ -n "$2" ]; then
-    validate_archetype "$2"
-elif [ "$1" == "--check-compatibility" ] && [ -n "$2" ] && [ -n "$3" ]; then
-    check_compatibility "$2" "$3"
-else
-    echo "Usage:"
-    echo "  $0 --list                                  # List all archetypes"
-    echo "  $0 --validate <archetype>                  # Validate archetype"
-    echo "  $0 --check-compatibility <base> <feature>  # Check compatibility"
+# Main execution (only when script is run directly, not sourced)
+if [ "${BASH_SOURCE[0]}" == "${0}" ]; then
+    if [ "$1" == "--list" ]; then
+        list_archetypes
+    elif [ "$1" == "--validate" ] && [ -n "$2" ]; then
+        validate_archetype "$2"
+    elif [ "$1" == "--check-compatibility" ] && [ -n "$2" ] && [ -n "$3" ]; then
+        check_compatibility "$2" "$3"
+    else
+        echo "Usage:"
+        echo "  $0 --list                                  # List all archetypes"
+        echo "  $0 --validate <archetype>                  # Validate archetype"
+        echo "  $0 --check-compatibility <base> <feature>  # Check compatibility"
+    fi
 fi

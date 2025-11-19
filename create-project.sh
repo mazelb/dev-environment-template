@@ -25,9 +25,21 @@ OPTIONAL_TOOLS=()
 USE_PRESET=""
 INTERACTIVE=false
 
+# Archetype-related variables
+BASE_ARCHETYPE=""
+FEATURE_ARCHETYPES=()
+ARCHETYPES_DIR=""
+USE_ARCHETYPE=false
+
 # Configuration file location
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TOOLS_CONFIG="$SCRIPT_DIR/config/optional-tools.json"
+ARCHETYPES_DIR="$SCRIPT_DIR/archetypes"
+
+# Source archetype loader
+if [ -f "$SCRIPT_DIR/scripts/archetype-loader.sh" ]; then
+    source "$SCRIPT_DIR/scripts/archetype-loader.sh"
+fi
 
 # Functions
 print_header() {
@@ -57,7 +69,7 @@ show_help() {
     cat << EOF
 Usage: $0 [OPTIONS]
 
-Create a new development project from the dev environment template with optional tools.
+Create a new development project from the dev environment template with optional tools or archetypes.
 
 OPTIONS:
     -n, --name NAME              Project name (required)
@@ -65,13 +77,19 @@ OPTIONS:
     -t, --template URL           Template repository URL
     -g, --git                    Initialize as git repository
     --no-build                   Skip Docker image build
-    
+
 OPTIONAL TOOLS:
     --tools TOOL1,TOOL2,...      Comma-separated list of optional tools
     --preset PRESET_NAME         Use a predefined preset of tools
     -i, --interactive            Interactive tool selection
     --list-tools                 List all available tools
     --list-presets               List all available presets
+
+ARCHETYPES:
+    --archetype NAME             Use a base archetype (e.g., base, rag-project)
+    --add-features F1,F2,...     Add feature archetypes to base
+    --list-archetypes            List all available archetypes
+    --check-compatibility B F    Check if base B is compatible with feature F
 
 AVAILABLE TOOLS:
     docling          - Document understanding and parsing
@@ -103,6 +121,12 @@ EXAMPLES:
     # Use a preset
     $0 --name my-agent --preset ai-agent
 
+    # Use base archetype
+    $0 --name my-project --archetype base
+
+    # Use base archetype with features
+    $0 --name my-rag-app --archetype base --add-features rag-project
+
     # Interactive selection
     $0 --name my-app --interactive
 
@@ -116,12 +140,12 @@ EOF
 list_tools() {
     print_header "Available Optional Tools"
     echo ""
-    
+
     if [ ! -f "$TOOLS_CONFIG" ]; then
         print_error "Tools configuration file not found: $TOOLS_CONFIG"
         exit 1
     fi
-    
+
     # Parse JSON and display tools
     jq -r '.tools | to_entries[] | "\(.key) - \(.value.name): \(.value.description)"' "$TOOLS_CONFIG" | while read line; do
         echo "  $line"
@@ -133,12 +157,12 @@ list_tools() {
 list_presets() {
     print_header "Available Presets"
     echo ""
-    
+
     if [ ! -f "$TOOLS_CONFIG" ]; then
         print_error "Tools configuration file not found: $TOOLS_CONFIG"
         exit 1
     fi
-    
+
     jq -r '.presets | to_entries[] | "\(.key)\n  \(.value.name): \(.value.description)\n  Tools: \(.value.tools | join(", "))\n"' "$TOOLS_CONFIG"
 }
 
@@ -146,32 +170,32 @@ list_presets() {
 interactive_tool_selection() {
     print_header "Interactive Tool Selection"
     echo ""
-    
+
     if ! command -v jq &> /dev/null; then
         print_error "jq is required for interactive mode"
         print_info "Install with: sudo apt-get install jq"
         exit 1
     fi
-    
+
     # Show presets first
     echo "Available presets:"
     jq -r '.presets | to_entries[] | "  [\(.key | ascii_upcase)] \(.value.name) - \(.value.description)"' "$TOOLS_CONFIG"
     echo ""
     read -p "Select a preset (or press Enter to skip): " preset_choice
-    
+
     if [ -n "$preset_choice" ]; then
         USE_PRESET="$preset_choice"
         print_success "Preset selected: $preset_choice"
         return
     fi
-    
+
     # Manual tool selection
     echo ""
     echo "Select individual tools (separate multiple with commas):"
     jq -r '.tools | to_entries[] | "  [\(.key)] \(.value.name) - \(.value.description)"' "$TOOLS_CONFIG"
     echo ""
     read -p "Enter tools (comma-separated): " tools_input
-    
+
     if [ -n "$tools_input" ]; then
         IFS=',' read -ra OPTIONAL_TOOLS <<< "$tools_input"
         print_success "Tools selected: ${OPTIONAL_TOOLS[*]}"
@@ -181,13 +205,13 @@ interactive_tool_selection() {
 # Apply optional tools to project
 apply_optional_tools() {
     local project_path=$1
-    
+
     if [ ${#OPTIONAL_TOOLS[@]} -eq 0 ] && [ -z "$USE_PRESET" ]; then
         return
     fi
-    
+
     print_header "Applying Optional Tools"
-    
+
     # If preset is selected, get tools from preset
     if [ -n "$USE_PRESET" ]; then
         print_info "Loading preset: $USE_PRESET"
@@ -199,55 +223,55 @@ apply_optional_tools() {
         OPTIONAL_TOOLS=($PRESET_TOOLS)
         print_success "Loaded tools from preset: ${OPTIONAL_TOOLS[*]}"
     fi
-    
+
     # Create requirements file additions
     local requirements_additions=""
     local dockerfile_additions=""
     local compose_services=""
     local compose_volumes=""
-    
+
     for tool in "${OPTIONAL_TOOLS[@]}"; do
         tool=$(echo "$tool" | xargs) # Trim whitespace
         print_info "Adding tool: $tool"
-        
+
         # Get tool configuration
         tool_config=$(jq ".tools[\"$tool\"]" "$TOOLS_CONFIG")
-        
+
         if [ "$tool_config" == "null" ]; then
             print_warning "Tool not found: $tool (skipping)"
             continue
         fi
-        
+
         # Python packages
         python_packages=$(echo "$tool_config" | jq -r '.python_packages[]?' 2>/dev/null)
         if [ -n "$python_packages" ]; then
             requirements_additions+="$python_packages"$'\n'
         fi
-        
+
         # Node packages
         node_packages=$(echo "$tool_config" | jq -r '.node_packages[]?' 2>/dev/null)
         if [ -n "$node_packages" ]; then
             echo "$node_packages" >> "$project_path/package-additions.txt"
         fi
-        
+
         # Dockerfile additions
         dockerfile_adds=$(echo "$tool_config" | jq -r '.dockerfile_additions[]?' 2>/dev/null)
         if [ -n "$dockerfile_adds" ]; then
             dockerfile_additions+="$dockerfile_adds"$'\n'
         fi
-        
+
         # Docker Compose service
         compose_service=$(echo "$tool_config" | jq -r '.docker_compose_service' 2>/dev/null)
         if [ "$compose_service" != "null" ]; then
             compose_services+="$compose_service"$'\n'
         fi
-        
+
         # Volumes
         volumes=$(echo "$tool_config" | jq -r '.volumes[]?' 2>/dev/null)
         if [ -n "$volumes" ]; then
             compose_volumes+="$volumes"$'\n'
         fi
-        
+
         # Config files
         config_files=$(echo "$tool_config" | jq -r '.config_files' 2>/dev/null)
         if [ "$config_files" != "null" ]; then
@@ -256,10 +280,10 @@ apply_optional_tools() {
                 print_success "Created config file: $filename"
             done
         fi
-        
+
         print_success "Added: $tool"
     done
-    
+
     # Write requirements additions
     if [ -n "$requirements_additions" ]; then
         cat > "$project_path/requirements-optional.txt" << EOF
@@ -268,7 +292,7 @@ $requirements_additions
 EOF
         print_success "Created requirements-optional.txt"
     fi
-    
+
     # Write Dockerfile additions
     if [ -n "$dockerfile_additions" ]; then
         cat > "$project_path/Dockerfile.additions" << EOF
@@ -278,7 +302,7 @@ EOF
         print_success "Created Dockerfile.additions"
         print_info "Add these lines to your Dockerfile before final CMD"
     fi
-    
+
     # Create docker-compose.project.yml with services
     if [ -n "$compose_services" ] || [ -n "$compose_volumes" ]; then
         cat > "$project_path/docker-compose.project.yml" << 'EOF'
@@ -290,12 +314,12 @@ services:
       - PROJECT_TOOLS=enabled
 
 EOF
-        
+
         # Add services
         if [ -n "$compose_services" ]; then
             echo "$compose_services" | jq -r 'to_entries[] | "  \(.key):\n    \(.value | to_entries[] | "    \(.key): \(.value | @json)")"' >> "$project_path/docker-compose.project.yml" 2>/dev/null || echo "  # Services configuration" >> "$project_path/docker-compose.project.yml"
         fi
-        
+
         # Add volumes
         if [ -n "$compose_volumes" ]; then
             echo -e "\nvolumes:" >> "$project_path/docker-compose.project.yml"
@@ -303,10 +327,10 @@ EOF
                 [ -n "$vol" ] && echo "  $vol:" >> "$project_path/docker-compose.project.yml"
             done
         fi
-        
+
         print_success "Created docker-compose.project.yml"
     fi
-    
+
     # Create installation instructions
     cat > "$project_path/OPTIONAL_TOOLS.md" << EOF
 # Optional Tools Installed
@@ -348,7 +372,7 @@ $(for tool in "${OPTIONAL_TOOLS[@]}"; do
     echo ""
 done)
 EOF
-    
+
     print_success "Created OPTIONAL_TOOLS.md with installation instructions"
     echo ""
     print_info "Optional tools configured. See OPTIONAL_TOOLS.md for details."
@@ -390,6 +414,25 @@ parse_args() {
                 INTERACTIVE=true
                 shift
                 ;;
+            --archetype)
+                BASE_ARCHETYPE="$2"
+                USE_ARCHETYPE=true
+                shift 2
+                ;;
+            --add-features)
+                IFS=',' read -ra FEATURE_ARCHETYPES <<< "$2"
+                USE_ARCHETYPE=true
+                shift 2
+                ;;
+            --list-archetypes)
+                if command -v list_archetypes &> /dev/null; then
+                    list_archetypes
+                else
+                    print_error "Archetype loader not available"
+                    print_info "Run from template directory or ensure scripts/archetype-loader.sh exists"
+                fi
+                exit 0
+                ;;
             --list-tools)
                 list_tools
                 exit 0
@@ -397,6 +440,19 @@ parse_args() {
             --list-presets)
                 list_presets
                 exit 0
+                ;;
+            --check-compatibility)
+                if [ -n "$2" ] && [ -n "$3" ]; then
+                    if command -v check_compatibility &> /dev/null; then
+                        check_compatibility "$2" "$3"
+                    else
+                        print_error "Archetype loader not available"
+                    fi
+                    exit 0
+                else
+                    print_error "Usage: --check-compatibility <base> <feature>"
+                    exit 1
+                fi
                 ;;
             -h|--help)
                 show_help
@@ -414,39 +470,39 @@ parse_args() {
 # Main script execution
 main() {
     parse_args "$@"
-    
+
     # Validate project name
     if [ -z "$PROJECT_NAME" ]; then
         print_error "Project name is required"
         show_help
         exit 1
     fi
-    
+
     # Interactive mode
     if [ "$INTERACTIVE" = true ]; then
         interactive_tool_selection
     fi
-    
+
     # Set project directory
     if [ -z "$PROJECT_DIR" ]; then
         PROJECT_DIR="."
     fi
-    
+
     FULL_PROJECT_PATH="$PROJECT_DIR/$PROJECT_NAME"
-    
+
     # Check if project directory already exists
     if [ -d "$FULL_PROJECT_PATH" ]; then
         print_error "Directory already exists: $FULL_PROJECT_PATH"
         exit 1
     fi
-    
+
     print_header "Creating Dev Project: $PROJECT_NAME"
-    
+
     # Create project directory
     print_info "Creating project directory..."
     mkdir -p "$FULL_PROJECT_PATH"
     cd "$FULL_PROJECT_PATH"
-    
+
     # Copy template files
     print_info "Copying template files..."
     if [ -n "$TEMPLATE_REPO" ]; then
@@ -460,15 +516,15 @@ main() {
         shopt -s dotglob
         cp -r "$TEMPLATE_DIR"/* . 2>/dev/null || true
     fi
-    
+
     print_success "Template files copied"
-    
+
     # Apply optional tools
     apply_optional_tools "$FULL_PROJECT_PATH"
-    
+
     # Create basic project structure
     mkdir -p src tests docs
-    
+
     # Initialize git if requested
     if [ "$USE_GIT" = true ]; then
         print_info "Initializing git repository..."
@@ -477,14 +533,14 @@ main() {
         git commit -m "Initial commit: Project created with optional tools: ${OPTIONAL_TOOLS[*]}"
         print_success "Git repository initialized"
     fi
-    
+
     # Build Docker image
     if [ "$BUILD_IMAGE" = true ]; then
         print_info "Building Docker image..."
         docker-compose build dev
         print_success "Docker image built"
     fi
-    
+
     # Display next steps
     echo ""
     print_header "Setup Complete!"
