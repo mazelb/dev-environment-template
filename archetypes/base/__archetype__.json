@@ -1,0 +1,108 @@
+{
+  "version": "2.0",
+  "metadata": {
+    "name": "base",
+    "display_name": "Base Development Environment",
+    "description": "Minimal development environment with core tooling (Python, Node.js, C++)",
+    "version": "1.0.0",
+    "author": "Dev Environment Template Team",
+    "tags": ["base", "minimal", "foundation"],
+    "archetype_type": "base"
+  },
+
+  "composition": {
+    "role": "base",
+    "compatible_features": ["*"],
+    "incompatible_with": [],
+    "composable": true,
+    "merge_priority": 1,
+    "service_prefix": "base",
+    "port_offset": 0
+  },
+
+  "dependencies": {
+    "preset": null,
+    "additional_tools": [],
+    "python": {},
+    "node": {},
+    "system": ["docker-compose>=2.0", "python>=3.11", "nodejs>=20"]
+  },
+
+  "conflicts": {
+    "declare": {
+      "ports": [3000, 5000, 5173, 8000, 8080],
+      "services": ["dev", "postgres", "redis"],
+      "environment_vars": ["NODE_ENV", "PYTHONUNBUFFERED"]
+    },
+    "resolution": {
+      "ports": "offset",
+      "services": "prefix",
+      "environment_vars": "merge"
+    }
+  },
+
+  "services": {
+    "dev": {
+      "dockerfile": "Dockerfile",
+      "ports": ["3000:3000", "5000:5000", "5173:5173", "8000:8000", "8080:8080"],
+      "environment": {
+        "NODE_ENV": "development",
+        "PYTHONUNBUFFERED": "1"
+      },
+      "volumes": [".:/workspace", "/workspace/node_modules", "/workspace/venv"]
+    },
+    "postgres": {
+      "image": "postgres:15-alpine",
+      "ports": ["5432:5432"],
+      "environment": {
+        "POSTGRES_USER": "devuser",
+        "POSTGRES_PASSWORD": "devpass",
+        "POSTGRES_DB": "dev_db"
+      },
+      "volumes": ["postgres_data:/var/lib/postgresql/data"]
+    },
+    "redis": {
+      "image": "redis:7-alpine",
+      "ports": ["6379:6379"],
+      "volumes": ["redis_data:/data"],
+      "command": "redis-server --appendonly yes"
+    }
+  },
+
+  "structure": {
+    "directories": ["src", "tests", "docs", ".vscode", ".devcontainer", "scripts"],
+    "files": {
+      "docker-compose.yml": {
+        "merge_strategy": "deep_merge",
+        "priority": 1
+      },
+      ".env": {
+        "merge_strategy": "append",
+        "conflict_action": "merge"
+      },
+      "Makefile": {
+        "merge_strategy": "namespace",
+        "namespace_commands": true
+      },
+      ".gitignore": {
+        "merge_strategy": "append_unique",
+        "conflict_action": "deduplicate"
+      },
+      "README.md": {
+        "merge_strategy": "section_append",
+        "conflict_action": "append_section"
+      }
+    }
+  },
+
+  "documentation": {
+    "readme_section": null,
+    "setup_guide": "docs/SETUP_GUIDE.md",
+    "examples": []
+  },
+
+  "cli": {
+    "post_install_commands": [],
+    "pre_start_checks": ["check_docker_running", "check_docker_compose_version"]
+  }
+}

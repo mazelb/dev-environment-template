@@ -1,0 +1,271 @@
+{
+  "version": "2.0",
+  "metadata": {
+    "name": "rag-project",
+    "display_name": "RAG (Retrieval-Augmented Generation) Project",
+    "description": "Complete RAG system with vector search (OpenSearch), embeddings (Ollama), and FastAPI",
+    "version": "1.0.0",
+    "author": "Dev Environment Template Team",
+    "tags": ["ai", "rag", "search", "embeddings", "llm", "vector-db"],
+    "archetype_type": "base",
+    "license": "MIT",
+    "repository": "https://github.com/mazelb/dev-environment-template"
+  },
+
+  "composition": {
+    "role": "base",
+    "compatible_features": ["agentic-workflows", "monitoring", "api-gateway", "mlops"],
+    "incompatible_with": ["simple-api"],
+    "composable": true,
+    "merge_priority": 1,
+    "service_prefix": "rag",
+    "port_offset": 0
+  },
+
+  "dependencies": {
+    "preset": "ai-agent",
+    "additional_tools": ["opensearch", "ollama", "langfuse"],
+    "python": {
+      "fastapi": "^0.104.0",
+      "uvicorn": "^0.24.0",
+      "langchain": ">=0.1.0,<0.3.0",
+      "opensearch-py": "^2.3.0",
+      "ollama": "^0.1.0",
+      "pydantic": "^2.5.0",
+      "pydantic-settings": "^2.1.0",
+      "python-dotenv": "^1.0.0",
+      "httpx": "^0.25.0",
+      "tenacity": "^8.2.3"
+    },
+    "node": {},
+    "system": ["docker-compose>=2.0", "python>=3.11"]
+  },
+
+  "conflicts": {
+    "declare": {
+      "ports": [8000, 9200, 9600, 11434],
+      "services": ["api", "opensearch", "ollama"],
+      "environment_vars": [
+        "OPENAI_API_KEY",
+        "ANTHROPIC_API_KEY",
+        "OPENSEARCH_HOST",
+        "OPENSEARCH_PORT",
+        "OLLAMA_HOST",
+        "OLLAMA_PORT",
+        "OLLAMA_MODEL",
+        "EMBEDDING_MODEL"
+      ],
+      "directories": ["src/api", "src/services", "src/models"],
+      "files": ["src/api/main.py", "config/settings.py"]
+    },
+    "resolution": {
+      "ports": "offset",
+      "services": "prefix",
+      "environment_vars": "merge",
+      "directories": "merge",
+      "files": "smart_merge"
+    }
+  },
+
+  "services": {
+    "api": {
+      "dockerfile": "Dockerfile",
+      "container_name": "${PROJECT_NAME}-rag-api",
+      "ports": ["8000:8000"],
+      "environment": {
+        "OPENSEARCH_HOST": "opensearch",
+        "OPENSEARCH_PORT": "9200",
+        "OLLAMA_HOST": "ollama",
+        "OLLAMA_PORT": "11434",
+        "OLLAMA_MODEL": "llama2",
+        "EMBEDDING_MODEL": "nomic-embed-text",
+        "LOG_LEVEL": "INFO"
+      },
+      "volumes": [".:/workspace"],
+      "depends_on": ["opensearch", "ollama"],
+      "command": "uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload"
+    },
+    "opensearch": {
+      "image": "opensearchproject/opensearch:2.11.0",
+      "container_name": "${PROJECT_NAME}-opensearch",
+      "ports": ["9200:9200", "9600:9600"],
+      "environment": {
+        "discovery.type": "single-node",
+        "OPENSEARCH_JAVA_OPTS": "-Xms512m -Xmx512m",
+        "DISABLE_SECURITY_PLUGIN": "true",
+        "OPENSEARCH_INITIAL_ADMIN_PASSWORD": "Admin123!"
+      },
+      "volumes": ["opensearch_data:/usr/share/opensearch/data"],
+      "healthcheck": {
+        "test": ["CMD-SHELL", "curl -f http://localhost:9200 || exit 1"],
+        "interval": "30s",
+        "timeout": "10s",
+        "retries": 5
+      }
+    },
+    "ollama": {
+      "image": "ollama/ollama:latest",
+      "container_name": "${PROJECT_NAME}-ollama",
+      "ports": ["11434:11434"],
+      "volumes": ["ollama_data:/root/.ollama"],
+      "environment": {
+        "OLLAMA_HOST": "0.0.0.0"
+      },
+      "healthcheck": {
+        "test": ["CMD", "ollama", "list"],
+        "interval": "30s",
+        "timeout": "10s",
+        "retries": 3
+      }
+    }
+  },
+
+  "volumes": {
+    "opensearch_data": {},
+    "ollama_data": {}
+  },
+
+  "structure": {
+    "directories": [
+      "src/api",
+      "src/api/routers",
+      "src/services",
+      "src/services/rag",
+      "src/models",
+      "src/utils",
+      "config",
+      "tests/unit",
+      "tests/integration",
+      "tests/rag",
+      "docker/opensearch",
+      "docker/ollama",
+      "docs",
+      "examples/rag-basic",
+      "scripts"
+    ],
+    "files": {
+      "src/api/main.py": {
+        "merge_strategy": "smart_merge",
+        "priority": 1,
+        "template": "templates/fastapi_main.py.jinja2"
+      },
+      "src/api/routers/": {
+        "merge_strategy": "collect_all",
+        "conflict_action": "rename_if_duplicate"
+      },
+      "config/settings.py": {
+        "merge_strategy": "smart_merge",
+        "priority": 1
+      },
+      ".env": {
+        "merge_strategy": "append",
+        "conflict_action": "merge"
+      },
+      ".env.example": {
+        "merge_strategy": "append",
+        "conflict_action": "merge"
+      },
+      "Makefile": {
+        "merge_strategy": "namespace",
+        "namespace_commands": true
+      },
+      "pyproject.toml": {
+        "merge_strategy": "deep_merge",
+        "conflict_action": "resolve_dependencies"
+      },
+      "requirements.txt": {
+        "merge_strategy": "resolve_dependencies",
+        "conflict_action": "find_compatible_versions"
+      },
+      "docker-compose.yml": {
+        "merge_strategy": "deep_merge",
+        "priority": 1
+      },
+      "README.md": {
+        "merge_strategy": "section_append",
+        "conflict_action": "append_section"
+      },
+      "tests/": {
+        "merge_strategy": "separate_by_archetype",
+        "pattern": "tests/{archetype_name}/"
+      }
+    }
+  },
+
+  "documentation": {
+    "readme_section": "docs/README_RAG.md",
+    "setup_guide": "docs/SETUP_RAG.md",
+    "api_reference": "docs/API_RAG.md",
+    "examples": ["examples/rag-basic/", "examples/rag-advanced/", "examples/rag-semantic-search/"]
+  },
+
+  "cli": {
+    "post_install_commands": [
+      "pip install -r requirements.txt",
+      "python scripts/setup_opensearch.py",
+      "ollama pull llama2",
+      "ollama pull nomic-embed-text"
+    ],
+    "pre_start_checks": [
+      "check_opensearch_connection",
+      "check_ollama_running",
+      "check_ollama_models"
+    ],
+    "post_start_commands": ["python scripts/init_opensearch_indices.py"]
+  },
+
+  "features": {
+    "semantic_search": {
+      "enabled": true,
+      "description": "Vector similarity search with OpenSearch"
+    },
+    "document_ingestion": {
+      "enabled": true,
+      "description": "Document parsing and embedding generation"
+    },
+    "rag_pipeline": {
+      "enabled": true,
+      "description": "Full RAG pipeline with retrieval and generation"
+    },
+    "api_endpoints": {
+      "enabled": true,
+      "endpoints": [
+        "POST /documents/ingest",
+        "GET /documents/search",
+        "POST /rag/query",
+        "GET /health"
+      ]
+    }
+  },
+
+  "configuration": {
+    "opensearch": {
+      "index_name": "documents",
+      "embedding_dimension": 768,
+      "similarity_metric": "cosine"
+    },
+    "ollama": {
+      "default_model": "llama2",
+      "embedding_model": "nomic-embed-text",
+      "temperature": 0.7,
+      "context_window": 4096
+    },
+    "rag": {
+      "top_k_results": 5,
+      "min_similarity_score": 0.7,
+      "chunk_size": 1000,
+      "chunk_overlap": 200
+    }
+  },
+
+  "testing": {
+    "test_frameworks": ["pytest", "pytest-asyncio"],
+    "coverage_threshold": 80,
+    "test_commands": {
+      "unit": "pytest tests/unit -v",
+      "integration": "pytest tests/integration -v",
+      "rag": "pytest tests/rag -v",
+      "all": "pytest tests/ -v --cov=src"
+    }
+  }
+}
