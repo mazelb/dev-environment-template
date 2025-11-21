@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  api:
+    image: python:3.11-slim
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    networks:
+      - api-network
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - api-network
+    volumes:
+      - redis-data:/data
+
+networks:
+  api-network:
+    driver: bridge
+
+volumes:
+  redis-data:
