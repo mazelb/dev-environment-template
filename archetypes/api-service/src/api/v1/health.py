@@ -1,11 +1,12 @@
 """
 Health check endpoints.
 """
+
 from fastapi import APIRouter, Depends
 from redis import Redis
 
-from src.core.config import settings
 from src.auth.dependencies import get_current_user
+from src.core.config import settings
 from src.models.user import User
 
 router = APIRouter()
@@ -23,7 +24,7 @@ async def health_check():
 @router.get("/detailed")
 async def detailed_health_check():
     """Detailed health check with dependency status."""
-    
+
     # Check Redis connection
     redis_status = "healthy"
     try:
@@ -31,7 +32,7 @@ async def detailed_health_check():
         r.ping()
     except Exception:
         redis_status = "unhealthy"
-    
+
     return {
         "status": "healthy" if redis_status == "healthy" else "degraded",
         "service": settings.PROJECT_NAME,

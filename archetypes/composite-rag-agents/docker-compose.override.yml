@@ -1,0 +1,76 @@
+# Docker Compose Override for Composite RAG + Agents System
+#
+# This file provides additional configuration for the composite archetype
+# that combines rag-project and agentic-workflows.
+#
+# Usage:
+#   docker-compose -f docker-compose.yml -f docker-compose.override.yml up -d
+
+version: '3.8'
+
+services:
+  api:
+    # Add agent-specific environment variables
+    environment:
+      # Agent configuration
+      - AGENT_MODEL_NAME=${AGENT_MODEL_NAME:-gpt-4-turbo-preview}
+      - AGENT_TEMPERATURE=${AGENT_TEMPERATURE:-0.7}
+      - AGENT_MAX_ITERATIONS=${AGENT_MAX_ITERATIONS:-10}
+      
+      # LangChain tracing for agent debugging
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2:-true}
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY:-}
+      - LANGCHAIN_PROJECT=${LANGCHAIN_PROJECT:-composite-rag-agents}
+      
+      # Web search tool
+      - TAVILY_API_KEY=${TAVILY_API_KEY:-}
+    
+    # Add healthcheck for agent endpoints
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/agents/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # Labels for monitoring
+    labels:
+      - "com.example.service=api"
+      - "com.example.archetype=composite-rag-agents"
+      - "com.example.features=rag,agents"
+
+  chromadb:
+    # Add labels
+    labels:
+      - "com.example.service=vector-db"
+      - "com.example.archetype=composite-rag-agents"
+  
+  ollama:
+    # Add labels
+    labels:
+      - "com.example.service=llm"
+      - "com.example.archetype=composite-rag-agents"
+
+# Optional: Add a separate service for long-running agent tasks
+# Uncomment if you want a dedicated worker for agent workflows
+#
+#   agent-worker:
+#     build:
+#       context: .
+#       dockerfile: docker/Dockerfile
+#     container_name: agent-worker
+#     environment:
+#       - AGENT_MODE=worker
+#       - OPENAI_API_KEY=${OPENAI_API_KEY}
+#       - TAVILY_API_KEY=${TAVILY_API_KEY}
+#       - CHROMADB_HOST=chromadb
+#       - OLLAMA_HOST=http://ollama:11434
+#     depends_on:
+#       - chromadb
+#       - ollama
+#     networks:
+#       - app-network
+#     restart: unless-stopped
+#     labels:
+#       - "com.example.service=agent-worker"
+#       - "com.example.archetype=composite-rag-agents"

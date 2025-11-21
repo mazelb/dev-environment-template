@@ -1,14 +1,15 @@
 """
 FastAPI application entry point with middleware and routing configuration.
 """
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_fastapi_instrumentator import Instrumentator
 
-from src.core.config import settings
-from src.middleware.rate_limiter import limiter
-from src.middleware.logging import setup_logging
 from src.api.v1.router import api_router
+from src.core.config import settings
+from src.middleware.logging import setup_logging
+from src.middleware.rate_limiter import limiter
 
 # Setup logging
 setup_logging()

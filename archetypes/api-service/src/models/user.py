@@ -1,13 +1,15 @@
 """
 User data models.
 """
+
 from typing import Optional
+
 from pydantic import BaseModel, EmailStr
 
 
 class User(BaseModel):
     """User model."""
-    
+
     username: str
     email: EmailStr
     full_name: Optional[str] = None
@@ -17,7 +19,7 @@ class User(BaseModel):
 
 class UserCreate(BaseModel):
     """User creation model."""
-    
+
     username: str
     email: EmailStr
     password: str
@@ -26,5 +28,5 @@ class UserCreate(BaseModel):
 
 class UserInDB(User):
     """User model with hashed password."""
-    
+
     hashed_password: str

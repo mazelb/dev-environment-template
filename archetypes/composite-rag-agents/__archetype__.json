@@ -1,0 +1,224 @@
+{
+  "version": "2.0",
+  "metadata": {
+    "name": "composite-rag-agents",
+    "display_name": "RAG + Agentic Workflows System",
+    "description": "Complete AI system combining RAG retrieval with stateful agentic workflows for complex document-based reasoning tasks",
+    "version": "1.0.0",
+    "author": "Dev Environment Template Team",
+    "tags": ["composite", "ai", "rag", "agents", "langgraph", "vector-search", "workflows"],
+    "archetype_type": "composite",
+    "license": "MIT",
+    "created": "2025-11-21",
+    "repository": "https://github.com/mazelb/dev-environment-template"
+  },
+
+  "composition": {
+    "role": "composite",
+    "constituents": [
+      {
+        "archetype": "rag-project",
+        "role": "base",
+        "priority": 1,
+        "required": true
+      },
+      {
+        "archetype": "agentic-workflows",
+        "role": "feature",
+        "priority": 2,
+        "required": true
+      }
+    ],
+    "custom_integrations": [
+      "scripts/integrate_rag_agentic.sh"
+    ],
+    "composable": false,
+    "merge_strategy": "smart",
+    "pre_resolved_conflicts": {
+      "ports": {
+        "resolved": true,
+        "strategy": "Use base archetype ports for RAG, offset agentic-workflows by +100"
+      },
+      "services": {
+        "resolved": true,
+        "strategy": "Prefix agentic services with 'agent-', keep RAG services as-is"
+      },
+      "environment_vars": {
+        "resolved": true,
+        "strategy": "Merge with RAG taking precedence for shared vars like OPENAI_API_KEY"
+      }
+    }
+  },
+
+  "dependencies": {
+    "preset": "ai-agent",
+    "additional_tools": ["opensearch", "ollama", "langfuse"],
+    "python": {
+      "fastapi": "^0.104.0",
+      "uvicorn": "^0.24.0",
+      "langchain": ">=0.1.0,<0.3.0",
+      "langchain-openai": ">=0.0.5",
+      "langchain-anthropic": ">=0.1.0",
+      "langgraph": ">=0.0.40",
+      "opensearch-py": "^2.3.0",
+      "ollama": "^0.1.0",
+      "tavily-python": ">=0.3.0",
+      "pydantic": "^2.5.0",
+      "pydantic-settings": "^2.1.0",
+      "python-dotenv": "^1.0.0",
+      "httpx": "^0.25.0",
+      "tenacity": "^8.2.3"
+    },
+    "node": {},
+    "system": ["docker-compose>=2.0", "python>=3.11"]
+  },
+
+  "services": {
+    "api": {
+      "port": 8000,
+      "description": "FastAPI application with RAG and Agent endpoints"
+    },
+    "chromadb": {
+      "port": 8001,
+      "description": "ChromaDB vector database"
+    },
+    "ollama": {
+      "port": 11434,
+      "description": "Local LLM inference server"
+    }
+  },
+
+  "environment": {
+    "required": [
+      "OPENAI_API_KEY",
+      "TAVILY_API_KEY"
+    ],
+    "optional": [
+      "ANTHROPIC_API_KEY",
+      "LANGCHAIN_TRACING_V2",
+      "LANGCHAIN_API_KEY",
+      "LANGFUSE_PUBLIC_KEY",
+      "LANGFUSE_SECRET_KEY",
+      "LANGFUSE_HOST"
+    ],
+    "defaults": {
+      "LANGCHAIN_TRACING_V2": "true",
+      "CHROMADB_HOST": "chromadb",
+      "CHROMADB_PORT": "8001",
+      "OLLAMA_HOST": "http://ollama:11434"
+    }
+  },
+
+  "conflicts": {
+    "declare": {
+      "ports": [8000, 8001, 11434],
+      "services": ["api", "chromadb", "ollama"],
+      "environment_vars": [
+        "OPENAI_API_KEY",
+        "ANTHROPIC_API_KEY",
+        "LANGCHAIN_API_KEY",
+        "TAVILY_API_KEY"
+      ]
+    },
+    "resolution": {
+      "ports": "pre-resolved",
+      "services": "pre-resolved",
+      "environment_vars": "merge-with-precedence"
+    }
+  },
+
+  "gitignore_patterns": [
+    ".env",
+    "*.db",
+    "checkpoints/",
+    "agent_state/",
+    "vector_store/",
+    "__pycache__/",
+    "*.pyc",
+    ".pytest_cache/",
+    ".coverage",
+    "htmlcov/"
+  ],
+
+  "features": {
+    "rag_retrieval": {
+      "description": "Vector-based document retrieval with semantic search",
+      "components": ["ChromaDB", "embeddings", "document processing"],
+      "from_archetype": "rag-project"
+    },
+    "llm_generation": {
+      "description": "Local LLM inference via Ollama",
+      "components": ["Ollama server", "model management"],
+      "from_archetype": "rag-project"
+    },
+    "stateful_workflows": {
+      "description": "Multi-step workflows with persistent state",
+      "components": ["StateGraph", "checkpointing", "persistence"],
+      "from_archetype": "agentic-workflows"
+    },
+    "tool_calling": {
+      "description": "LLM tool/function calling capabilities",
+      "components": ["StructuredTool", "tool binding", "error handling"],
+      "from_archetype": "agentic-workflows"
+    },
+    "rag_agent_integration": {
+      "description": "Agents that can query RAG system as a tool",
+      "components": ["RAG tool", "agent orchestration", "context management"],
+      "from_archetype": "composite"
+    }
+  },
+
+  "documentation": {
+    "readme": "README.md",
+    "architecture": "docs/ARCHITECTURE.md",
+    "examples": "docs/EXAMPLES.md",
+    "quickstart": "See README.md Quick Start section",
+    "troubleshooting": "See README.md Troubleshooting section"
+  },
+
+  "integration": {
+    "description": "Custom integration between RAG and Agentic Workflows",
+    "steps": [
+      "Copy base RAG project structure",
+      "Overlay agentic-workflows code",
+      "Run integration script to create RAG tool for agents",
+      "Generate example workflow showing agent using RAG",
+      "Merge docker-compose with override file",
+      "Merge environment variables",
+      "Update API routes to include agent endpoints"
+    ],
+    "post_create_hooks": [
+      "scripts/integrate_rag_agentic.sh"
+    ]
+  },
+
+  "use_cases": [
+    {
+      "name": "Document Q&A Agent",
+      "description": "Agent that answers questions by retrieving relevant documents from RAG system",
+      "complexity": "intermediate"
+    },
+    {
+      "name": "Research Assistant",
+      "description": "Multi-step agent that searches documents, synthesizes information, and generates reports",
+      "complexity": "advanced"
+    },
+    {
+      "name": "Code Documentation Helper",
+      "description": "Agent that retrieves code snippets and explains them in natural language",
+      "complexity": "intermediate"
+    },
+    {
+      "name": "Multi-Source Intelligence",
+      "description": "Agent that combines RAG retrieval with web search (Tavily) for comprehensive answers",
+      "complexity": "advanced"
+    }
+  ],
+
+  "testing": {
+    "unit_tests": "tests/unit/",
+    "integration_tests": "tests/integration/",
+    "e2e_tests": "tests/e2e/",
+    "test_command": "pytest tests/ -v --cov=src"
+  }
+}

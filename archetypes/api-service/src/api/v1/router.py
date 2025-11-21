@@ -1,6 +1,7 @@
 """
 API v1 router aggregation.
 """
+
 from fastapi import APIRouter
 
 from src.api.v1 import health

@@ -54,11 +54,7 @@
     "CORS_ORIGINS"
   ],
   "files": {
-    "config": [
-      "docker-compose.yml",
-      ".env.example",
-      "requirements.txt"
-    ],
+    "config": ["docker-compose.yml", ".env.example", "requirements.txt"],
     "source": [
       "src/main.py",
       "src/core/config.py",
@@ -73,13 +69,8 @@
       "src/models/user.py",
       "src/models/token.py"
     ],
-    "tests": [
-      "tests/test_auth.py",
-      "tests/test_api.py"
-    ],
-    "docs": [
-      "README.md"
-    ]
+    "tests": ["tests/test_auth.py", "tests/test_api.py"],
+    "docs": ["README.md"]
   },
   "conflicts": [],
   "compositionRules": {

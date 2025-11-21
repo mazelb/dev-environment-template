@@ -33,24 +33,13 @@
   },
   "services": {},
   "environment": {
-    "required": [
-      "OPENAI_API_KEY",
-      "TAVILY_API_KEY"
-    ],
-    "optional": [
-      "ANTHROPIC_API_KEY",
-      "LANGCHAIN_TRACING_V2",
-      "LANGCHAIN_API_KEY"
-    ],
+    "required": ["OPENAI_API_KEY", "TAVILY_API_KEY"],
+    "optional": ["ANTHROPIC_API_KEY", "LANGCHAIN_TRACING_V2", "LANGCHAIN_API_KEY"],
     "defaults": {
       "LANGCHAIN_TRACING_V2": "true"
     }
   },
-  "gitignore_patterns": [
-    "*.db",
-    "checkpoints/",
-    "agent_state/"
-  ],
+  "gitignore_patterns": ["*.db", "checkpoints/", "agent_state/"],
   "features": {
     "stateful_workflows": {
       "description": "Multi-step workflows with persistent state",

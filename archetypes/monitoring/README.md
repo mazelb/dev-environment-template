@@ -144,13 +144,13 @@ llm_duration = Histogram(
 async def query(request: QueryRequest):
     with llm_duration.labels(model="gpt-4", operation="query").time():
         result = await process_query(request)
-    
+
     requests_total.labels(
         method="POST",
         endpoint="/query",
         status=200
     ).inc()
-    
+
     return result
 ```
 

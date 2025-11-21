@@ -48,20 +48,13 @@
   },
   "environment": {
     "required": [],
-    "optional": [
-      "GF_SECURITY_ADMIN_PASSWORD",
-      "GF_SECURITY_ADMIN_USER"
-    ],
+    "optional": ["GF_SECURITY_ADMIN_PASSWORD", "GF_SECURITY_ADMIN_USER"],
     "defaults": {
       "GF_SECURITY_ADMIN_USER": "admin",
       "GF_SECURITY_ADMIN_PASSWORD": "admin"
     }
   },
-  "gitignore_patterns": [
-    "prometheus-data/",
-    "grafana-data/",
-    "loki-data/"
-  ],
+  "gitignore_patterns": ["prometheus-data/", "grafana-data/", "loki-data/"],
   "features": {
     "metrics_collection": {
       "description": "Prometheus metrics scraping and storage",

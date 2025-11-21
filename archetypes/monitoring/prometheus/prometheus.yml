@@ -15,22 +15,22 @@ rule_files:
 # Scrape configurations
 scrape_configs:
   # Prometheus itself
-  - job_name: 'prometheus'
+  - job_name: "prometheus"
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ["localhost:9090"]
 
   # FastAPI application metrics
-  - job_name: 'api'
+  - job_name: "api"
     static_configs:
-      - targets: ['api:8000']
-    metrics_path: '/metrics'
+      - targets: ["api:8000"]
+    metrics_path: "/metrics"
 
   # Node exporter (if available)
-  - job_name: 'node'
+  - job_name: "node"
     static_configs:
-      - targets: ['node-exporter:9100']
+      - targets: ["node-exporter:9100"]
 
   # Docker metrics (if available)
-  - job_name: 'docker'
+  - job_name: "docker"
     static_configs:
-      - targets: ['cadvisor:8080']
+      - targets: ["cadvisor:8080"]

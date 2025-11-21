@@ -14,22 +14,47 @@
     "rag-project": {
       "name": "RAG Project",
       "description": "Retrieval-Augmented Generation system with vector search",
+      "role": "base",
+      "version": "2.0.0",
+      "status": "stable",
+      "compatible_features": ["agentic-workflows", "monitoring"],
+      "requires": ["chromadb", "ollama", "langchain"],
+      "path": "archetypes/rag-project"
+    },
+    "agentic-workflows": {
+      "name": "Agentic Workflows",
+      "description": "Stateful AI workflows with LangGraph and tool calling",
       "role": "feature",
       "version": "1.0.0",
       "status": "stable",
-      "compatible_bases": ["base"],
-      "requires": ["opensearch", "ollama", "langchain"],
-      "path": "archetypes/rag-project"
+      "compatible_bases": ["rag-project", "api-service"],
+      "requires": ["langgraph", "langchain"],
+      "path": "archetypes/agentic-workflows"
+    },
+    "composite-rag-agents": {
+      "name": "RAG + Agentic Workflows System",
+      "description": "Complete AI system combining RAG with stateful agents",
+      "role": "composite",
+      "version": "1.0.0",
+      "status": "stable",
+      "constituents": ["rag-project", "agentic-workflows"],
+      "requires": ["chromadb", "ollama", "langchain", "langgraph"],
+      "path": "archetypes/composite-rag-agents"
     }
   },
   "compatibility_matrix": {
     "base": {
-      "rag-project": true
+      "rag-project": true,
+      "agentic-workflows": true
+    },
+    "rag-project": {
+      "agentic-workflows": true,
+      "monitoring": true
     }
   },
   "metadata": {
-    "last_updated": "2025-11-19",
-    "total_archetypes": 2,
+    "last_updated": "2025-11-21",
+    "total_archetypes": 4,
     "schema_version": "2.0"
   }
 }
