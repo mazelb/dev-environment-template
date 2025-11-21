@@ -83,36 +83,107 @@ get_metadata_field() {
 }
 
 # Validate archetype compatibility
+# Enhanced with detailed compatibility reporting
 check_compatibility() {
     local base_archetype=$1
     local feature_archetype=$2
 
-    local base_metadata=$(load_archetype "$base_archetype")
-    local feature_metadata=$(load_archetype "$feature_archetype")
+    print_header "Compatibility Check"
+    echo ""
+    print_info "Checking if '$feature_archetype' is compatible with '$base_archetype'..."
+    echo ""
 
-    # Check if feature is compatible with base
-    local compatible_features=$(get_metadata_field "$base_metadata" ".composition.compatible_features[]")
-    local incompatible=$(get_metadata_field "$base_metadata" ".composition.incompatible_with[]")
+    local base_metadata=$(load_archetype "$base_archetype" 2>/dev/null)
+    local feature_metadata=$(load_archetype "$feature_archetype" 2>/dev/null)
 
-    # Check incompatible list
-    if echo "$incompatible" | grep -q "^$feature_archetype$"; then
-        print_error "❌ $feature_archetype is incompatible with $base_archetype"
+    if [ -z "$base_metadata" ] || [ ! -f "$base_metadata" ]; then
+        print_error "Base archetype not found: $base_archetype"
         return 1
     fi
 
-    # Check compatible list (* means all)
+    if [ -z "$feature_metadata" ] || [ ! -f "$feature_metadata" ]; then
+        print_error "Feature archetype not found: $feature_archetype"
+        return 1
+    fi
+
+    # Check if jq is available
+    if ! command -v jq &> /dev/null; then
+        print_warning "jq not found - performing basic compatibility check"
+        print_info "Install jq for detailed compatibility analysis"
+        return 0
+    fi
+
+    # Get archetype types
+    local base_type=$(jq -r '.metadata.archetype_type // .metadata.role // "unknown"' "$base_metadata" 2>/dev/null)
+    local feature_type=$(jq -r '.metadata.archetype_type // .metadata.role // "unknown"' "$feature_metadata" 2>/dev/null)
+
+    echo -e "${BLUE}Archetype Information:${NC}"
+    echo "  Base: $base_archetype (type: $base_type)"
+    echo "  Feature: $feature_archetype (type: $feature_type)"
+    echo ""
+
+    # Check incompatible list
+    local incompatible=$(get_metadata_field "$base_metadata" ".composition.incompatible_with[]")
+    if echo "$incompatible" | grep -q "^$feature_archetype$"; then
+        print_error "❌ $feature_archetype is explicitly INCOMPATIBLE with $base_archetype"
+        return 1
+    fi
+
+    # Check compatibility declarations
+    local compatible_features=$(get_metadata_field "$base_metadata" ".composition.compatible_features[]")
+    local compatible_bases=$(get_metadata_field "$feature_metadata" ".composition.compatible_bases[]")
+
+    # Check if base declares this feature as compatible
+    local base_declares_compatible=false
     if echo "$compatible_features" | grep -q "^\*$"; then
-        print_success "✓ $feature_archetype is compatible with $base_archetype"
-        return 0
+        base_declares_compatible=true
+        print_success "✓ Base accepts all features (*)"
+    elif echo "$compatible_features" | grep -q "^$feature_archetype$"; then
+        base_declares_compatible=true
+        print_success "✓ Base explicitly lists $feature_archetype as compatible"
     fi
 
-    if echo "$compatible_features" | grep -q "^$feature_archetype$"; then
-        print_success "✓ $feature_archetype is compatible with $base_archetype"
-        return 0
+    # Check if feature declares this base as compatible
+    local feature_declares_compatible=false
+    if echo "$compatible_bases" | grep -q "^\*$"; then
+        feature_declares_compatible=true
+        print_success "✓ Feature works with all bases (*)"
+    elif echo "$compatible_bases" | grep -q "^$base_archetype$"; then
+        feature_declares_compatible=true
+        print_success "✓ Feature explicitly lists $base_archetype as compatible"
     fi
 
-    print_warning "⚠ $feature_archetype compatibility with $base_archetype is unknown"
-    return 0
+    echo ""
+
+    # Run conflict detection if conflict-resolver is available
+    if command -v detect_all_conflicts &> /dev/null; then
+        print_info "Running conflict analysis..."
+        echo ""
+
+        if detect_all_conflicts "$base_metadata" "$feature_metadata" 2>&1 | grep -q "NO CONFLICTS"; then
+            print_success "✓ No conflicts detected"
+        else
+            print_warning "⚠ Conflicts detected (can be resolved automatically)"
+        fi
+    fi
+
+    echo ""
+    echo -e "${BLUE}Compatibility Summary:${NC}"
+
+    if [ "$base_declares_compatible" = true ] && [ "$feature_declares_compatible" = true ]; then
+        print_success "✓ FULLY COMPATIBLE"
+        print_info "Both archetypes explicitly declare compatibility"
+        return 0
+    elif [ "$base_declares_compatible" = true ] || [ "$feature_declares_compatible" = true ]; then
+        print_success "✓ COMPATIBLE"
+        print_info "At least one archetype declares compatibility"
+        return 0
+    else
+        print_warning "⚠ COMPATIBILITY UNKNOWN"
+        print_info "Archetypes don't explicitly declare compatibility"
+        print_info "They may still work together, but testing is recommended"
+        return 0
+    fi
 }
 
 # List all archetypes

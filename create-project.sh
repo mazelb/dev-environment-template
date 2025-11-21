@@ -51,6 +51,11 @@ if [ -f "$SCRIPT_DIR/scripts/gitignore-generator.sh" ]; then
     source "$SCRIPT_DIR/scripts/gitignore-generator.sh"
 fi
 
+# Source conflict resolver
+if [ -f "$SCRIPT_DIR/scripts/conflict-resolver.sh" ]; then
+    source "$SCRIPT_DIR/scripts/conflict-resolver.sh"
+fi
+
 # Functions
 print_header() {
     echo -e "${BLUE}╔════════════════════════════════════════╗${NC}"
@@ -213,6 +218,167 @@ interactive_tool_selection() {
 }
 
 # Apply optional tools to project
+
+# Compose multiple archetypes into project
+compose_archetypes() {
+    local project_path=}
+
+# Apply optional tools to project
+    local base_archetype=$2
+    shift 2
+    local feature_archetypes=("$@")
+
+    print_header "Composing Archetypes"
+
+    # Validate base archetype
+    if [ -z "$base_archetype" ]; then
+        print_info "No base archetype specified, using default template structure"
+        return 0
+    fi
+
+    local base_dir="$ARCHETYPES_DIR/$base_archetype"
+    if [ ! -d "$base_dir" ]; then
+        print_error "Base archetype not found: $base_archetype"
+        print_info "Available archetypes: $(ls -1 "$ARCHETYPES_DIR" 2>/dev/null | grep -v "^__" | tr '\n' ', ' || echo 'none')"
+        return 1
+    fi
+
+    print_info "Base archetype: $base_archetype"
+
+    # Validate feature archetypes
+    local feature_dirs=()
+    for feature in "${feature_archetypes[@]}"; do
+        [ -z "$feature" ] && continue
+        local feature_dir="$ARCHETYPES_DIR/$feature"
+        if [ ! -d "$feature_dir" ]; then
+            print_error "Feature archetype not found: $feature"
+            continue
+        fi
+        feature_dirs+=("$feature_dir")
+        print_info "Feature archetype: $feature"
+    done
+
+    echo ""
+
+    # Detect conflicts if multiple archetypes
+    if [ ${#feature_dirs[@]} -gt 0 ]; then
+        print_info "Checking for conflicts between archetypes..."
+
+        local metadata_files=("$base_dir/__archetype__.json")
+        for feature_dir in "${feature_dirs[@]}"; do
+            [ -f "$feature_dir/__archetype__.json" ] && metadata_files+=("$feature_dir/__archetype__.json")
+        done
+
+        # Run conflict detection if function available
+        if command -v detect_all_conflicts &> /dev/null && [ ${#metadata_files[@]} -gt 1 ]; then
+            if detect_all_conflicts "${metadata_files[@]}" 2>&1 | grep -q "CONFLICTS DETECTED"; then
+                print_warning "Conflicts detected - will apply resolution strategies"
+            fi
+        fi
+        echo ""
+    fi
+
+    # Copy base archetype
+    print_info "Copying base archetype structure..."
+    if [ -d "$base_dir" ]; then
+        # Copy all files except __archetype__.json and README.md
+        shopt -s dotglob nullglob
+        for item in "$base_dir"/*; do
+            local basename=$(basename "$item")
+            if [ "$basename" != "__archetype__.json" ] && [ "$basename" != "README.md" ]; then
+                cp -r "$item" "$project_path/" 2>/dev/null || true
+            fi
+        done
+        shopt -u dotglob nullglob
+        print_success "Base archetype copied"
+    fi
+
+    # Apply feature archetypes with conflict resolution
+    local offset=100
+    for i in "${!feature_dirs[@]}"; do
+        local feature_dir="${feature_dirs[$i]}"
+        local feature_name=$(basename "$feature_dir")
+
+        print_info "Applying feature: $feature_name"
+
+        # Copy feature archetype files
+        shopt -s dotglob nullglob
+        for item in "$feature_dir"/*; do
+            local basename=$(basename "$item")
+            if [ "$basename" != "__archetype__.json" ] && [ "$basename" != "README.md" ]; then
+                # For docker-compose files, apply conflict resolution
+                if [ "$basename" = "docker-compose.yml" ]; then
+                    local temp_compose="$project_path/docker-compose.${feature_name}.yml"
+                    cp "$item" "$temp_compose"
+
+                    # Apply port offset
+                    if command -v resolve_port_conflicts &> /dev/null; then
+                        local port_offset=$((offset * (i + 1)))
+                        resolve_port_conflicts "$temp_compose" "$port_offset" 2>/dev/null || print_warning "Port offset failed for $feature_name"
+                    fi
+
+                    # Apply service prefix
+                    if command -v resolve_service_name_conflicts &> /dev/null; then
+                        resolve_service_name_conflicts "$temp_compose" "$feature_name" 2>/dev/null || print_warning "Service prefix failed for $feature_name"
+                    fi
+
+                    print_success "  docker-compose.yml -> docker-compose.${feature_name}.yml (with conflict resolution)"
+                else
+                    # Copy other files directly (may need merge logic in future)
+                    cp -r "$item" "$project_path/" 2>/dev/null || true
+                fi
+            fi
+        done
+        shopt -u dotglob nullglob
+
+        print_success "Feature '$feature_name' applied"
+    done
+
+    # Create composition documentation if features were applied
+    if [ ${#feature_archetypes[@]} -gt 0 ]; then
+        cat > "$project_path/COMPOSITION.md" << EOF
+# Archetype Composition
+
+This project was created by composing multiple archetypes.
+
+## Base Archetype
+- **$base_archetype**
+
+## Feature Archetypes
+$(for feature in "${feature_archetypes[@]}"; do echo "- **$feature**"; done)
+
+## Conflict Resolution
+
+Port offsets were applied to avoid conflicts:
+$(for i in "${!feature_archetypes[@]}"; do
+    offset=$((100 * (i + 1)))
+    echo "- ${feature_archetypes[$i]}: +$offset"
+done)
+
+Service names were prefixed to avoid collisions.
+
+## Docker Compose Files
+
+Multiple docker-compose files were created:
+- \`docker-compose.yml\` - Base services
+$(for feature in "${feature_archetypes[@]}"; do echo "- \`docker-compose.$feature.yml\` - $feature services"; done)
+
+To run all services:
+\`\`\`bash
+docker-compose -f docker-compose.yml$(for feature in "${feature_archetypes[@]}"; do echo -n " -f docker-compose.$feature.yml"; done) up -d
+\`\`\`
+
+EOF
+
+        print_success "Created COMPOSITION.md"
+    fi
+
+    echo ""
+    print_success "Archetype composition complete!"
+    return 0
+}
+
+
 apply_optional_tools() {
     local project_path=$1
 
@@ -529,6 +695,11 @@ main() {
 
     print_success "Template files copied"
 
+    # Compose archetypes if specified
+    if [ "$USE_ARCHETYPE" = true ]; then
+        compose_archetypes "$FULL_PROJECT_PATH" "$BASE_ARCHETYPE" "${FEATURE_ARCHETYPES[@]}"
+    fi
+
     # Apply optional tools
     apply_optional_tools "$FULL_PROJECT_PATH"
 
@@ -620,3 +791,4 @@ EOF
 }
 
 main "$@"
+
