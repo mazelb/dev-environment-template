@@ -7,6 +7,12 @@
 
 set -e
 
+# Check bash version (requires 4.0+ for associative arrays)
+if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
+    echo "Error: This script requires bash 4.0 or higher (found ${BASH_VERSION})" >&2
+    exit 1
+fi
+
 # Color codes
 RED='\033[0;31m'
 GREEN='\033[0;32m'

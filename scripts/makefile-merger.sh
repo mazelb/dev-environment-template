@@ -2,10 +2,16 @@
 
 ###############################################################################
 # Makefile Merger
-# Intelligently merges multiple Makefiles with namespace support
+# Intelligently merges multiple Makefiles with target namespacing
 ###############################################################################
 
 set -e
+
+# Check bash version (requires 4.0+ for associative arrays)
+if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
+    echo "Error: This script requires bash 4.0 or higher (found ${BASH_VERSION})" >&2
+    exit 1
+fi
 
 # Color codes
 RED='\033[0;31m'
@@ -41,7 +47,8 @@ merge_makefiles() {
 
     print_info "Merging ${#input_specs[@]} Makefiles into $output_file"
 
-    local temp_file="${output_file}.tmp.$$"
+    local temp_file=$(mktemp "${output_file}.tmp.XXXXXX")
+    trap "rm -f '$temp_file'" EXIT
 
     # Header
     cat > "$temp_file" << 'EOF'

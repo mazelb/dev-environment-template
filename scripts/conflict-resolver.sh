@@ -8,6 +8,12 @@
 
 set -e
 
+# Check bash version (requires 4.0+ for associative arrays)
+if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
+    echo "Error: This script requires bash 4.0 or higher (found ${BASH_VERSION})" >&2
+    exit 1
+fi
+
 # Color codes
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -109,7 +115,8 @@ resolve_port_conflicts() {
 
     print_info "Applying port offset +$offset to $compose_file"
 
-    local temp_file="${compose_file}.tmp.$$"
+    local temp_file=$(mktemp "${compose_file}.tmp.XXXXXX")
+    trap "rm -f '$temp_file'" EXIT
 
     if [ "$YQ_AVAILABLE" = true ]; then
         # Use yq for precise YAML manipulation
@@ -240,7 +247,8 @@ resolve_service_name_conflicts() {
 
     print_info "Applying service prefix '${prefix}_' to $compose_file"
 
-    local temp_file="${compose_file}.tmp.$$"
+    local temp_file=$(mktemp "${compose_file}.tmp.XXXXXX")
+    trap "rm -f '$temp_file'" EXIT
 
     if [ "$YQ_AVAILABLE" = true ]; then
         # Use yq for precise YAML manipulation

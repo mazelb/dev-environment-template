@@ -7,6 +7,18 @@
 
 set -e
 
+# Check bash version (requires 4.0+ for associative arrays)
+if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
+    echo "Error: This script requires bash 4.0 or higher (found ${BASH_VERSION})" >&2
+    exit 1
+fi
+
+# Source conflict resolver functions if available
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/conflict-resolver.sh" ]; then
+    source "$SCRIPT_DIR/conflict-resolver.sh"
+fi
+
 # Color codes
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -132,7 +144,8 @@ merge_with_fallback() {
 
     print_warning "yq not available - using basic merge (may have limitations)"
 
-    local temp_file="${output_file}.tmp.$$"
+    local temp_file=$(mktemp "${output_file}.tmp.XXXXXX")
+    trap "rm -f '$temp_file'" EXIT
 
     # Start with header from first file
     local base_file="${input_files[0]}"
@@ -237,8 +250,11 @@ merge_with_fallback() {
         done < "$input_file"
     done
 
+    # Create output directory if needed
+    mkdir -p "$(dirname "$output_file")"
+    
     mv "$temp_file" "$output_file"
-    print_success "Docker Compose merge complete (basic method): $output_file"
+    print_success "Docker Compose merge complete: $output_file"
     return 0
 }
 

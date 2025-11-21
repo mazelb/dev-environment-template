@@ -7,6 +7,12 @@
 
 set -e
 
+# Check bash version (requires 4.0+ for associative arrays)
+if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
+    echo "Error: This script requires bash 4.0 or higher (found ${BASH_VERSION})" >&2
+    exit 1
+fi
+
 # Color codes
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -40,7 +46,8 @@ merge_fastapi_main() {
 
     print_info "Merging ${#input_files[@]} FastAPI main.py files"
 
-    local temp_file="${output_file}.tmp.$$"
+    local temp_file=$(mktemp "${output_file}.tmp.XXXXXX")
+    trap "rm -f '$temp_file'" EXIT
 
     # Collect imports, routers, and startup code
     declare -A imports
@@ -101,11 +108,14 @@ app = FastAPI(
 )
 
 # CORS configuration
+# WARNING: This is a permissive configuration suitable for development only.
+# For production, replace ["*"] with specific allowed origins.
+# Having allow_origins=["*"] with allow_credentials=True is a security risk.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:3000", "http://localhost:8080"],  # TODO: Configure for production
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -139,6 +149,9 @@ async def health_check():
 
 EOF
 
+    # Create output directory if needed
+    mkdir -p "$(dirname "$output_file")"
+    
     mv "$temp_file" "$output_file"
     print_success "FastAPI merge complete: $output_file"
     return 0
@@ -162,7 +175,8 @@ merge_source_files_with_markers() {
     print_info "Merging ${#input_files[@]} source files with conflict markers"
     print_warning "Manual review required for conflict resolution"
 
-    local temp_file="${output_file}.tmp.$$"
+    local temp_file=$(mktemp "${output_file}.tmp.XXXXXX")
+    trap "rm -f '$temp_file'" EXIT
 
     # Header
     cat > "$temp_file" << 'EOF'
@@ -194,6 +208,9 @@ EOF
         cat "$input_file" >> "$temp_file"
     done
 
+    # Create output directory if needed
+    mkdir -p "$(dirname "$output_file")"
+    
     mv "$temp_file" "$output_file"
     print_warning "Source merge complete with conflict markers: $output_file"
     print_info "Please review and manually resolve conflicts"
@@ -213,19 +230,19 @@ detect_source_type() {
     fi
 
     # Check for FastAPI
-    if grep -q "FastAPI\|from fastapi import" "$input_file" 2>/dev/null; then
+    if grep -q "FastAPI\|from fastapi import" "$input_file" 2>/dev/null || true; then
         echo "fastapi"
         return 0
     fi
 
     # Check for Flask
-    if grep -q "Flask\|from flask import" "$input_file" 2>/dev/null; then
+    if grep -q "Flask\|from flask import" "$input_file" 2>/dev/null || true; then
         echo "flask"
         return 0
     fi
 
     # Check for Express
-    if grep -q "express()\|require.*express" "$input_file" 2>/dev/null; then
+    if grep -q "express()\|require.*express" "$input_file" 2>/dev/null || true; then
         echo "express"
         return 0
     fi
