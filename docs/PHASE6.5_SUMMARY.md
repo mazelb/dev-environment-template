@@ -11,7 +11,7 @@ November 21, 2025
 ### 1. Archetype Metadata (`__archetype__.json`)
 - **Type**: composite archetype
 - **Version**: 1.0.0
-- **Constituents**: 
+- **Constituents**:
   - `rag-project` (base, priority 1)
   - `agentic-workflows` (feature, priority 2)
 - **Custom Integrations**: `scripts/integrate_rag_agentic.sh`

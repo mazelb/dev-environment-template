@@ -64,7 +64,7 @@ from src.models.config import Settings
 
 class RAGQueryInput(BaseModel):
     """Input schema for RAG query tool."""
-    
+
     query: str = Field(
         description="The question or query to search for in the document database"
     )
@@ -76,22 +76,22 @@ class RAGQueryInput(BaseModel):
 
 class RAGTool:
     """Tool for querying the RAG system from agents."""
-    
+
     def __init__(self, rag_service: RAGService):
         self.rag_service = rag_service
-    
+
     async def query_rag(
-        self, 
-        query: str, 
+        self,
+        query: str,
         num_results: int = 3
     ) -> Dict[str, Any]:
         """
         Query the RAG system for relevant documents.
-        
+
         Args:
             query: The question or query to search for
             num_results: Number of relevant documents to retrieve
-            
+
         Returns:
             Dictionary containing the answer and retrieved context
         """
@@ -101,7 +101,7 @@ class RAGTool:
                 query=query,
                 k=num_results
             )
-            
+
             return {
                 "success": True,
                 "answer": response.answer,
@@ -122,11 +122,11 @@ class RAGTool:
                 "answer": None,
                 "sources": []
             }
-    
+
     def as_langchain_tool(self) -> StructuredTool:
         """
         Convert this tool to a LangChain StructuredTool for use in agents.
-        
+
         Returns:
             LangChain StructuredTool that can be used by agents
         """
@@ -145,19 +145,19 @@ class RAGTool:
 async def create_rag_tool(settings: Optional[Settings] = None) -> RAGTool:
     """
     Factory function to create a RAG tool with initialized service.
-    
+
     Args:
         settings: Optional settings object (will create default if not provided)
-        
+
     Returns:
         Initialized RAGTool
     """
     if settings is None:
         settings = Settings()
-    
+
     rag_service = RAGService(settings)
     await rag_service.initialize()
-    
+
     return RAGTool(rag_service)
 EOF
 
@@ -194,53 +194,53 @@ class AgentState(TypedDict):
 async def create_research_agent(settings: Settings):
     """
     Create a research agent that can query documents via RAG.
-    
+
     The agent workflow:
     1. Receives a user query
     2. Uses RAG tool to search documents
     3. Generates a comprehensive answer
     """
-    
+
     # Initialize RAG tool
     rag_tool = await create_rag_tool(settings)
     tools = [rag_tool.as_langchain_tool()]
-    
+
     # Initialize LLM with tools
     llm = ChatOpenAI(
         model=settings.agent_model_name,
         temperature=settings.agent_temperature
     )
     llm_with_tools = llm.bind_tools(tools)
-    
+
     # Define agent node
     async def agent_node(state: AgentState):
         """Agent decides whether to use tools or respond."""
         messages = state["messages"]
         response = await llm_with_tools.ainvoke(messages)
         return {"messages": [response]}
-    
+
     # Define tool node
     tool_node = ToolNode(tools)
-    
+
     # Define routing logic
     def should_continue(state: AgentState):
         """Determine if agent should continue or end."""
         messages = state["messages"]
         last_message = messages[-1]
-        
+
         # If there are tool calls, continue to tools
         if hasattr(last_message, "tool_calls") and last_message.tool_calls:
             return "tools"
         # Otherwise, end
         return END
-    
+
     # Build the graph
     workflow = StateGraph(AgentState)
-    
+
     # Add nodes
     workflow.add_node("agent", agent_node)
     workflow.add_node("tools", tool_node)
-    
+
     # Add edges
     workflow.set_entry_point("agent")
     workflow.add_conditional_edges(
@@ -252,31 +252,31 @@ async def create_research_agent(settings: Settings):
         }
     )
     workflow.add_edge("tools", "agent")
-    
+
     # Compile
     app = workflow.compile()
-    
+
     return app
 
 
 async def query_documents(query: str, settings: Settings) -> str:
     """
     Query documents using the research agent.
-    
+
     Args:
         query: The question to answer
         settings: Application settings
-        
+
     Returns:
         The agent's answer
     """
     agent = await create_research_agent(settings)
-    
+
     # Run the agent
     result = await agent.ainvoke({
         "messages": [HumanMessage(content=query)]
     })
-    
+
     # Extract final answer
     final_message = result["messages"][-1]
     return final_message.content
@@ -285,16 +285,16 @@ async def query_documents(query: str, settings: Settings) -> str:
 # Example usage
 if __name__ == "__main__":
     import asyncio
-    
+
     async def main():
         settings = Settings()
-        
+
         query = "What are the main topics discussed in the documents?"
         answer = await query_documents(query, settings)
-        
+
         print(f"Query: {query}")
         print(f"Answer: {answer}")
-    
+
     asyncio.run(main())
 EOF
 
@@ -340,7 +340,7 @@ async def agent_query(
 ):
     """
     Query documents using an agentic workflow.
-    
+
     The agent will:
     1. Analyze the question
     2. Query the RAG system for relevant documents
@@ -348,7 +348,7 @@ async def agent_query(
     """
     try:
         answer = await query_documents(request.query, settings)
-        
+
         return AgentQueryResponse(
             query=request.query,
             answer=answer,
@@ -377,10 +377,10 @@ if grep -q "from src.api.routers import agents" "$PROJECT_DIR/src/api/main.py"; 
 else
     # Add import after other router imports
     sed -i '/from src.api.routers/a from src.api.routers import agents' "$PROJECT_DIR/src/api/main.py"
-    
+
     # Add router registration after other includes
     sed -i '/app.include_router/a app.include_router(agents.router)' "$PROJECT_DIR/src/api/main.py"
-    
+
     success "Updated main.py with agent routes"
 fi
 
@@ -558,7 +558,7 @@ from src.agents.tools.rag_tool import create_rag_tool
 async def create_custom_agent():
     rag_tool = await create_rag_tool()
     tools = [rag_tool.as_langchain_tool()]
-    
+
     # Build your agent...
     # Use tools in your workflow
 ```

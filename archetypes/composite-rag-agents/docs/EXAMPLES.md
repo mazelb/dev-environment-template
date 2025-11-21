@@ -239,19 +239,19 @@ from typing import TypedDict
 class MyAgentState(TypedDict):
     messages: list
     # Add your state fields
-    
+
 async def create_custom_workflow():
     workflow = StateGraph(MyAgentState)
-    
+
     # Define nodes
     workflow.add_node("step1", step1_function)
     workflow.add_node("step2", step2_function)
-    
+
     # Define edges
     workflow.set_entry_point("step1")
     workflow.add_edge("step1", "step2")
     workflow.add_edge("step2", END)
-    
+
     return workflow.compile()
 ```
 

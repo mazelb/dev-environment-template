@@ -16,41 +16,40 @@ services:
       - AGENT_MODEL_NAME=${AGENT_MODEL_NAME:-gpt-4-turbo-preview}
       - AGENT_TEMPERATURE=${AGENT_TEMPERATURE:-0.7}
       - AGENT_MAX_ITERATIONS=${AGENT_MAX_ITERATIONS:-10}
-      
+
       # LangChain tracing for agent debugging
       - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2:-true}
       - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY:-}
       - LANGCHAIN_PROJECT=${LANGCHAIN_PROJECT:-composite-rag-agents}
-      
+
       # Web search tool
       - TAVILY_API_KEY=${TAVILY_API_KEY:-}
-    
+
     # Add healthcheck for agent endpoints
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/agents/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/agents/health']
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-    
+
     # Labels for monitoring
     labels:
-      - "com.example.service=api"
-      - "com.example.archetype=composite-rag-agents"
-      - "com.example.features=rag,agents"
+      - 'com.example.service=api'
+      - 'com.example.archetype=composite-rag-agents'
+      - 'com.example.features=rag,agents'
 
   chromadb:
     # Add labels
     labels:
-      - "com.example.service=vector-db"
-      - "com.example.archetype=composite-rag-agents"
-  
+      - 'com.example.service=vector-db'
+      - 'com.example.archetype=composite-rag-agents'
+
   ollama:
     # Add labels
     labels:
-      - "com.example.service=llm"
-      - "com.example.archetype=composite-rag-agents"
-
+      - 'com.example.service=llm'
+      - 'com.example.archetype=composite-rag-agents'
 # Optional: Add a separate service for long-running agent tasks
 # Uncomment if you want a dedicated worker for agent workflows
 #

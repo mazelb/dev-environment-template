@@ -1,7 +1,7 @@
 # Composite RAG + Agentic Workflows System
 
-**Archetype Type:** Composite  
-**Version:** 1.0.0  
+**Archetype Type:** Composite
+**Version:** 1.0.0
 **Created:** November 21, 2025
 
 ## Overview
@@ -210,8 +210,8 @@ rag_tool = await create_rag_tool(settings)
 langchain_tool = rag_tool.as_langchain_tool()
 
 # Tool description visible to agents:
-# "Search through the document database to find relevant 
-#  information. Use this tool when you need to retrieve 
+# "Search through the document database to find relevant
+#  information. Use this tool when you need to retrieve
 #  specific information from documents."
 ```
 
@@ -226,19 +226,19 @@ async def create_research_agent(settings):
     # Initialize tools
     rag_tool = await create_rag_tool(settings)
     tools = [rag_tool.as_langchain_tool()]
-    
+
     # Create LLM with tools
     llm = ChatOpenAI(model="gpt-4-turbo-preview")
     llm_with_tools = llm.bind_tools(tools)
-    
+
     # Build workflow graph
     workflow = StateGraph(AgentState)
     workflow.add_node("agent", agent_node)
     workflow.add_node("tools", tool_node)
-    
+
     # Add conditional routing
     workflow.add_conditional_edges("agent", should_continue)
-    
+
     return workflow.compile()
 ```
 
@@ -289,12 +289,12 @@ services:
     ports: ["8000:8000"]
     environment:
       - All configuration from .env
-  
+
   chromadb:
     ports: ["8001:8000"]
     volumes:
       - chromadb_data:/chroma/chroma
-  
+
   ollama:
     ports: ["11434:11434"]
     volumes:
@@ -369,17 +369,17 @@ from src.agents.tools.rag_tool import create_rag_tool
 async def create_my_agent():
     # Get RAG tool
     rag_tool = await create_rag_tool()
-    
+
     # Add other tools
     tools = [
         rag_tool.as_langchain_tool(),
         # Add more tools...
     ]
-    
+
     # Build workflow
     workflow = StateGraph(MyAgentState)
     # ... define nodes and edges
-    
+
     return workflow.compile()
 ```
 
@@ -509,7 +509,7 @@ Stream agent reasoning in real-time:
 @router.post("/agents/stream")
 async def stream_agent_query(request: AgentQueryRequest):
     agent = await create_research_agent(settings)
-    
+
     async for event in agent.astream_events(
         {"messages": [HumanMessage(content=request.query)]},
         version="v1"
