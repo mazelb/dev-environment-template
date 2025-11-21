@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - VECTOR_DB_HOST=vector-db
+      - VECTOR_DB_PORT=8001
+      - OLLAMA_HOST=http://ollama:11434
+      - EMBEDDING_MODEL=all-MiniLM-L6-v2
+      - OLLAMA_MODEL=llama2
+    depends_on:
+      - vector-db
+      - ollama
+    volumes:
+      - ./src:/app/src
+      - ./uploads:/app/uploads
+    networks:
+      - rag-network
+
+  vector-db:
+    image: chromadb/chroma:latest
+    ports:
+      - "8001:8000"
+    volumes:
+      - chroma-data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+    networks:
+      - rag-network
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - rag-network
+
+volumes:
+  chroma-data:
+  ollama-data:
+
+networks:
+  rag-network:
+    driver: bridge
