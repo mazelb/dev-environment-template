@@ -221,9 +221,7 @@ interactive_tool_selection() {
 
 # Compose multiple archetypes into project
 compose_archetypes() {
-    local project_path=}
-
-# Apply optional tools to project
+    local project_path=$1
     local base_archetype=$2
     shift 2
     local feature_archetypes=("$@")
@@ -278,61 +276,102 @@ compose_archetypes() {
         echo ""
     fi
 
-    # Copy base archetype
-    print_info "Copying base archetype structure..."
-    if [ -d "$base_dir" ]; then
-        # Copy all files except __archetype__.json and README.md
-        shopt -s dotglob nullglob
-        for item in "$base_dir"/*; do
-            local basename=$(basename "$item")
-            if [ "$basename" != "__archetype__.json" ] && [ "$basename" != "README.md" ]; then
-                cp -r "$item" "$project_path/" 2>/dev/null || true
-            fi
-        done
-        shopt -u dotglob nullglob
-        print_success "Base archetype copied"
-    fi
+    # Use intelligent directory merging if available
+    if [ -f "$SCRIPT_DIR/directory-merger.sh" ] && [ ${#feature_dirs[@]} -gt 0 ]; then
+        print_header "Intelligent Directory Merging"
+        print_info "Using directory merger for smart file composition"
+        echo ""
 
-    # Apply feature archetypes with conflict resolution
-    local offset=100
-    for i in "${!feature_dirs[@]}"; do
-        local feature_dir="${feature_dirs[$i]}"
-        local feature_name=$(basename "$feature_dir")
+        # Build list of source directories
+        local source_dirs=("$base_dir")
+        source_dirs+=("${feature_dirs[@]}")
 
-        print_info "Applying feature: $feature_name"
+        # Create temporary directory for merged content
+        local temp_merge_dir="$project_path/.tmp_merge_$$"
+        mkdir -p "$temp_merge_dir"
 
-        # Copy feature archetype files
-        shopt -s dotglob nullglob
-        for item in "$feature_dir"/*; do
-            local basename=$(basename "$item")
-            if [ "$basename" != "__archetype__.json" ] && [ "$basename" != "README.md" ]; then
-                # For docker-compose files, apply conflict resolution
-                if [ "$basename" = "docker-compose.yml" ]; then
-                    local temp_compose="$project_path/docker-compose.${feature_name}.yml"
-                    cp "$item" "$temp_compose"
+        # Run directory merger
+        if bash "$SCRIPT_DIR/directory-merger.sh" merge "$temp_merge_dir" "${source_dirs[@]}"; then
+            print_success "Directory merge complete"
 
-                    # Apply port offset
-                    if command -v resolve_port_conflicts &> /dev/null; then
-                        local port_offset=$((offset * (i + 1)))
-                        resolve_port_conflicts "$temp_compose" "$port_offset" 2>/dev/null || print_warning "Port offset failed for $feature_name"
-                    fi
-
-                    # Apply service prefix
-                    if command -v resolve_service_name_conflicts &> /dev/null; then
-                        resolve_service_name_conflicts "$temp_compose" "$feature_name" 2>/dev/null || print_warning "Service prefix failed for $feature_name"
-                    fi
-
-                    print_success "  docker-compose.yml -> docker-compose.${feature_name}.yml (with conflict resolution)"
-                else
-                    # Copy other files directly (may need merge logic in future)
+            # Copy merged content to project (excluding metadata files)
+            shopt -s dotglob nullglob
+            for item in "$temp_merge_dir"/*; do
+                local basename=$(basename "$item")
+                if [ "$basename" != "__archetype__.json" ] && [ "$basename" != "README.md" ]; then
                     cp -r "$item" "$project_path/" 2>/dev/null || true
                 fi
-            fi
-        done
-        shopt -u dotglob nullglob
+            done
+            shopt -u dotglob nullglob
 
-        print_success "Feature '$feature_name' applied"
-    done
+            # Cleanup temp directory
+            rm -rf "$temp_merge_dir"
+        else
+            print_error "Directory merge failed, falling back to manual composition"
+            rm -rf "$temp_merge_dir"
+            # Fall through to manual composition below
+        fi
+    else
+        # Manual composition (legacy method)
+        print_info "Using legacy composition method"
+        echo ""
+
+        # Copy base archetype
+        print_info "Copying base archetype structure..."
+        if [ -d "$base_dir" ]; then
+            # Copy all files except __archetype__.json and README.md
+            shopt -s dotglob nullglob
+            for item in "$base_dir"/*; do
+                local basename=$(basename "$item")
+                if [ "$basename" != "__archetype__.json" ] && [ "$basename" != "README.md" ]; then
+                    cp -r "$item" "$project_path/" 2>/dev/null || true
+                fi
+            done
+            shopt -u dotglob nullglob
+            print_success "Base archetype copied"
+        fi
+
+        # Apply feature archetypes with conflict resolution
+        local offset=100
+        for i in "${!feature_dirs[@]}"; do
+            local feature_dir="${feature_dirs[$i]}"
+            local feature_name=$(basename "$feature_dir")
+
+            print_info "Applying feature: $feature_name"
+
+            # Copy feature archetype files
+            shopt -s dotglob nullglob
+            for item in "$feature_dir"/*; do
+                local basename=$(basename "$item")
+                if [ "$basename" != "__archetype__.json" ] && [ "$basename" != "README.md" ]; then
+                    # For docker-compose files, apply conflict resolution
+                    if [ "$basename" = "docker-compose.yml" ]; then
+                        local temp_compose="$project_path/docker-compose.${feature_name}.yml"
+                        cp "$item" "$temp_compose"
+
+                        # Apply port offset
+                        if command -v resolve_port_conflicts &> /dev/null; then
+                            local port_offset=$((offset * (i + 1)))
+                            resolve_port_conflicts "$temp_compose" "$port_offset" 2>/dev/null || print_warning "Port offset failed for $feature_name"
+                        fi
+
+                        # Apply service prefix
+                        if command -v resolve_service_name_conflicts &> /dev/null; then
+                            resolve_service_name_conflicts "$temp_compose" "$feature_name" 2>/dev/null || print_warning "Service prefix failed for $feature_name"
+                        fi
+
+                        print_success "  docker-compose.yml -> docker-compose.${feature_name}.yml (with conflict resolution)"
+                    else
+                        # Copy other files directly
+                        cp -r "$item" "$project_path/" 2>/dev/null || true
+                    fi
+                fi
+            done
+            shopt -u dotglob nullglob
+
+            print_success "Feature '$feature_name' applied"
+        done
+    fi
 
     # Create composition documentation if features were applied
     if [ ${#feature_archetypes[@]} -gt 0 ]; then
@@ -347,25 +386,38 @@ This project was created by composing multiple archetypes.
 ## Feature Archetypes
 $(for feature in "${feature_archetypes[@]}"; do echo "- **$feature**"; done)
 
+## Composition Method
+
+Intelligent directory merging was used to combine archetypes:
+- Docker Compose files merged with port offset resolution
+- Environment files merged with conflict detection
+- Makefiles merged with target namespacing
+- Source files merged with smart code composition
+- Other files handled based on file type
+
 ## Conflict Resolution
 
-Port offsets were applied to avoid conflicts:
-$(for i in "${!feature_archetypes[@]}"; do
-    offset=$((100 * (i + 1)))
-    echo "- ${feature_archetypes[$i]}: +$offset"
-done)
+Automatic conflict resolution applied:
+- Port offsets: +100, +200, +300, etc.
+- Service name prefixing
+- Environment variable deduplication
+- Makefile target namespacing
 
-Service names were prefixed to avoid collisions.
+## Usage
 
-## Docker Compose Files
-
-Multiple docker-compose files were created:
-- \`docker-compose.yml\` - Base services
-$(for feature in "${feature_archetypes[@]}"; do echo "- \`docker-compose.$feature.yml\` - $feature services"; done)
-
-To run all services:
+Run all services:
 \`\`\`bash
-docker-compose -f docker-compose.yml$(for feature in "${feature_archetypes[@]}"; do echo -n " -f docker-compose.$feature.yml"; done) up -d
+docker-compose up -d
+\`\`\`
+
+Build with Make:
+\`\`\`bash
+make all
+\`\`\`
+
+Check archetype-specific targets:
+\`\`\`bash
+make help
 \`\`\`
 
 EOF
