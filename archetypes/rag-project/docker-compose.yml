@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     ports:
-      - "8000:8000"
+      - '8000:8000'
     environment:
       - VECTOR_DB_HOST=vector-db
       - VECTOR_DB_PORT=8001
@@ -25,7 +25,7 @@ services:
   vector-db:
     image: chromadb/chroma:latest
     ports:
-      - "8001:8000"
+      - '8001:8000'
     volumes:
       - chroma-data:/chroma/chroma
     environment:
@@ -37,7 +37,7 @@ services:
   ollama:
     image: ollama/ollama:latest
     ports:
-      - "11434:11434"
+      - '11434:11434'
     volumes:
       - ollama-data:/root/.ollama
     networks:

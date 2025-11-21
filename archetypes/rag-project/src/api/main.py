@@ -1,5 +1,7 @@
 """FastAPI main application."""
+
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -23,7 +25,7 @@ app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
     description="RAG system with vector search and LLM integration",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Add CORS middleware
@@ -43,15 +45,11 @@ async def health_check():
     return {
         "status": "healthy",
         "app": settings.app_name,
-        "version": settings.app_version
+        "version": settings.app_version,
     }
 
 
 @app.get("/")
 async def root():
     """Root endpoint."""
-    return {
-        "message": "RAG API",
-        "docs": "/docs",
-        "health": "/health"
-    }
+    return {"message": "RAG API", "docs": "/docs", "health": "/health"}

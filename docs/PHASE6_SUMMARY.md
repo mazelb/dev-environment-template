@@ -23,14 +23,14 @@ November 21, 2025
   - Embedding model configuration
   - Document processing parameters
   - RAG query settings
-  
+
 - **document.py**: Document data models
   - DocumentMetadata
   - DocumentChunk
   - Document
   - DocumentUploadResponse
   - DocumentListItem/Response
-  
+
 - **search.py**: Search and query models
   - SearchQuery/Result/Response
   - RAGQuery/Response
@@ -40,18 +40,18 @@ November 21, 2025
   - RecursiveCharacterTextSplitter integration
   - Configurable chunk size and overlap
   - Text extraction (TXT, MD, PDF placeholder)
-  
+
 - **embeddings.py**: Embedding generation
   - Sentence-transformers integration
   - Batch embedding support
   - Configurable embedding models
-  
+
 - **vector_store.py**: ChromaDB operations
   - Collection management
   - Chunk storage with embeddings
   - Similarity search
   - Document deletion
-  
+
 - **rag_service.py**: RAG orchestration
   - Query embedding generation
   - Context retrieval
@@ -74,7 +74,7 @@ November 21, 2025
   - Ollama service (local LLM)
   - Named volumes for persistence
   - Private network
-  
+
 - **docker/Dockerfile**: API container
   - Python 3.11-slim base
   - System dependencies
@@ -88,7 +88,7 @@ November 21, 2025
   - ChromaDB client
   - Sentence-transformers
   - HTTP client
-  
+
 - **.env.example**: Environment template
   - All configuration variables
   - Sensible defaults

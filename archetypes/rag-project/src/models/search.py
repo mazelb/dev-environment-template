@@ -1,9 +1,11 @@
 """Search and query models."""
+
 from pydantic import BaseModel, Field
 
 
 class SearchQuery(BaseModel):
     """Search query."""
+
     query: str = Field(..., description="Search query text")
     k: int = Field(default=3, description="Number of results")
     filter: dict | None = None
@@ -11,6 +13,7 @@ class SearchQuery(BaseModel):
 
 class SearchResult(BaseModel):
     """Search result."""
+
     document_id: str
     chunk_id: str
     content: str
@@ -20,6 +23,7 @@ class SearchResult(BaseModel):
 
 class SearchResponse(BaseModel):
     """Search response."""
+
     results: list[SearchResult]
     query: str
     total: int
@@ -27,6 +31,7 @@ class SearchResponse(BaseModel):
 
 class RAGQuery(BaseModel):
     """RAG query."""
+
     query: str
     k: int = Field(default=3, description="Number of contexts to retrieve")
     temperature: float | None = None
@@ -35,6 +40,7 @@ class RAGQuery(BaseModel):
 
 class RAGResponse(BaseModel):
     """RAG response."""
+
     answer: str
     contexts: list[SearchResult]
     query: str

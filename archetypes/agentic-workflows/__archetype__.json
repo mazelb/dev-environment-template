@@ -1,0 +1,72 @@
+{
+  "version": "2.0",
+  "metadata": {
+    "name": "agentic-workflows",
+    "display_name": "Agentic Workflows with LangGraph",
+    "description": "Stateful agentic workflows using LangGraph for complex multi-step AI tasks with tool calling and state management",
+    "version": "1.0.0",
+    "author": "dev-environment-template",
+    "tags": ["agents", "langgraph", "workflows", "state-management", "tool-calling"],
+    "archetype_type": "feature",
+    "created": "2025-11-21"
+  },
+  "composition": {
+    "role": "feature",
+    "compatible_features": ["rag-project", "monitoring", "api-service"],
+    "incompatible_with": [],
+    "composable": true,
+    "service_prefix": "agent",
+    "port_offset": 100
+  },
+  "dependencies": {
+    "preset": "ai-agent",
+    "python": {
+      "langgraph": ">=0.0.40",
+      "langchain": ">=0.1.0,<0.3.0",
+      "langchain-openai": ">=0.0.5",
+      "langchain-anthropic": ">=0.1.0",
+      "tavily-python": ">=0.3.0",
+      "pydantic": ">=2.0.0",
+      "python-dotenv": ">=1.0.0"
+    },
+    "system": ["python>=3.11"]
+  },
+  "services": {},
+  "environment": {
+    "required": [
+      "OPENAI_API_KEY",
+      "TAVILY_API_KEY"
+    ],
+    "optional": [
+      "ANTHROPIC_API_KEY",
+      "LANGCHAIN_TRACING_V2",
+      "LANGCHAIN_API_KEY"
+    ],
+    "defaults": {
+      "LANGCHAIN_TRACING_V2": "true"
+    }
+  },
+  "gitignore_patterns": [
+    "*.db",
+    "checkpoints/",
+    "agent_state/"
+  ],
+  "features": {
+    "stateful_workflows": {
+      "description": "Multi-step workflows with persistent state",
+      "components": ["StateGraph", "checkpointing", "persistence"]
+    },
+    "tool_calling": {
+      "description": "LLM tool/function calling capabilities",
+      "components": ["StructuredTool", "tool binding", "error handling"]
+    },
+    "human_in_loop": {
+      "description": "Interrupt workflows for human feedback",
+      "components": ["interrupts", "approval gates", "manual intervention"]
+    },
+    "multi_agent": {
+      "description": "Coordinate multiple specialized agents",
+      "components": ["agent supervisor", "task delegation", "result aggregation"]
+    }
+  }
+}

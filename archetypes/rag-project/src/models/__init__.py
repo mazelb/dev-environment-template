@@ -1,4 +1,5 @@
 """__init__ for models package."""
+
 from .config import Settings, settings
 from .document import (
     Document,

@@ -1,11 +1,14 @@
 """Document models."""
+
 from datetime import datetime
 from uuid import uuid4
+
 from pydantic import BaseModel, Field
 
 
 class DocumentMetadata(BaseModel):
     """Document metadata."""
+
     filename: str
     file_type: str
     file_size: int
@@ -15,6 +18,7 @@ class DocumentMetadata(BaseModel):
 
 class DocumentChunk(BaseModel):
     """Document chunk."""
+
     chunk_id: str = Field(default_factory=lambda: str(uuid4()))
     document_id: str
     content: str
@@ -24,6 +28,7 @@ class DocumentChunk(BaseModel):
 
 class Document(BaseModel):
     """Document model."""
+
     id: str = Field(default_factory=lambda: str(uuid4()))
     content: str
     metadata: DocumentMetadata
@@ -32,6 +37,7 @@ class Document(BaseModel):
 
 class DocumentUploadResponse(BaseModel):
     """Upload response."""
+
     document_id: str
     filename: str
     num_chunks: int
@@ -40,6 +46,7 @@ class DocumentUploadResponse(BaseModel):
 
 class DocumentListItem(BaseModel):
     """Document list item."""
+
     id: str
     filename: str
     file_type: str
@@ -50,5 +57,6 @@ class DocumentListItem(BaseModel):
 
 class DocumentListResponse(BaseModel):
     """Document list response."""
+
     documents: list[DocumentListItem]
     total: int

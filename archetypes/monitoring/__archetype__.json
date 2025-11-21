@@ -1,0 +1,83 @@
+{
+  "version": "2.0",
+  "metadata": {
+    "name": "monitoring",
+    "display_name": "Observability Stack (Prometheus + Grafana + Loki)",
+    "description": "Complete monitoring and observability stack with metrics (Prometheus), visualization (Grafana), and logs (Loki)",
+    "version": "1.0.0",
+    "author": "dev-environment-template",
+    "tags": ["monitoring", "observability", "prometheus", "grafana", "loki", "metrics", "logs"],
+    "archetype_type": "feature",
+    "created": "2025-11-21"
+  },
+  "composition": {
+    "role": "feature",
+    "compatible_features": ["rag-project", "agentic-workflows", "api-service"],
+    "incompatible_with": [],
+    "composable": true,
+    "service_prefix": "monitor",
+    "port_offset": 200
+  },
+  "dependencies": {
+    "python": {
+      "prometheus-client": ">=0.19.0",
+      "prometheus-fastapi-instrumentator": ">=6.1.0"
+    },
+    "system": ["docker-compose>=2.0"]
+  },
+  "services": {
+    "prometheus": {
+      "image": "prom/prometheus:latest",
+      "port": 9090,
+      "description": "Metrics collection and storage"
+    },
+    "grafana": {
+      "image": "grafana/grafana:latest",
+      "port": 3000,
+      "description": "Metrics visualization and dashboards"
+    },
+    "loki": {
+      "image": "grafana/loki:latest",
+      "port": 3100,
+      "description": "Log aggregation"
+    },
+    "promtail": {
+      "image": "grafana/promtail:latest",
+      "description": "Log shipping agent"
+    }
+  },
+  "environment": {
+    "required": [],
+    "optional": [
+      "GF_SECURITY_ADMIN_PASSWORD",
+      "GF_SECURITY_ADMIN_USER"
+    ],
+    "defaults": {
+      "GF_SECURITY_ADMIN_USER": "admin",
+      "GF_SECURITY_ADMIN_PASSWORD": "admin"
+    }
+  },
+  "gitignore_patterns": [
+    "prometheus-data/",
+    "grafana-data/",
+    "loki-data/"
+  ],
+  "features": {
+    "metrics_collection": {
+      "description": "Prometheus metrics scraping and storage",
+      "endpoints": ["http://localhost:9090"]
+    },
+    "dashboards": {
+      "description": "Pre-configured Grafana dashboards",
+      "dashboards": ["system_metrics", "api_performance", "llm_metrics"]
+    },
+    "log_aggregation": {
+      "description": "Centralized logging with Loki",
+      "endpoints": ["http://localhost:3100"]
+    },
+    "alerting": {
+      "description": "Prometheus alerting rules",
+      "rules": ["high_error_rate", "slow_response_time"]
+    }
+  }
+}
