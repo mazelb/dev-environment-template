@@ -1,0 +1,119 @@
+{
+  "name": "api-service",
+  "version": "1.0.0",
+  "description": "Production-ready FastAPI service with authentication, rate limiting, API versioning, and common middleware patterns",
+  "type": "feature",
+  "category": "backend",
+  "tags": ["fastapi", "api", "rest", "authentication", "rate-limiting", "middleware"],
+  "author": "Dev Environment Template",
+  "license": "MIT",
+  "portOffset": 300,
+  "services": [
+    {
+      "name": "api",
+      "type": "fastapi",
+      "port": 8000,
+      "healthCheck": "/health"
+    },
+    {
+      "name": "redis",
+      "type": "redis",
+      "port": 6379,
+      "purpose": "rate-limiting-cache"
+    }
+  ],
+  "dependencies": {
+    "python": ">=3.11",
+    "packages": [
+      "fastapi>=0.115.0",
+      "uvicorn[standard]>=0.30.0",
+      "pydantic>=2.0.0",
+      "pydantic-settings>=2.0.0",
+      "python-jose[cryptography]>=3.3.0",
+      "passlib[bcrypt]>=1.7.4",
+      "python-multipart>=0.0.9",
+      "redis>=5.0.0",
+      "slowapi>=0.1.9",
+      "prometheus-fastapi-instrumentator>=7.0.0"
+    ],
+    "dev": [
+      "pytest>=8.0.0",
+      "pytest-asyncio>=0.23.0",
+      "httpx>=0.27.0",
+      "black>=24.0.0",
+      "pylint>=3.0.0"
+    ]
+  },
+  "environmentVariables": [
+    "API_SECRET_KEY",
+    "API_ALGORITHM",
+    "API_ACCESS_TOKEN_EXPIRE_MINUTES",
+    "REDIS_HOST",
+    "REDIS_PORT",
+    "RATE_LIMIT_PER_MINUTE",
+    "CORS_ORIGINS"
+  ],
+  "files": {
+    "config": [
+      "docker-compose.yml",
+      ".env.example",
+      "requirements.txt"
+    ],
+    "source": [
+      "src/main.py",
+      "src/core/config.py",
+      "src/core/security.py",
+      "src/middleware/rate_limiter.py",
+      "src/middleware/logging.py",
+      "src/middleware/cors.py",
+      "src/auth/jwt.py",
+      "src/auth/dependencies.py",
+      "src/api/v1/router.py",
+      "src/api/v1/health.py",
+      "src/models/user.py",
+      "src/models/token.py"
+    ],
+    "tests": [
+      "tests/test_auth.py",
+      "tests/test_api.py"
+    ],
+    "docs": [
+      "README.md"
+    ]
+  },
+  "conflicts": [],
+  "compositionRules": {
+    "mergeStrategies": {
+      "docker-compose.yml": "service-merge",
+      ".env.example": "append-unique",
+      "requirements.txt": "append-unique"
+    },
+    "compatibleWith": ["rag-project", "agentic-workflows", "monitoring"],
+    "requiredFor": [],
+    "optional": ["monitoring"]
+  },
+  "features": [
+    "JWT authentication",
+    "Rate limiting with Redis",
+    "API versioning (v1 pattern)",
+    "CORS middleware",
+    "Request logging",
+    "Health checks",
+    "Prometheus metrics",
+    "Async endpoint patterns",
+    "Pydantic validation",
+    "Security headers"
+  ],
+  "quickstart": {
+    "setup": [
+      "Copy .env.example to .env",
+      "Update API_SECRET_KEY with secure value",
+      "docker-compose up -d"
+    ],
+    "endpoints": [
+      "http://localhost:8000/docs - Swagger UI",
+      "http://localhost:8000/health - Health check",
+      "http://localhost:8000/api/v1/* - API endpoints"
+    ]
+  }
+}
