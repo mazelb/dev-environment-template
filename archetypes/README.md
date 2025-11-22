@@ -1,6 +1,6 @@
 # Archetypes System
 
-**Version:** 2.0  
+**Version:** 2.0
 **Last Updated:** November 21, 2025
 
 Archetypes are production-ready project templates that scaffold complete application structures with working code, tests, documentation, and Docker configurations. Unlike presets that just install packages, archetypes create full, runnable projects.
@@ -715,7 +715,7 @@ cd my-custom
 - ✅ Port offsetting
 - ✅ Service name prefixing
 - ✅ 4 base archetypes
-- ✅ 2 feature archetypes  
+- ✅ 2 feature archetypes
 - ✅ 1 composite archetype (rag + agents)
 - ✅ Comprehensive documentation
 
@@ -839,12 +839,12 @@ The archetypes system provides production-ready project templates that go beyond
 
 ### Key Benefits
 
-✅ **Fast Project Creation** - Single command creates complete, working projects  
-✅ **Production Ready** - Includes tests, docs, Docker configs, best practices  
-✅ **Composable** - Combine archetypes with automatic conflict resolution  
-✅ **Well Documented** - 1000+ lines of docs per major archetype  
-✅ **Working Examples** - Real code you can run immediately  
-✅ **Maintainable** - Clear structure, type-safe code, comprehensive tests  
+✅ **Fast Project Creation** - Single command creates complete, working projects
+✅ **Production Ready** - Includes tests, docs, Docker configs, best practices
+✅ **Composable** - Combine archetypes with automatic conflict resolution
+✅ **Well Documented** - 1000+ lines of docs per major archetype
+✅ **Working Examples** - Real code you can run immediately
+✅ **Maintainable** - Clear structure, type-safe code, comprehensive tests
 
 ### Current Statistics (v2.0)
 
