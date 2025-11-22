@@ -161,7 +161,10 @@ The template now supports an **archetype-based project creation system** for gen
 - **🔀 Conflict resolution**: Automatic port and service name handling
 - **🎯 Production-ready**: Best practices and testing included
 
-For more details, see [Archetype Documentation](archetypes/README.md).
+**Learn More:**
+- **[Archetype Guide](docs/ARCHETYPE_GUIDE.md)** - Complete usage guide with examples
+- **[Archetype Catalog](archetypes/README.md)** - Detailed archetype reference
+- **[Multi-Archetype Design](docs/MULTI_ARCHETYPE_COMPOSITION_DESIGN.md)** - Technical architecture
 
 ---
 
@@ -169,16 +172,19 @@ For more details, see [Archetype Documentation](archetypes/README.md).
 
 ### Getting Started
 - **[Complete Setup Guide](docs/SETUP_GUIDE.md)** - Detailed installation and configuration (70-90 min)
+- **[Archetype Guide](docs/ARCHETYPE_GUIDE.md)** - Complete guide to using archetypes
 - **[Usage Guide](docs/USAGE_GUIDE.md)** - Daily workflows and common tasks
-- **[Quick Reference](#quick-reference)** - Essential commands (see below)
+- **[Quick Reference](docs/QUICK_REFERENCE.md)** - Essential commands cheat sheet
 
 ### Configuration
-- **[Personal VS Code Settings](docs/PERSONAL_VSCODE_SETTINGS.md)** - Integrate your settings
 - **[Secrets Management](docs/SECRETS_MANAGEMENT.md)** - Secure API key management
 - **[Updates Guide](docs/UPDATES_GUIDE.md)** - Keep template and projects in sync
+- **[Git & GitHub Integration](docs/GIT_GITHUB_INTEGRATION.md)** - GitHub workflow guide
 
 ### Reference
 - **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and solutions
+- **[FAQ](docs/FAQ.md)** - Frequently asked questions
+- **[Documentation Index](docs/DOCUMENTATION_INDEX.md)** - Complete documentation guide
 - **[Contributing](CONTRIBUTING.md)** - How to contribute
 - **[Changelog](CHANGELOG.md)** - Version history
 
@@ -564,16 +570,20 @@ Special thanks to all [contributors](https://github.com/mazelb/dev-environment-t
 ## 🚀 Ready to Start?
 
 ```bash
-# Clone and create your first project
-git clone https://github.com/mazelb/dev-environment-template.git my-project
-cd my-project
-./create-project.sh --name awesome-app --git
+# Clone the template
+git clone https://github.com/mazelb/dev-environment-template.git
+cd dev-environment-template
 
-# Read the complete setup guide for detailed instructions
-cat docs/SETUP_GUIDE.md
+# Create your first project with archetype
+./create-project.sh --name awesome-app --archetype rag-project --github
 
-# Or jump straight in!
-cd awesome-app && code .
+# Or start with minimal base
+./create-project.sh --name my-app --archetype base
+
+# Read the guides
+# Setup: docs/SETUP_GUIDE.md
+# Archetypes: docs/ARCHETYPE_GUIDE.md
+# Usage: docs/USAGE_GUIDE.md
 ```
 
 **Happy coding!** 🎉
