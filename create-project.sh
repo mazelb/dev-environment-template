@@ -31,6 +31,12 @@ FEATURE_ARCHETYPES=()
 ARCHETYPES_DIR=""
 USE_ARCHETYPE=false
 
+# GitHub-related variables
+CREATE_GITHUB_REPO=false
+GITHUB_ORG=""
+GITHUB_VISIBILITY="public"
+GITHUB_DESCRIPTION=""
+
 # Configuration file location
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TOOLS_CONFIG="$SCRIPT_DIR/config/optional-tools.json"
@@ -54,6 +60,11 @@ fi
 # Source conflict resolver
 if [ -f "$SCRIPT_DIR/scripts/conflict-resolver.sh" ]; then
     source "$SCRIPT_DIR/scripts/conflict-resolver.sh"
+fi
+
+# Source GitHub repo creator
+if [ -f "$SCRIPT_DIR/scripts/github-repo-creator.sh" ]; then
+    source "$SCRIPT_DIR/scripts/github-repo-creator.sh"
 fi
 
 # Functions
@@ -92,6 +103,13 @@ OPTIONS:
     -t, --template URL           Template repository URL
     --no-git                     Skip Git repository initialization (default: init)
     --no-build                   Skip Docker image build
+
+GITHUB INTEGRATION (run with --github flag, see help below):
+    --github                     Create GitHub repository and push (requires gh CLI)
+    --github-org ORG             GitHub organization (default: personal account)
+    --private                    Create private repository (default: public)
+    --public                     Create public repository (explicit)
+    --description TEXT           Repository description
 
 OPTIONAL TOOLS:
     --tools TOOL1,TOOL2,...      Comma-separated list of optional tools
@@ -141,6 +159,12 @@ EXAMPLES:
 
     # Use base archetype with features
     $0 --name my-rag-app --archetype base --add-features rag-project
+
+    # Create project with GitHub repository
+    $0 --name my-app --github --description "My awesome project"
+
+    # Create private repo in organization
+    $0 --name my-app --github --github-org myorg --private
 
     # Interactive selection
     $0 --name my-app --interactive
@@ -652,6 +676,26 @@ parse_args() {
                 USE_ARCHETYPE=true
                 shift 2
                 ;;
+            --github)
+                CREATE_GITHUB_REPO=true
+                shift
+                ;;
+            --github-org)
+                GITHUB_ORG="$2"
+                shift 2
+                ;;
+            --private)
+                GITHUB_VISIBILITY="private"
+                shift
+                ;;
+            --public)
+                GITHUB_VISIBILITY="public"
+                shift
+                ;;
+            --description)
+                GITHUB_DESCRIPTION="$2"
+                shift 2
+                ;;
             --list-archetypes)
                 if command -v list_archetypes &> /dev/null; then
                     list_archetypes
@@ -811,6 +855,19 @@ EOF
         fi
     else
         print_info "Skipping Git initialization (--no-git specified)"
+    fi
+
+    # Create GitHub repository if requested
+    if [ "$CREATE_GITHUB_REPO" = true ]; then
+        if [ "$SKIP_GIT" = true ]; then
+            print_warning "Cannot create GitHub repository without Git initialization"
+            print_info "Remove --no-git flag to enable GitHub integration"
+        elif command -v create_github_repo &> /dev/null; then
+            create_github_repo "$FULL_PROJECT_PATH" "$PROJECT_NAME" "$GITHUB_ORG" "$GITHUB_VISIBILITY" "$GITHUB_DESCRIPTION"
+        else
+            print_warning "GitHub integration not available"
+            print_info "Ensure scripts/github-repo-creator.sh exists"
+        fi
     fi
 
     # Build Docker image
