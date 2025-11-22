@@ -24,6 +24,7 @@ BUILD_IMAGE=true
 OPTIONAL_TOOLS=()
 USE_PRESET=""
 INTERACTIVE=false
+DRY_RUN=false
 
 # Archetype-related variables
 BASE_ARCHETYPE=""
@@ -103,6 +104,7 @@ OPTIONS:
     -t, --template URL           Template repository URL
     --no-git                     Skip Git repository initialization (default: init)
     --no-build                   Skip Docker image build
+    --dry-run                    Preview project structure without creating files
 
 GITHUB INTEGRATION (run with --github flag, see help below):
     --github                     Create GitHub repository and push (requires gh CLI)
@@ -666,6 +668,10 @@ parse_args() {
                 INTERACTIVE=true
                 shift
                 ;;
+            --dry-run)
+                DRY_RUN=true
+                shift
+                ;;
             --archetype)
                 BASE_ARCHETYPE="$2"
                 USE_ARCHETYPE=true
@@ -739,6 +745,259 @@ parse_args() {
     done
 }
 
+# Show dry-run preview
+show_dry_run_preview() {
+    local project_path="$1"
+
+    print_header "Dry Run Preview"
+    echo ""
+    print_info "Project would be created at: $project_path"
+    echo ""
+
+    # Show archetype information
+    if [ "$USE_ARCHETYPE" = true ]; then
+        echo "📦 Archetypes:"
+        if [ -n "$BASE_ARCHETYPE" ]; then
+            echo "  Base: $BASE_ARCHETYPE"
+        fi
+        if [ ${#FEATURE_ARCHETYPES[@]} -gt 0 ]; then
+            echo "  Features:"
+            printf '    - %s\n' "${FEATURE_ARCHETYPES[@]}"
+        fi
+        echo ""
+    fi
+
+    # Show optional tools
+    if [ ${#OPTIONAL_TOOLS[@]} -gt 0 ] || [ -n "$USE_PRESET" ]; then
+        echo "🔧 Optional Tools:"
+        if [ -n "$USE_PRESET" ]; then
+            echo "  Preset: $USE_PRESET"
+        fi
+        if [ ${#OPTIONAL_TOOLS[@]} -gt 0 ]; then
+            printf '  - %s\n' "${OPTIONAL_TOOLS[@]}"
+        fi
+        echo ""
+    fi
+
+    # Show Git configuration
+    echo "📝 Git Configuration:"
+    if [ "$SKIP_GIT" = true ]; then
+        echo "  Git: Disabled (--no-git)"
+    else
+        echo "  Git: Enabled (automatic initialization)"
+        if [ "$CREATE_GITHUB_REPO" = true ]; then
+            echo "  GitHub: Enabled"
+            echo "    Organization: ${GITHUB_ORG:-personal account}"
+            echo "    Visibility: $GITHUB_VISIBILITY"
+            if [ -n "$GITHUB_DESCRIPTION" ]; then
+                echo "    Description: $GITHUB_DESCRIPTION"
+            fi
+        else
+            echo "  GitHub: Disabled"
+        fi
+    fi
+    echo ""
+
+    # Show directory structure preview
+    echo "📁 Directory Structure (preview):"
+    echo "  $project_path/"
+    echo "  ├── src/"
+    echo "  ├── tests/"
+    echo "  ├── docs/"
+    echo "  ├── docker-compose.yml"
+    echo "  ├── .env"
+    echo "  ├── .gitignore"
+    echo "  ├── README.md"
+    echo "  └── Makefile"
+    echo ""
+
+    # Show Docker configuration
+    echo "🐳 Docker:"
+    if [ "$BUILD_IMAGE" = true ]; then
+        echo "  Build: Enabled"
+    else
+        echo "  Build: Disabled (--no-build)"
+    fi
+    echo ""
+
+    print_info "This is a preview only. No files will be created."
+    print_info "Remove --dry-run flag to create the actual project."
+}
+
+# Generate project documentation
+generate_project_docs() {
+    local project_path="$1"
+    local project_name="$2"
+
+    print_info "Generating project documentation..."
+
+    # Generate README.md
+    cat > "$project_path/README.md" << EOF
+# $project_name
+
+Project created from dev-environment-template.
+
+## Quick Start
+
+\`\`\`bash
+# Start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+\`\`\`
+
+## Project Structure
+
+- \`src/\` - Source code
+- \`tests/\` - Test files
+- \`docs/\` - Documentation
+- \`docker-compose.yml\` - Docker services configuration
+
+EOF
+
+    # Add archetype information if used
+    if [ "$USE_ARCHETYPE" = true ]; then
+        cat >> "$project_path/README.md" << EOF
+## Archetypes
+
+This project was created using the following archetypes:
+
+EOF
+
+        if [ -n "$BASE_ARCHETYPE" ]; then
+            echo "- **Base:** $BASE_ARCHETYPE" >> "$project_path/README.md"
+        fi
+
+        if [ ${#FEATURE_ARCHETYPES[@]} -gt 0 ]; then
+            echo "- **Features:** ${FEATURE_ARCHETYPES[*]}" >> "$project_path/README.md"
+        fi
+
+        echo "" >> "$project_path/README.md"
+        echo "See [COMPOSITION.md](./COMPOSITION.md) for details." >> "$project_path/README.md"
+        echo "" >> "$project_path/README.md"
+
+        # Generate COMPOSITION.md
+        cat > "$project_path/COMPOSITION.md" << EOF
+# Project Composition
+
+This document describes how this project was composed from multiple archetypes.
+
+## Archetypes Used
+
+EOF
+
+        if [ -n "$BASE_ARCHETYPE" ]; then
+            cat >> "$project_path/COMPOSITION.md" << EOF
+### Base Archetype: $BASE_ARCHETYPE
+
+Provides the foundation for the project.
+
+EOF
+        fi
+
+        if [ ${#FEATURE_ARCHETYPES[@]} -gt 0 ]; then
+            cat >> "$project_path/COMPOSITION.md" << EOF
+### Feature Archetypes
+
+EOF
+            for feature in "${FEATURE_ARCHETYPES[@]}"; do
+                echo "- **$feature**" >> "$project_path/COMPOSITION.md"
+            done
+            echo "" >> "$project_path/COMPOSITION.md"
+        fi
+
+        cat >> "$project_path/COMPOSITION.md" << EOF
+
+## Services
+
+Check \`docker-compose.yml\` for the complete list of services and their configurations.
+
+## Customization
+
+This project is fully customizable. Modify the configuration files and source code to match your needs.
+
+EOF
+    fi
+
+    # Add optional tools information
+    if [ ${#OPTIONAL_TOOLS[@]} -gt 0 ] || [ -n "$USE_PRESET" ]; then
+        cat >> "$project_path/README.md" << EOF
+## Optional Tools
+
+EOF
+
+        if [ -n "$USE_PRESET" ]; then
+            echo "This project uses the **$USE_PRESET** preset." >> "$project_path/README.md"
+            echo "" >> "$project_path/README.md"
+        fi
+
+        if [ ${#OPTIONAL_TOOLS[@]} -gt 0 ]; then
+            echo "Additional tools:" >> "$project_path/README.md"
+            printf '- %s\n' "${OPTIONAL_TOOLS[@]}" >> "$project_path/README.md"
+            echo "" >> "$project_path/README.md"
+        fi
+
+        echo "See [OPTIONAL_TOOLS.md](./OPTIONAL_TOOLS.md) for installation instructions." >> "$project_path/README.md"
+        echo "" >> "$project_path/README.md"
+    fi
+
+    # Add development section
+    cat >> "$project_path/README.md" << EOF
+## Development
+
+### Prerequisites
+
+- Docker and Docker Compose
+- Git
+
+### Setup
+
+1. Copy \`.env.example\` to \`.env\` and configure
+2. Start services: \`docker-compose up -d\`
+3. Run tests: \`make test\` (if Makefile exists)
+
+### Useful Commands
+
+\`\`\`bash
+# View running containers
+docker-compose ps
+
+# Execute commands in containers
+docker-compose exec <service> <command>
+
+# View logs
+docker-compose logs -f <service>
+
+# Restart a service
+docker-compose restart <service>
+
+# Clean up
+docker-compose down -v
+\`\`\`
+
+## Contributing
+
+1. Create a feature branch
+2. Make your changes
+3. Run tests
+4. Submit a pull request
+
+## License
+
+[Add your license here]
+
+---
+
+Generated by [dev-environment-template](https://github.com/mazelb/dev-environment-template)
+EOF
+
+    print_success "Documentation generated"
+}
+
 # Main script execution
 main() {
     parse_args "$@"
@@ -761,6 +1020,12 @@ main() {
     fi
 
     FULL_PROJECT_PATH="$PROJECT_DIR/$PROJECT_NAME"
+
+    # Dry run mode - show preview and exit
+    if [ "$DRY_RUN" = true ]; then
+        show_dry_run_preview "$FULL_PROJECT_PATH"
+        exit 0
+    fi
 
     # Check if project directory already exists
     if [ -d "$FULL_PROJECT_PATH" ]; then
@@ -869,6 +1134,9 @@ EOF
             print_info "Ensure scripts/github-repo-creator.sh exists"
         fi
     fi
+
+    # Generate project documentation
+    generate_project_docs "$FULL_PROJECT_PATH" "$PROJECT_NAME"
 
     # Build Docker image
     if [ "$BUILD_IMAGE" = true ]; then

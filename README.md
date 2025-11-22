@@ -98,6 +98,73 @@ code .
 
 ---
 
+## 🎯 Archetype System
+
+The template now supports an **archetype-based project creation system** for generating specialized projects from predefined templates.
+
+### Available Archetypes
+
+- **base** - Minimal starter template with basic structure
+- **rag-project** - RAG (Retrieval-Augmented Generation) system with FastAPI, OpenSearch, and Ollama
+- **api-service** - Production-ready FastAPI service
+- **agentic-workflows** - AI agent orchestration with workflows
+- **monitoring** - Prometheus + Grafana monitoring stack
+- **composite archetypes** - Pre-configured combinations
+
+### Creating Projects with Archetypes
+
+```bash
+# Basic project with base archetype
+./create-project.sh --name my-app --archetype base
+
+# RAG project for document search
+./create-project.sh --name doc-search --archetype rag-project
+
+# Multi-archetype composition
+./create-project.sh --name my-system \\
+  --archetype rag-project \\
+  --add-features monitoring
+
+# Preview before creating (dry-run mode)
+./create-project.sh --name my-app --archetype base --dry-run
+
+# With GitHub repository creation
+./create-project.sh --name my-app \\
+  --archetype rag-project \\
+  --github \\
+  --description "My awesome RAG project"
+
+# Private repo in organization
+./create-project.sh --name my-app \\
+  --archetype base \\
+  --github \\
+  --github-org myorg \\
+  --private
+```
+
+### List and Explore Archetypes
+
+```bash
+# List all available archetypes
+./create-project.sh --list-archetypes
+
+# Check archetype compatibility
+./create-project.sh --check-compatibility rag-project monitoring
+```
+
+### Archetype Features
+
+- **🎨 Template-based**: Pre-configured directory structures and files
+- **🔧 Composable**: Combine multiple archetypes (base + features)
+- **⚡ Fast**: Complete project setup in < 60 seconds
+- **📝 Auto-documentation**: Generates README.md and COMPOSITION.md
+- **🔀 Conflict resolution**: Automatic port and service name handling
+- **🎯 Production-ready**: Best practices and testing included
+
+For more details, see [Archetype Documentation](archetypes/README.md).
+
+---
+
 ## 📖 Documentation
 
 ### Getting Started
@@ -176,24 +243,24 @@ dev-environment-template/
 ## 💻 Platform Support
 
 ### macOS
-✅ Native Docker Desktop support  
-✅ Full VS Code Dev Container integration  
-✅ All features work out of the box  
+✅ Native Docker Desktop support
+✅ Full VS Code Dev Container integration
+✅ All features work out of the box
 
 ### Windows
-✅ WSL2 + Docker Desktop  
-✅ Native Windows Terminal support  
-✅ VS Code Remote - WSL integration  
+✅ WSL2 + Docker Desktop
+✅ Native Windows Terminal support
+✅ VS Code Remote - WSL integration
 
 ### Linux
-✅ Native Docker support  
-✅ Full feature parity with macOS  
-✅ Ubuntu, Debian, Fedora, Arch tested  
+✅ Native Docker support
+✅ Full feature parity with macOS
+✅ Ubuntu, Debian, Fedora, Arch tested
 
 ### GitHub Codespaces
-✅ Zero local setup required  
-✅ Automatic secrets management  
-✅ 60 hours/month free for public repos  
+✅ Zero local setup required
+✅ Automatic secrets management
+✅ 60 hours/month free for public repos
 
 ---
 
@@ -515,9 +582,9 @@ cd awesome-app && code .
 
 <div align="center">
 
-**[Documentation](docs/SETUP_GUIDE.md)** • 
-**[Issues](https://github.com/mazelb/dev-environment-template/issues)** • 
-**[Discussions](https://github.com/mazelb/dev-environment-template/discussions)** • 
+**[Documentation](docs/SETUP_GUIDE.md)** •
+**[Issues](https://github.com/mazelb/dev-environment-template/issues)** •
+**[Discussions](https://github.com/mazelb/dev-environment-template/discussions)** •
 **[Contributing](CONTRIBUTING.md)**
 
 Made with ❤️ by developers, for developers
