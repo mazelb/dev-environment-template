@@ -1,15 +1,16 @@
 # Usage Guide: Daily Workflows
 
-**Version:** 2.0  
-**Last Updated:** October 20, 2025  
+**Version:** 2.0
+**Last Updated:** November 21, 2025
 
-Complete guide to using your dev environment template for daily development tasks, AI-assisted coding, and team collaboration.
+Complete guide to using your dev environment template for daily development tasks, AI-assisted coding, team collaboration, and creating projects with archetypes.
 
 ---
 
 ## 📖 Table of Contents
 
 - [Getting Started](#getting-started)
+- [Creating Projects with Archetypes](#creating-projects-with-archetypes)
 - [Daily Workflows](#daily-workflows)
 - [AI-Assisted Coding](#ai-assisted-coding)
 - [Docker Operations](#docker-operations)
@@ -88,6 +89,74 @@ git --version        # Should show: git 2.30+
 # Check AI is configured
 ls -la ~/.continue/config.json
 ```
+
+
+## Creating Projects with Archetypes
+
+### Quick Project Creation
+
+```bash
+# Navigate to your template directory
+cd ~/dev-environment-template
+
+# List available archetypes
+./create-project.sh --list-archetypes
+
+# Create a new project
+./create-project.sh --name my-project --archetype base
+
+# Create with features
+./create-project.sh --name my-app \\
+  --archetype rag-project \\
+  --add-features monitoring
+
+# Preview before creating (dry-run)
+./create-project.sh --name test-app \\
+  --archetype rag-project \\
+  --dry-run
+```
+
+### Common Archetype Workflows
+
+**Creating a RAG Project:**
+```bash
+# 1. Create project with GitHub integration
+./create-project.sh --name doc-search \\
+  --archetype rag-project \\
+  --github \\
+  --description "Document search with AI"
+
+# 2. Configure
+cd doc-search
+cp .env.example .env
+# Edit .env with API keys
+
+# 3. Start services
+docker-compose up -d
+
+# 4. Test
+curl http://localhost:8000/health
+```
+
+**Creating API with Monitoring:**
+```bash
+# 1. Create
+./create-project.sh --name my-api \\
+  --archetype api-service \\
+  --add-features monitoring \\
+  --github
+
+# 2. Start all services
+cd my-api
+docker-compose up -d
+
+# 3. Access
+# API: http://localhost:8000
+# Grafana: http://localhost:3000
+# Prometheus: http://localhost:9090
+```
+
+**For complete archetype documentation:** [ARCHETYPE_GUIDE.md](ARCHETYPE_GUIDE.md)
 
 ---
 

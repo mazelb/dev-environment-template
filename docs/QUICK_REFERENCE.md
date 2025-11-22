@@ -1,31 +1,97 @@
-# Multi-Archetype Quick Reference
+# Quick Reference
 
-**One-page cheat sheet for multi-archetype composition**
+**One-page cheat sheet for dev environment template and archetype system**
 
 ---
 
-## Commands
+## Archetype Commands
 
 ```bash
 # List all archetypes
 ./create-project.sh --list-archetypes
 
 # Check compatibility
-./create-project.sh --check-compatibility \
-  --archetype rag-project --add-features agentic-workflows
+./create-project.sh --check-compatibility \\
+  --archetype rag-project --add-features monitoring
 
 # Preview (dry run)
-./create-project.sh --name myapp \
-  --archetype rag-project --add-features agentic-workflows \
+./create-project.sh --name myapp \\
+  --archetype rag-project \\
   --dry-run
 
-# Create project (layered)
-./create-project.sh --name myapp \
-  --archetype rag-project --add-features agentic-workflows
+# Create project (single archetype)
+./create-project.sh --name myapp --archetype rag-project
 
-# Create project (composite)
-./create-project.sh --name myapp \
-  --archetype rag-agentic-system
+# Create project (with features)
+./create-project.sh --name myapp \\
+  --archetype rag-project \\
+  --add-features monitoring,agentic-workflows
+
+# Create with GitHub
+./create-project.sh --name myapp \\
+  --archetype rag-project \\
+  --github \\
+  --description "My app"
+```
+
+---
+
+## Available Archetypes
+
+### Base Archetypes
+- **base** - Minimal starter
+- **rag-project** - RAG with OpenSearch + Ollama
+- **api-service** - Production FastAPI
+
+### Feature Archetypes
+- **monitoring** - Prometheus + Grafana
+- **agentic-workflows** - AI agent orchestration
+
+### Composite Archetypes
+- **composite-rag-agents** - RAG + Agents
+- **composite-api-monitoring** - API + Monitoring
+- **composite-full-stack** - Complete web app
+
+---
+
+## Docker Commands
+
+```bash
+# Start services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f [service-name]
+
+# Stop services
+docker-compose down
+
+# Rebuild
+docker-compose build --no-cache
+
+# Enter container
+docker-compose exec dev bash
+
+# Clean up
+docker system prune -a
+```
+
+---
+
+## VS Code Commands
+
+```
+# Reopen in container
+Cmd/Ctrl+Shift+P → "Reopen in Container"
+
+# Reload window
+Cmd/Ctrl+Shift+P → "Developer: Reload Window"
+
+# Open settings
+Cmd/Ctrl+,
+
+# Command palette
+Cmd/Ctrl+Shift+P
 ```
 
 ---

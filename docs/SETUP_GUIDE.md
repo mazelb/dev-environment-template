@@ -1,7 +1,7 @@
 # Complete Setup Guide: Dev Environment Template
 
-**Version:** 2.0  
-**Last Updated:** October 20, 2025  
+**Version:** 2.0
+**Last Updated:** November 21, 2025
 **Estimated Setup Time:** 70-90 minutes
 
 ---
@@ -17,6 +17,7 @@
 - [Part 5: Push to GitHub](#part-5-push-to-github)
 - [Part 6: Use on Different Machines](#part-6-use-on-different-machines)
 - [Part 7: Maintenance & Updates](#part-7-maintenance--updates)
+- [Creating Projects with Archetypes](#creating-projects-with-archetypes)
 - [Quick Reference](#quick-reference)
 - [Troubleshooting](#troubleshooting)
 
@@ -33,6 +34,7 @@ This guide will walk you through creating a complete, portable development envir
 - ✅ Secure secrets management
 - ✅ Continuous update system
 - ✅ Team collaboration features
+- ✅ **Multi-archetype project creation** (RAG, API, monitoring, agents)
 
 ---
 
@@ -310,7 +312,7 @@ code ~/Library/Application\ Support/Code/User/settings.json
 code .vscode/settings.json
 
 # 3. Merge carefully:
-# - KEEP template settings for: python.defaultInterpreterPath, 
+# - KEEP template settings for: python.defaultInterpreterPath,
 #   remote.containers.*, files.watcherExclude
 # - ADD your settings for: editor preferences, themes, workflow
 
@@ -517,11 +519,11 @@ GOOGLE_API_KEY=your_google_key_here
 
 ### Security Best Practices
 
-✅ **Never commit** `.env.local` to git (already in .gitignore)  
-✅ **Rotate keys** regularly (every 90 days)  
-✅ **Use different keys** for dev/staging/production  
-✅ **Enable audit logging** for production secrets  
-✅ **Set up alerts** for unauthorized access attempts  
+✅ **Never commit** `.env.local` to git (already in .gitignore)
+✅ **Rotate keys** regularly (every 90 days)
+✅ **Use different keys** for dev/staging/production
+✅ **Enable audit logging** for production secrets
+✅ **Set up alerts** for unauthorized access attempts
 
 ---
 
@@ -812,12 +814,12 @@ cd ../my-project-2
 
 ### Version Management Best Practices
 
-✅ **Use semantic versioning** (v1.2.3)  
-✅ **Tag releases** in template repo  
-✅ **Document changes** in CHANGELOG.md  
-✅ **Test updates** before rolling out to team  
-✅ **Provide migration guides** for breaking changes  
-✅ **Review changes** before syncing to projects  
+✅ **Use semantic versioning** (v1.2.3)
+✅ **Tag releases** in template repo
+✅ **Document changes** in CHANGELOG.md
+✅ **Test updates** before rolling out to team
+✅ **Provide migration guides** for breaking changes
+✅ **Review changes** before syncing to projects
 
 ---
 
@@ -1217,29 +1219,106 @@ curl -I https://api.anthropic.com
 
 ---
 
+## Creating Projects with Archetypes
+
+Once your template is set up, you can create new projects instantly using **archetypes** - pre-configured project templates.
+
+### Quick Start
+
+```bash
+# List available archetypes
+./create-project.sh --list-archetypes
+
+# Create a RAG project (document search with AI)
+./create-project.sh --name doc-search --archetype rag-project
+
+# Create with monitoring
+./create-project.sh --name my-api \\
+  --archetype api-service \\
+  --add-features monitoring
+
+# Preview before creating (dry-run)
+./create-project.sh --name test-app --archetype rag-project --dry-run
+
+# Create with GitHub integration
+./create-project.sh --name my-app \\
+  --archetype rag-project \\
+  --github \\
+  --description "My awesome app"
+```
+
+### Available Archetypes
+
+- **base** - Minimal starter template
+- **rag-project** - RAG system with vector search (OpenSearch + Ollama)
+- **api-service** - Production FastAPI service
+- **monitoring** - Prometheus + Grafana stack
+- **agentic-workflows** - AI agent orchestration
+- **composite-rag-agents** - RAG + Agents combined
+- **composite-api-monitoring** - API + Monitoring
+- **composite-full-stack** - Complete web application
+
+**For detailed archetype documentation, see:** [ARCHETYPE_GUIDE.md](ARCHETYPE_GUIDE.md)
+
+### Example: Create RAG Project
+
+```bash
+# 1. Create project
+./create-project.sh --name doc-search \\
+  --archetype rag-project \\
+  --github \\
+  --description "Document search with AI"
+
+# 2. Navigate to project
+cd doc-search
+
+# 3. Configure environment
+cp .env.example .env
+# Edit .env with your API keys (Jina, OpenAI/Anthropic)
+
+# 4. Start services
+docker-compose up -d
+
+# 5. Test API
+curl http://localhost:8000/health
+
+# 6. View generated documentation
+cat README.md
+cat COMPOSITION.md
+```
+
+---
+
 ## Summary
 
 You now have a **complete, portable development environment** that:
 
-✅ Works on macOS, Windows (WSL2), and Linux  
-✅ Includes Docker container with C++, Python, Node.js, Kotlin  
-✅ Integrates with VS Code Dev Containers  
-✅ Supports 25+ AI models for coding assistance  
-✅ Syncs your personal VS Code settings automatically  
-✅ Manages secrets securely across environments  
-✅ Updates easily with continuous sync system  
-✅ Enables seamless team collaboration  
+✅ Works on macOS, Windows (WSL2), and Linux
+✅ Includes Docker container with C++, Python, Node.js, Kotlin
+✅ Integrates with VS Code Dev Containers
+✅ Supports 25+ AI models for coding assistance
+✅ Syncs your personal VS Code settings automatically
+✅ Manages secrets securely across environments
+✅ Updates easily with continuous sync system
+✅ Enables seamless team collaboration
+✅ **Creates production-ready projects in < 60 seconds with archetypes**
 
 **Total Setup Time:** ~70-90 minutes for complete setup
 
 **What's Next:**
-- Create your first project
+- Create your first project with archetypes
 - Customize AI prompts
 - Share with your team
 - Start building amazing things! 🚀
 
+**Helpful Guides:**
+- [Archetype Guide](ARCHETYPE_GUIDE.md) - Complete archetype usage
+- [Usage Guide](USAGE_GUIDE.md) - Daily workflows
+- [Troubleshooting](TROUBLESHOOTING.md) - Common issues
+
 ---
 
 **Questions or issues?** Check the troubleshooting section or open an issue on GitHub.
+
 
 **Happy coding!** 🎉

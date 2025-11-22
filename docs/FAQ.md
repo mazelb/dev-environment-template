@@ -1,15 +1,16 @@
 # Frequently Asked Questions (FAQ)
 
-**Version:** 2.0  
-**Last Updated:** October 20, 2025  
+**Version:** 2.0
+**Last Updated:** November 21, 2025
 
-Quick answers to common questions about the dev environment template.
+Quick answers to common questions about the dev environment template and archetype system.
 
 ---
 
 ## 📖 Table of Contents
 
 - [General Questions](#general-questions)
+- [Archetype System](#archetype-system)
 - [Getting Started](#getting-started)
 - [Docker & Containers](#docker--containers)
 - [VS Code & Extensions](#vs-code--extensions)
@@ -61,8 +62,8 @@ A portable, Docker-based development environment that includes:
 
 ### Is this suitable for production?
 
-**Development:** ✅ Perfect  
-**Staging:** ✅ Recommended  
+**Development:** ✅ Perfect
+**Staging:** ✅ Recommended
 **Production:** ⚠️ Use production-ready Docker images
 
 The template is optimized for development. For production:
@@ -71,6 +72,85 @@ The template is optimized for development. For production:
 - Optimize image size
 - Use production-grade secrets management
 - Add monitoring and logging
+
+---
+
+## Archetype System
+
+### What are archetypes?
+
+**Archetypes** are pre-configured project templates that provide specialized functionality.
+
+**Examples:**
+- `rag-project` - Document search with AI (OpenSearch + Ollama)
+- `api-service` - Production FastAPI service
+- `monitoring` - Prometheus + Grafana stack
+- `agentic-workflows` - AI agent orchestration
+
+**Benefits:**
+- ⚡ Create complete projects in < 60 seconds
+- 🎯 Production-ready configurations
+- 🔧 Composable - combine multiple archetypes
+- 📝 Auto-documented
+
+### How do I use archetypes?
+
+```bash
+# List available archetypes
+./create-project.sh --list-archetypes
+
+# Create with single archetype
+./create-project.sh --name my-app --archetype rag-project
+
+# Combine base + features
+./create-project.sh --name my-app \\
+  --archetype rag-project \\
+  --add-features monitoring
+
+# Preview first (dry-run)
+./create-project.sh --name test --archetype base --dry-run
+```
+
+**Complete guide:** [ARCHETYPE_GUIDE.md](ARCHETYPE_GUIDE.md)
+
+### Can I combine multiple archetypes?
+
+Yes! Use `--add-features` to add feature archetypes:
+
+```bash
+# RAG + Monitoring
+./create-project.sh --name my-app \\
+  --archetype rag-project \\
+  --add-features monitoring
+
+# RAG + Agents + Monitoring
+./create-project.sh --name ai-platform \\
+  --archetype rag-project \\
+  --add-features agentic-workflows,monitoring
+```
+
+The system automatically:
+- Resolves port conflicts (adds offsets)
+- Merges docker-compose.yml files
+- Combines environment variables
+- Generates documentation
+
+### What's the difference between base and feature archetypes?
+
+| Type | Purpose | Example | Usage |
+|------|---------|---------|-------|
+| **Base** | Primary application structure | `rag-project` | `--archetype` |
+| **Feature** | Add capabilities | `monitoring` | `--add-features` |
+| **Composite** | Pre-combined | `composite-rag-agents` | `--archetype` |
+
+### How do I create custom archetypes?
+
+1. Create directory in `archetypes/`
+2. Add `__archetype__.json` metadata
+3. Include project files (docker-compose.yml, src/, etc.)
+4. Test with dry-run
+
+See [MULTI_ARCHETYPE_COMPOSITION_DESIGN.md](MULTI_ARCHETYPE_COMPOSITION_DESIGN.md) for details.
 
 ---
 
@@ -229,7 +309,7 @@ services:
 ./create-project.sh --name project-311
 # Edit Dockerfile to use python:3.11
 
-# Python 3.12 project  
+# Python 3.12 project
 ./create-project.sh --name project-312
 # Edit Dockerfile to use python:3.12
 ```
@@ -260,7 +340,7 @@ Yes!
 cd ~/projects/project1
 docker-compose up -d dev
 
-# Project 2  
+# Project 2
 cd ~/projects/project2
 docker-compose up -d dev
 
@@ -376,10 +456,10 @@ g++ -g -o app main.cpp
 
 **Yes!** Template supports:
 
-✅ **Dev Containers** - Built-in  
-✅ **SSH Remote** - Connect to remote server  
-✅ **WSL** - Windows Subsystem for Linux  
-✅ **GitHub Codespaces** - Cloud development  
+✅ **Dev Containers** - Built-in
+✅ **SSH Remote** - Connect to remote server
+✅ **WSL** - Windows Subsystem for Linux
+✅ **GitHub Codespaces** - Cloud development
 
 **Workflow:**
 ```bash
@@ -1040,5 +1120,5 @@ docker-compose.yml                 # Services
 
 ---
 
-**Last Updated:** October 20, 2025  
+**Last Updated:** October 20, 2025
 **Version:** 2.0

@@ -1,153 +1,356 @@
-# Multi-Archetype Composition System - Complete Documentation Index
+# Documentation Index
 
-**Comprehensive guide to all documentation for the multi-archetype composition system**
+**Complete guide to all documentation for the dev environment template**
 
----
-
-## 📚 Documentation Overview
-
-| Document | Type | Size | Audience | Purpose |
-|----------|------|------|----------|---------|
-| **MULTI_ARCHETYPE_COMPOSITION_DESIGN.md** | Design Spec | 11,500 words | Engineers, Architects | Complete system design |
-| **MULTI_ARCHETYPE_RESEARCH_SUMMARY.md** | Executive Summary | 2,500 words | Decision makers | Quick overview & status |
-| **docs/MULTI_ARCHETYPE_EXAMPLES.md** | Practical Guide | 5,000 words | Developers | Real-world examples |
-| **docs/IMPLEMENTATION_GUIDE.md** | Technical Guide | 4,000 words | Implementers | Phase-by-phase plan |
-| **docs/STRATEGY_COMPARISON.md** | Decision Guide | 3,000 words | Architects | Compare strategies |
-| **docs/QUICK_REFERENCE.md** | Cheat Sheet | 1,000 words | All users | Quick lookup |
-| **docs/ARCHITECTURE_DIAGRAMS.md** | Visual Guide | 2,000 words | Visual learners | System diagrams |
-| **archetypes/README.md** | User Guide | 3,500 words | Archetype users | How to use archetypes |
-
-**Total Documentation:** 32,500+ words across 8 comprehensive documents
+**Last Updated:** November 21, 2025
 
 ---
 
-## 🎯 Start Here
+## 📚 Quick Navigation
 
-### For Decision Makers
-**Read first:** `MULTI_ARCHETYPE_RESEARCH_SUMMARY.md`
-- Executive summary
-- Key findings
-- Recommendations
-- Timeline & cost
+### Getting Started
+- **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Complete setup instructions (70-90 min)
+- **[ARCHETYPE_GUIDE.md](ARCHETYPE_GUIDE.md)** - How to use archetypes to create projects
+- **[USAGE_GUIDE.md](USAGE_GUIDE.md)** - Daily workflows and AI-assisted coding
+- **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - One-page cheat sheet
 
-**Then read:** `docs/STRATEGY_COMPARISON.md`
-- Compare 3 composition strategies
-- Decision tree
-- Success metrics
+### Troubleshooting & Support
+- **[FAQ.md](FAQ.md)** - Frequently asked questions
+- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Common issues and solutions
 
-### For Developers (Users)
-**Read first:** `docs/QUICK_REFERENCE.md`
-- Commands
-- Common patterns
+### Technical Documentation
+- **[IMPLEMENTATION_STRATEGY.md](IMPLEMENTATION_STRATEGY.md)** - Phase-by-phase implementation
+- **[IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md)** - Technical implementation details
+- **[MULTI_ARCHETYPE_COMPOSITION_DESIGN.md](MULTI_ARCHETYPE_COMPOSITION_DESIGN.md)** - Archetype system design
+
+### Specific Features
+- **[GIT_GITHUB_INTEGRATION.md](GIT_GITHUB_INTEGRATION.md)** - GitHub integration guide
+- **[SECRETS_MANAGEMENT.md](SECRETS_MANAGEMENT.md)** - Secrets management guide
+- **[UPDATES_GUIDE.md](UPDATES_GUIDE.md)** - Template update procedures
+
+### Testing
+- **[tests/TESTING_GUIDE.md](../tests/TESTING_GUIDE.md)** - Comprehensive testing documentation
+- **[tests/TESTING_PHASE*.md](../tests/)** - Detailed test specifications
+
+---
+
+## 📖 Documentation by Audience
+
+### For New Users
+**Start here:**
+1. [SETUP_GUIDE.md](SETUP_GUIDE.md) - Get environment set up
+2. [ARCHETYPE_GUIDE.md](ARCHETYPE_GUIDE.md) - Create your first project
+3. [USAGE_GUIDE.md](USAGE_GUIDE.md) - Learn daily workflows
+4. [FAQ.md](FAQ.md) - Common questions
+
+**Quick reference:**
+- [QUICK_REFERENCE.md](QUICK_REFERENCE.md) - Commands and patterns
+
+### For Developers Using Template
+**Core guides:**
+- [ARCHETYPE_GUIDE.md](ARCHETYPE_GUIDE.md) - Create projects with archetypes
+- [USAGE_GUIDE.md](USAGE_GUIDE.md) - Daily development workflows
+- [GIT_GITHUB_INTEGRATION.md](GIT_GITHUB_INTEGRATION.md) - GitHub workflows
+
+**When you need help:**
+- [FAQ.md](FAQ.md) - Check if your question is answered
+- [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - Solve common issues
+
+### For Template Maintainers
+**Implementation:**
+- [IMPLEMENTATION_STRATEGY.md](IMPLEMENTATION_STRATEGY.md) - Overall strategy
+- [IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md) - Technical details
+- [MULTI_ARCHETYPE_COMPOSITION_DESIGN.md](MULTI_ARCHETYPE_COMPOSITION_DESIGN.md) - Design specs
+
+**Maintenance:**
+- [UPDATES_GUIDE.md](UPDATES_GUIDE.md) - Managing updates
+- [tests/TESTING_GUIDE.md](../tests/TESTING_GUIDE.md) - Testing procedures
+
+---
+
+## 📋 Document Summaries
+
+### SETUP_GUIDE.md
+**Purpose:** Complete setup from scratch
+**Time:** 70-90 minutes
+**Contents:**
+- Prerequisites and system requirements
+- Step-by-step setup instructions
+- VS Code configuration
+- AI tools setup
+- Secrets management
+- GitHub integration
+- Multi-machine usage
+- Creating projects with archetypes
+
+**Who:** New users, onboarding team members
+
+---
+
+### ARCHETYPE_GUIDE.md
+**Purpose:** Master the archetype system
+**Contents:**
+- What archetypes are and why use them
+- Available archetypes (8 total)
+- Creating projects (single, composite, features)
+- Complete examples
+- Archetype composition
+- Customization guide
+- Best practices
 - Troubleshooting
 
-**Then read:** `docs/MULTI_ARCHETYPE_EXAMPLES.md`
-- 5 detailed examples
-- Use cases
-- Best practices
+**Who:** Anyone creating new projects
 
-**Reference:** `archetypes/README.md`
+---
+
+### USAGE_GUIDE.md
+**Purpose:** Daily development workflows
+**Contents:**
+- Getting started (opening projects)
+- Creating projects with archetypes
+- Daily workflows
+- AI-assisted coding
+- Docker operations
+- VS Code tips
+- Testing & debugging
+- Team collaboration
+
+**Who:** Daily users of the template
+
+---
+
+### QUICK_REFERENCE.md
+**Purpose:** One-page cheat sheet
+**Contents:**
+- Archetype commands
 - Available archetypes
-- Compatibility matrix
-- Creating custom archetypes
+- Docker commands
+- VS Code shortcuts
+- AI commands
+- Git workflows
+- Common patterns
 
-### For Implementers
-**Read first:** `MULTI_ARCHETYPE_COMPOSITION_DESIGN.md`
-- Complete system design
+**Who:** All users (quick lookup)
+
+---
+
+### FAQ.md
+**Purpose:** Quick answers to common questions
+**Contents:**
+- General questions
+- Archetype system Q&A
+- Docker & containers
+- VS Code & extensions
+- AI assistants
+- Secrets & security
+- Updates & maintenance
+- Team collaboration
+- Platform support
+
+**Who:** Anyone with questions
+
+---
+
+### TROUBLESHOOTING.md
+**Purpose:** Solve common issues
+**Contents:**
+- Quick diagnostics
+- Docker issues
+- VS Code issues
+- Container issues
+- AI assistant issues
+- Git issues
+- Networking issues
+- Performance issues
+- Platform-specific issues
+- Recovery procedures
+
+**Who:** Users encountering issues
+
+---
+
+### IMPLEMENTATION_STRATEGY.md
+**Purpose:** Overall implementation roadmap
+**Contents:**
+- Phase 0-7 overview
+- Each phase broken down:
+  - Goals
+  - Tasks
+  - Deliverables
+  - Testing
+  - Success criteria
+- Implementation timeline
+- Risk mitigation
+
+**Who:** Maintainers, contributors
+
+---
+
+### IMPLEMENTATION_GUIDE.md
+**Purpose:** Technical implementation details
+**Contents:**
+- Code structure
+- Script architecture
+- Merge strategies
+- Conflict resolution
+- Testing approach
+- Deployment
+
+**Who:** Implementers, advanced users
+
+---
+
+### MULTI_ARCHETYPE_COMPOSITION_DESIGN.md
+**Purpose:** Complete system design specification
+**Contents:**
+- Problem analysis
+- Composition strategies
 - Conflict resolution algorithms
 - Metadata schema
+- Architecture design
+- Practical examples
+- User experience design
 
-**Then read:** `docs/IMPLEMENTATION_GUIDE.md`
-- 6-phase implementation plan
-- Code snippets
-- Testing procedures
-
-**Reference:** `docs/ARCHITECTURE_DIAGRAMS.md`
-- System architecture
-- Data flows
-- Component diagrams
+**Who:** Architects, implementers
 
 ---
 
-## 📖 Document Descriptions
-
-### 1. MULTI_ARCHETYPE_COMPOSITION_DESIGN.md
-**The Complete Design Specification**
-
+### GIT_GITHUB_INTEGRATION.md
+**Purpose:** GitHub integration guide
 **Contents:**
-1. Problem Analysis
-   - 6 conflict types identified
-   - Current limitations
-   - User requirements
+- GitHub CLI setup
+- Repository creation
+- Project creation with GitHub
+- Workflow integration
+- Troubleshooting
 
-2. Composition Strategies
-   - Layered composition (recommended)
-   - Modular composition (advanced)
-   - Composite archetypes (quick start)
-   - Comparison & recommendations
-
-3. Conflict Resolution Mechanisms
-   - Port offsetting (+100 per feature)
-   - Service name prefixing
-   - Dependency version resolution
-   - Configuration file merging
-   - Directory structure merging
-   - Makefile command namespacing
-
-4. Archetype Metadata Schema
-   - Enhanced `__archetype__.json` format
-   - Base archetype schema
-   - Feature archetype schema
-   - Composite archetype schema
-
-5. Implementation Architecture
-   - Enhanced `create-project.sh` workflow
-   - Script structure
-   - Docker Compose merging strategy
-
-6. Practical Examples
-   - RAG + Agentic
-   - RAG + API Gateway + Monitoring
-   - ML Training + Agentic
-   - Multi-API Microservices
-   - Data Pipeline + MLOps
-
-7. User Experience Design
-   - Discovering compatible archetypes
-   - Preview before creation
-   - Interactive conflict resolution
-   - Generated documentation
-
-8. Implementation Plan
-   - 7 phases over 12 weeks
-   - Task breakdowns
-   - Deliverables
-   - Success metrics
-
-**When to read:** Before starting implementation
+**Who:** Users wanting GitHub integration
 
 ---
 
-### 2. MULTI_ARCHETYPE_RESEARCH_SUMMARY.md
-**Executive Summary & Status Report**
-
+### SECRETS_MANAGEMENT.md
+**Purpose:** Secure secrets handling
 **Contents:**
-- Executive summary
-- 8 deliverables overview
-- Research findings
-- Conflict analysis table
-- Recommended approach
-- Key innovations
-- Implementation considerations
-- Success metrics
-- Timeline
-- Open questions for decision
+- Secrets management strategies
+- Local secrets
+- Cloud secrets (AWS, Azure, GCP)
+- GitHub Codespaces
+- Best practices
 
-**When to read:** For quick overview or status update
+**Who:** Users handling API keys/secrets
 
 ---
 
-### 3. docs/MULTI_ARCHETYPE_EXAMPLES.md
+### UPDATES_GUIDE.md
+**Purpose:** Template update procedures
+**Contents:**
+- Update strategies
+- Manual updates
+- Automated sync
+- Merge conflict resolution
+- Version management
+
+**Who:** Maintainers
+
+---
+
+### tests/TESTING_GUIDE.md
+**Purpose:** Comprehensive testing guide
+**Contents:**
+- Test coverage overview
+- Running tests (PowerShell, Bash)
+- Manual testing checklist
+- Troubleshooting test failures
+- CI/CD integration
+- Adding new tests
+
+**Who:** Maintainers, contributors
+
+---
+
+## 🔍 Finding What You Need
+
+### By Topic
+
+#### Setup & Installation
+- [SETUP_GUIDE.md](SETUP_GUIDE.md)
+- [FAQ.md](FAQ.md) - "Getting Started" section
+
+#### Creating Projects
+- [ARCHETYPE_GUIDE.md](ARCHETYPE_GUIDE.md)
+- [QUICK_REFERENCE.md](QUICK_REFERENCE.md) - "Archetype Commands"
+
+#### Daily Usage
+- [USAGE_GUIDE.md](USAGE_GUIDE.md)
+- [QUICK_REFERENCE.md](QUICK_REFERENCE.md)
+
+#### Troubleshooting
+- [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+- [FAQ.md](FAQ.md)
+
+#### GitHub Integration
+- [GIT_GITHUB_INTEGRATION.md](GIT_GITHUB_INTEGRATION.md)
+- [SETUP_GUIDE.md](SETUP_GUIDE.md) - "Part 5: Push to GitHub"
+
+#### Security
+- [SECRETS_MANAGEMENT.md](SECRETS_MANAGEMENT.md)
+- [SETUP_GUIDE.md](SETUP_GUIDE.md) - "Part 4: Setup Secrets Management"
+
+#### Testing
+- [tests/TESTING_GUIDE.md](../tests/TESTING_GUIDE.md)
+- [tests/TESTING_PHASE*.md](../tests/)
+
+#### Template Development
+- [IMPLEMENTATION_STRATEGY.md](IMPLEMENTATION_STRATEGY.md)
+- [IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md)
+- [MULTI_ARCHETYPE_COMPOSITION_DESIGN.md](MULTI_ARCHETYPE_COMPOSITION_DESIGN.md)
+
+---
+
+## 📊 Documentation Stats
+
+**Total Documents:** 13 core documents
+**Total Words:** ~45,000+ words
+**Coverage:**
+- User guides: 5 documents
+- Technical docs: 4 documents
+- Support docs: 2 documents
+- Testing docs: 2+ documents
+
+**Languages:**
+- Markdown: All documentation
+- Bash/PowerShell: Test scripts
+
+---
+
+## 🔄 Keeping Documentation Updated
+
+**When to update:**
+- New features added
+- Bug fixes that affect usage
+- New archetypes added
+- User feedback indicates confusion
+
+**What to update:**
+- Update date at top of document
+- Add to CHANGELOG.md
+- Update this index if structure changes
+- Cross-reference related docs
+
+---
+
+## 💡 Documentation Principles
+
+1. **User-first:** Write for the user, not the developer
+2. **Progressive disclosure:** Start simple, add details progressively
+3. **Examples everywhere:** Show, don't just tell
+4. **Cross-reference:** Link related docs
+5. **Keep current:** Update dates, verify commands work
+6. **Test instructions:** All code examples should be tested
+
+---
+
+**Questions about documentation?** Open an issue on GitHub.
 **5 Detailed Practical Examples**
 
 **Examples Covered:**
