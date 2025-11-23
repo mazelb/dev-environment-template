@@ -133,6 +133,7 @@ ARCHETYPES:
     --archetype NAME             Use a base archetype (e.g., base, rag-project)
     --add-features F1,F2,...     Add feature archetypes to base
     --list-archetypes            List all available archetypes
+    --list-features              List all available feature archetypes
     --check-compatibility B F    Check if base B is compatible with feature F
 
 AVAILABLE TOOLS:
@@ -186,6 +187,10 @@ EXAMPLES:
     # Interactive selection
     $0 --name my-app --interactive
 
+    # List available archetypes and features
+    $0 --list-archetypes
+    $0 --list-features
+
     # List available tools
     $0 --list-tools
 
@@ -206,6 +211,55 @@ list_tools() {
     jq -r '.tools | to_entries[] | "\(.key) - \(.value.name): \(.value.description)"' "$TOOLS_CONFIG" | while read line; do
         echo "  $line"
     done
+    echo ""
+}
+
+# List available feature archetypes
+list_features() {
+    print_header "Available Feature Archetypes"
+    echo ""
+    
+    if [ ! -d "$ARCHETYPES_DIR" ]; then
+        print_error "Archetypes directory not found: $ARCHETYPES_DIR"
+        exit 1
+    fi
+    
+    print_info "Feature archetypes can be added to base archetypes using --add-features"
+    echo ""
+    
+    # List all archetypes and identify features
+    for archetype_dir in "$ARCHETYPES_DIR"/*/; do
+        [ -d "$archetype_dir" ] || continue
+        local archetype_name=$(basename "$archetype_dir")
+        
+        # Skip metadata directories
+        [[ "$archetype_name" == __* ]] && continue
+        
+        # Check if it's a feature archetype
+        local metadata_file="$archetype_dir/__archetype__.json"
+        if [ -f "$metadata_file" ]; then
+            local archetype_type=$(jq -r '.type // "base"' "$metadata_file" 2>/dev/null)
+            
+            if [ "$archetype_type" = "feature" ]; then
+                local description=$(jq -r '.description // "No description"' "$metadata_file" 2>/dev/null)
+                local version=$(jq -r '.version // "unknown"' "$metadata_file" 2>/dev/null)
+                
+                echo "  📦 $archetype_name (v$version)"
+                echo "     $description"
+                
+                # Show compatible base archetypes if available
+                local compatible=$(jq -r '.compatible_with[]? // empty' "$metadata_file" 2>/dev/null)
+                if [ -n "$compatible" ]; then
+                    echo "     Compatible with: $compatible"
+                fi
+                echo ""
+            fi
+        fi
+    done
+    
+    echo "Usage:"
+    echo "  $0 --name my-app --archetype base --add-features monitoring"
+    echo "  $0 --name my-app --archetype rag-project --add-features monitoring,agentic-workflows"
     echo ""
 }
 
@@ -730,6 +784,10 @@ parse_args() {
                 fi
                 exit 0
                 ;;
+            --list-features)
+                list_features
+                exit 0
+                ;;
             --list-tools)
                 list_tools
                 exit 0
@@ -1040,7 +1098,7 @@ main() {
 
     # Convert to absolute path
     FULL_PROJECT_PATH=$(cd "$(dirname "$FULL_PROJECT_PATH")" 2>/dev/null && pwd)/$(basename "$FULL_PROJECT_PATH") || FULL_PROJECT_PATH="$(pwd)/$(basename "$FULL_PROJECT_PATH")"
-    
+
     print_verbose "Resolved project path: $FULL_PROJECT_PATH"
     print_verbose "Project name: $PROJECT_NAME"
 
@@ -1071,7 +1129,7 @@ main() {
     print_verbose "mkdir -p $FULL_PROJECT_PATH"
     mkdir -p "$FULL_PROJECT_PATH"
     print_success "Project directory created"
-    
+
     print_verbose "Changing to project directory"
     cd "$FULL_PROJECT_PATH"
 
@@ -1090,7 +1148,7 @@ main() {
         TEMPLATE_DIR=$(dirname "$SCRIPT_DIR")
         print_verbose "Copying from local template: $TEMPLATE_DIR"
         shopt -s dotglob
-        
+
         # Copy files with verbose output
         for item in "$TEMPLATE_DIR"/*; do
             local basename=$(basename "$item")
@@ -1233,47 +1291,47 @@ EOF
     print_info "Project Details:"
     echo "  📂 Location: $FULL_PROJECT_PATH"
     echo "  📝 Name: $PROJECT_NAME"
-    
+
     if [ "$USE_ARCHETYPE" = true ]; then
         echo "  🎨 Base Archetype: ${BASE_ARCHETYPE:-none}"
         if [ ${#FEATURE_ARCHETYPES[@]} -gt 0 ]; then
             echo "  🔧 Features: ${FEATURE_ARCHETYPES[*]}"
         fi
     fi
-    
+
     if [ ${#OPTIONAL_TOOLS[@]} -gt 0 ]; then
         echo ""
         echo "  🛠️  Optional Tools:"
         printf '     - %s\n' "${OPTIONAL_TOOLS[@]}"
     fi
-    
+
     if [ "$CREATE_GITHUB_REPO" = true ] && [ "$SKIP_GIT" != true ]; then
         echo ""
         echo "  🐙 GitHub: Repository created and pushed"
     fi
-    
+
     echo ""
     print_info "Next Steps:"
     echo "  1. cd $FULL_PROJECT_PATH"
-    
+
     if [ -f "$FULL_PROJECT_PATH/README.md" ]; then
         echo "  2. cat README.md  # Read project documentation"
     fi
-    
+
     if [ ${#OPTIONAL_TOOLS[@]} -gt 0 ]; then
         echo "  3. cat OPTIONAL_TOOLS.md  # Review tool setup instructions"
     fi
-    
+
     echo "  4. docker-compose up -d  # Start services"
     echo "  5. code .  # Open in VS Code"
     echo ""
-    
+
     if [ "$VERBOSE" = true ]; then
         echo ""
         print_verbose "Project creation completed at $(date)"
         print_verbose "Template version: $(git -C "$SCRIPT_DIR" describe --tags 2>/dev/null || echo 'unknown')"
     fi
-    
+
     echo ""
     echo "Happy coding! 🚀"
 }
