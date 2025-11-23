@@ -18,13 +18,14 @@ NC='\033[0m'
 # Default values
 TEMPLATE_REPO=""
 PROJECT_NAME=""
-PROJECT_DIR=""
+PROJECT_PATH=""
 SKIP_GIT=false
 BUILD_IMAGE=true
 OPTIONAL_TOOLS=()
 USE_PRESET=""
 INTERACTIVE=false
 DRY_RUN=false
+VERBOSE=false
 
 # Archetype-related variables
 BASE_ARCHETYPE=""
@@ -87,6 +88,12 @@ print_info() {
     echo -e "${CYAN}ℹ${NC} $1"
 }
 
+print_verbose() {
+    if [ "$VERBOSE" = true ]; then
+        echo -e "${BLUE}  →${NC} $1"
+    fi
+}
+
 print_warning() {
     echo -e "${YELLOW}⚠${NC} $1"
 }
@@ -100,11 +107,13 @@ Create a new development project from the dev environment template with optional
 
 OPTIONS:
     -n, --name NAME              Project name (required)
-    -d, --dir PATH               Project directory (default: current directory)
+    -p, --path PATH              Full path where project will be created (e.g., /path/to/my-project)
+                                 If not specified, creates in current directory with project name
     -t, --template URL           Template repository URL
     --no-git                     Skip Git repository initialization (default: init)
     --no-build                   Skip Docker image build
     --dry-run                    Preview project structure without creating files
+    -v, --verbose                Enable verbose output
 
 GITHUB INTEGRATION (run with --github flag, see help below):
     --github                     Create GitHub repository and push (requires gh CLI)
@@ -150,20 +159,26 @@ PRESETS:
     documentation    - Documentation Site (docusaurus, playwright)
 
 EXAMPLES:
+    # Create project in current directory
+    $0 --name my-app --archetype rag-project
+
+    # Create project at specific path
+    $0 --path /path/to/my-project --archetype rag-project
+
+    # Create project with absolute path (verbose)
+    $0 --path ~/projects/my-app --archetype rag-project --verbose
+
     # Create project with specific tools
     $0 --name my-app --tools fastapi,postgresql,langfuse
 
     # Use a preset
     $0 --name my-agent --preset ai-agent
 
-    # Use base archetype
-    $0 --name my-project --archetype base
-
     # Use base archetype with features
-    $0 --name my-rag-app --archetype base --add-features rag-project
+    $0 --name my-rag-app --archetype rag-project --add-features monitoring
 
     # Create project with GitHub repository
-    $0 --name my-app --github --description "My awesome project"
+    $0 --path ~/projects/my-app --archetype rag-project --github --description "My awesome project"
 
     # Create private repo in organization
     $0 --name my-app --github --github-org myorg --private
@@ -640,9 +655,13 @@ parse_args() {
                 PROJECT_NAME="$2"
                 shift 2
                 ;;
-            -d|--dir)
-                PROJECT_DIR="$2"
+            -p|--path)
+                PROJECT_PATH="$2"
                 shift 2
+                ;;
+            -v|--verbose)
+                VERBOSE=true
+                shift
                 ;;
             -t|--template)
                 TEMPLATE_REPO="$2"
@@ -1002,24 +1021,33 @@ EOF
 main() {
     parse_args "$@"
 
-    # Validate project name
-    if [ -z "$PROJECT_NAME" ]; then
-        print_error "Project name is required"
+    # Determine project path
+    if [ -n "$PROJECT_PATH" ]; then
+        # User provided full path
+        FULL_PROJECT_PATH="$PROJECT_PATH"
+        # Extract project name from path if not provided
+        if [ -z "$PROJECT_NAME" ]; then
+            PROJECT_NAME=$(basename "$FULL_PROJECT_PATH")
+        fi
+    elif [ -n "$PROJECT_NAME" ]; then
+        # User provided only name, create in current directory
+        FULL_PROJECT_PATH="./$PROJECT_NAME"
+    else
+        print_error "Either --name or --path is required"
         show_help
         exit 1
     fi
+
+    # Convert to absolute path
+    FULL_PROJECT_PATH=$(cd "$(dirname "$FULL_PROJECT_PATH")" 2>/dev/null && pwd)/$(basename "$FULL_PROJECT_PATH") || FULL_PROJECT_PATH="$(pwd)/$(basename "$FULL_PROJECT_PATH")"
+    
+    print_verbose "Resolved project path: $FULL_PROJECT_PATH"
+    print_verbose "Project name: $PROJECT_NAME"
 
     # Interactive mode
     if [ "$INTERACTIVE" = true ]; then
         interactive_tool_selection
     fi
-
-    # Set project directory
-    if [ -z "$PROJECT_DIR" ]; then
-        PROJECT_DIR="."
-    fi
-
-    FULL_PROJECT_PATH="$PROJECT_DIR/$PROJECT_NAME"
 
     # Dry run mode - show preview and exit
     if [ "$DRY_RUN" = true ]; then
@@ -1034,47 +1062,80 @@ main() {
     fi
 
     print_header "Creating Dev Project: $PROJECT_NAME"
+    echo ""
+    print_info "Project location: $FULL_PROJECT_PATH"
+    echo ""
 
     # Create project directory
     print_info "Creating project directory..."
+    print_verbose "mkdir -p $FULL_PROJECT_PATH"
     mkdir -p "$FULL_PROJECT_PATH"
+    print_success "Project directory created"
+    
+    print_verbose "Changing to project directory"
     cd "$FULL_PROJECT_PATH"
 
     # Copy template files
     print_info "Copying template files..."
     if [ -n "$TEMPLATE_REPO" ]; then
+        print_verbose "Cloning template from: $TEMPLATE_REPO"
         git clone "$TEMPLATE_REPO" temp_template
         shopt -s dotglob
+        print_verbose "Copying files from cloned template"
         cp -r temp_template/* .
+        print_verbose "Removing temporary clone directory"
         rm -rf temp_template
     else
         # Copy from current template directory
         TEMPLATE_DIR=$(dirname "$SCRIPT_DIR")
+        print_verbose "Copying from local template: $TEMPLATE_DIR"
         shopt -s dotglob
-        cp -r "$TEMPLATE_DIR"/* . 2>/dev/null || true
+        
+        # Copy files with verbose output
+        for item in "$TEMPLATE_DIR"/*; do
+            local basename=$(basename "$item")
+            # Skip certain directories/files
+            if [[ "$basename" != ".git" && "$basename" != "node_modules" && "$basename" != "venv" ]]; then
+                print_verbose "  Copying: $basename"
+                cp -r "$item" . 2>/dev/null || true
+            fi
+        done
     fi
 
     print_success "Template files copied"
 
     # Compose archetypes if specified
     if [ "$USE_ARCHETYPE" = true ]; then
+        echo ""
         compose_archetypes "$FULL_PROJECT_PATH" "$BASE_ARCHETYPE" "${FEATURE_ARCHETYPES[@]}"
     fi
 
     # Apply optional tools
-    apply_optional_tools "$FULL_PROJECT_PATH"
+    if [ ${#OPTIONAL_TOOLS[@]} -gt 0 ] || [ -n "$USE_PRESET" ]; then
+        echo ""
+        apply_optional_tools "$FULL_PROJECT_PATH"
+    fi
 
     # Create basic project structure
+    echo ""
+    print_info "Creating project structure..."
+    print_verbose "Creating directories: src/, tests/, docs/"
     mkdir -p src tests docs
+    print_success "Project structure created"
 
     # Generate smart .gitignore
+    echo ""
     print_info "Generating .gitignore..."
     if command -v generate_gitignore &> /dev/null; then
         local archetypes_list="$BASE_ARCHETYPE ${FEATURE_ARCHETYPES[*]}"
         local tools_list="${OPTIONAL_TOOLS[*]}"
+        print_verbose "Using smart .gitignore generator"
+        print_verbose "Archetypes: $archetypes_list"
+        print_verbose "Tools: $tools_list"
         generate_gitignore "$FULL_PROJECT_PATH/.gitignore" "$archetypes_list" "$tools_list"
     else
         print_warning "gitignore generator not available, using basic .gitignore"
+        print_verbose "Creating basic .gitignore file"
         # Create basic .gitignore if generator not available
         cat > "$FULL_PROJECT_PATH/.gitignore" << 'EOF'
 # Python
@@ -1098,19 +1159,24 @@ EOF
     fi
 
     # Initialize git repository (automatic unless --no-git specified)
+    echo ""
     if [ "$SKIP_GIT" != true ]; then
         if command -v initialize_git_repository &> /dev/null; then
             # Use smart Git initialization with archetype information
             local archetypes_list="$BASE_ARCHETYPE ${FEATURE_ARCHETYPES[*]}"
             local tools_list="${OPTIONAL_TOOLS[*]}"
+            print_verbose "Using smart Git initialization"
             initialize_git_repository "$FULL_PROJECT_PATH" "$PROJECT_NAME" "$archetypes_list" "$tools_list" "$USE_PRESET"
         else
             # Fallback to basic Git initialization
             print_info "Initializing git repository..."
             if command -v git &> /dev/null; then
                 cd "$FULL_PROJECT_PATH"
+                print_verbose "Running: git init"
                 git init
+                print_verbose "Running: git add ."
                 git add .
+                print_verbose "Creating initial commit"
                 git commit -m "Initial commit: Project created with optional tools: ${OPTIONAL_TOOLS[*]}"
                 cd - > /dev/null
                 print_success "Git repository initialized"
@@ -1124,10 +1190,14 @@ EOF
 
     # Create GitHub repository if requested
     if [ "$CREATE_GITHUB_REPO" = true ]; then
+        echo ""
         if [ "$SKIP_GIT" = true ]; then
             print_warning "Cannot create GitHub repository without Git initialization"
             print_info "Remove --no-git flag to enable GitHub integration"
         elif command -v create_github_repo &> /dev/null; then
+            print_verbose "Creating GitHub repository"
+            print_verbose "Organization: ${GITHUB_ORG:-personal account}"
+            print_verbose "Visibility: $GITHUB_VISIBILITY"
             create_github_repo "$FULL_PROJECT_PATH" "$PROJECT_NAME" "$GITHUB_ORG" "$GITHUB_VISIBILITY" "$GITHUB_DESCRIPTION"
         else
             print_warning "GitHub integration not available"
@@ -1136,12 +1206,21 @@ EOF
     fi
 
     # Generate project documentation
+    echo ""
+    print_info "Generating project documentation..."
+    print_verbose "Creating README.md and related docs"
     generate_project_docs "$FULL_PROJECT_PATH" "$PROJECT_NAME"
 
     # Build Docker image
     if [ "$BUILD_IMAGE" = true ]; then
+        echo ""
         print_info "Building Docker image..."
-        docker-compose build dev
+        print_verbose "Running: docker-compose build dev"
+        if [ "$VERBOSE" = true ]; then
+            docker-compose build dev
+        else
+            docker-compose build dev > /dev/null 2>&1
+        fi
         print_success "Docker image built"
     fi
 
@@ -1149,20 +1228,52 @@ EOF
     echo ""
     print_header "Setup Complete!"
     echo ""
-    echo "Project created: $FULL_PROJECT_PATH"
+    print_success "Project created successfully!"
     echo ""
-    if [ ${#OPTIONAL_TOOLS[@]} -gt 0 ]; then
-        echo "Optional tools installed:"
-        printf '  - %s\n' "${OPTIONAL_TOOLS[@]}"
-        echo ""
-        echo "See OPTIONAL_TOOLS.md for installation instructions"
-        echo ""
+    print_info "Project Details:"
+    echo "  📂 Location: $FULL_PROJECT_PATH"
+    echo "  📝 Name: $PROJECT_NAME"
+    
+    if [ "$USE_ARCHETYPE" = true ]; then
+        echo "  🎨 Base Archetype: ${BASE_ARCHETYPE:-none}"
+        if [ ${#FEATURE_ARCHETYPES[@]} -gt 0 ]; then
+            echo "  🔧 Features: ${FEATURE_ARCHETYPES[*]}"
+        fi
     fi
-    echo "Next steps:"
+    
+    if [ ${#OPTIONAL_TOOLS[@]} -gt 0 ]; then
+        echo ""
+        echo "  🛠️  Optional Tools:"
+        printf '     - %s\n' "${OPTIONAL_TOOLS[@]}"
+    fi
+    
+    if [ "$CREATE_GITHUB_REPO" = true ] && [ "$SKIP_GIT" != true ]; then
+        echo ""
+        echo "  🐙 GitHub: Repository created and pushed"
+    fi
+    
+    echo ""
+    print_info "Next Steps:"
     echo "  1. cd $FULL_PROJECT_PATH"
-    echo "  2. Review OPTIONAL_TOOLS.md (if tools were added)"
-    echo "  3. docker-compose up -d dev"
-    echo "  4. code . (open in VS Code)"
+    
+    if [ -f "$FULL_PROJECT_PATH/README.md" ]; then
+        echo "  2. cat README.md  # Read project documentation"
+    fi
+    
+    if [ ${#OPTIONAL_TOOLS[@]} -gt 0 ]; then
+        echo "  3. cat OPTIONAL_TOOLS.md  # Review tool setup instructions"
+    fi
+    
+    echo "  4. docker-compose up -d  # Start services"
+    echo "  5. code .  # Open in VS Code"
+    echo ""
+    
+    if [ "$VERBOSE" = true ]; then
+        echo ""
+        print_verbose "Project creation completed at $(date)"
+        print_verbose "Template version: $(git -C "$SCRIPT_DIR" describe --tags 2>/dev/null || echo 'unknown')"
+    fi
+    
     echo ""
     echo "Happy coding! 🚀"
 }
