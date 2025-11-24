@@ -269,7 +269,7 @@ resolve_service_name_conflicts() {
             name_mapping[$service]="${prefix}_${service}"
         done <<< "$services"
 
-        # Rename services
+        # Rename services (keys in services section)
         for old_name in "${!name_mapping[@]}"; do
             local new_name="${name_mapping[$old_name]}"
             yq eval ".services.\"${new_name}\" = .services.\"${old_name}\" | del(.services.\"${old_name}\")" -i "$temp_file"
@@ -279,13 +279,33 @@ resolve_service_name_conflicts() {
         # Update depends_on references
         for old_name in "${!name_mapping[@]}"; do
             local new_name="${name_mapping[$old_name]}"
-            yq eval "(.services.[].depends_on[] | select(. == \"${old_name}\")) = \"${new_name}\"" -i "$temp_file"
+            yq eval "(.services.[].depends_on[] | select(. == \"${old_name}\")) = \"${new_name}\"" -i "$temp_file" 2>/dev/null || true
         done
 
-        # Update environment variable references (best effort)
+        # Update container_name references
         for old_name in "${!name_mapping[@]}"; do
             local new_name="${name_mapping[$old_name]}"
-            yq eval "(.services.[].environment[] | select(. == \"*${old_name}*\")) |= sub(\"${old_name}\", \"${new_name}\")" -i "$temp_file" 2>/dev/null || true
+            yq eval "(.services.[] | select(.container_name == \"${old_name}\") | .container_name) = \"${new_name}\"" -i "$temp_file" 2>/dev/null || true
+        done
+
+        # Update volume names (e.g., prometheus-data -> monitoring_prometheus-data)
+        for old_name in "${!name_mapping[@]}"; do
+            local new_name="${name_mapping[$old_name]}"
+            # Update named volumes in volumes section
+            yq eval ".volumes.\"${new_name}-data\" = .volumes.\"${old_name}-data\" | del(.volumes.\"${old_name}-data\")" -i "$temp_file" 2>/dev/null || true
+            yq eval ".volumes.\"${new_name}_data\" = .volumes.\"${old_name}_data\" | del(.volumes.\"${old_name}_data\")" -i "$temp_file" 2>/dev/null || true
+
+            # Update volume references in service definitions
+            yq eval "(.services.[].volumes[] | select(. == \"${old_name}-data:*\" or . == \"${old_name}_data:*\")) |= sub(\"${old_name}\", \"${new_name}\")" -i "$temp_file" 2>/dev/null || true
+        done
+
+        # Update network references (when service name is also used as network name)
+        for old_name in "${!name_mapping[@]}"; do
+            local new_name="${name_mapping[$old_name]}"
+            # Update network definitions
+            yq eval ".networks.\"${new_name}\" = .networks.\"${old_name}\" | del(.networks.\"${old_name}\")" -i "$temp_file" 2>/dev/null || true
+            # Update network references in services
+            yq eval "(.services.[].networks[] | select(. == \"${old_name}\")) = \"${new_name}\"" -i "$temp_file" 2>/dev/null || true
         done
 
         mv "$temp_file" "$compose_file"
@@ -295,8 +315,14 @@ resolve_service_name_conflicts() {
         # Fallback: sed-based renaming (limited capability)
         print_warning "yq not available, using fallback sed method"
 
-        # Extract service names (simple grep approach)
-        local services=$(grep -oP '^\s{2}[a-zA-Z0-9_-]+(?=:)' "$compose_file" | grep -v "^  version$\|^  services$\|^  volumes$\|^  networks$" | sed 's/^  //' || true)
+        # Extract service names from the services section only
+        local services=$(awk '/^services:/,/^(volumes|networks):/ {
+            if ($0 ~ /^  [a-zA-Z0-9_-]+:/ && $0 !~ /^  (services|volumes|networks):/) {
+                gsub(/^  /, "");
+                gsub(/:.*/, "");
+                print
+            }
+        }' "$compose_file" || true)
 
         if [ -z "$services" ]; then
             print_warning "No services found in $compose_file"
@@ -305,20 +331,40 @@ resolve_service_name_conflicts() {
 
         cp "$compose_file" "$temp_file"
 
+        # Convert CRLF to LF to ensure sed patterns work correctly
+        sed -i 's/\r$//' "$temp_file"
+
         # Rename each service
         while IFS= read -r service; do
             [ -z "$service" ] && continue
 
             local new_name="${prefix}_${service}"
 
-            # Replace service definition
+            # Replace service definition (only at line start with exact match)
             sed -i "s/^  ${service}:/  ${new_name}:/" "$temp_file"
 
-            # Replace in depends_on
+            # Replace in container_name (before the service name changes in depends_on)
+            sed -i "s/^[[:space:]]*container_name:[[:space:]]*${service}$/    container_name: ${new_name}/" "$temp_file"
+            sed -i "s/^[[:space:]]*container_name:[[:space:]]*\"${service}\"$/    container_name: \"${new_name}\"/" "$temp_file"
+            sed -i "s/^[[:space:]]*container_name:[[:space:]]*'${service}'$/    container_name: '${new_name}'/" "$temp_file"
+
+            # Replace in depends_on (only as array element)
+            sed -i "s/- ${service}$/- ${new_name}/" "$temp_file"
+            sed -i "s/- \"${service}\"$/- \"${new_name}\"/" "$temp_file"
+            sed -i "s/- '${service}'$/- '${new_name}'/" "$temp_file"
+
+            # Replace in volume names (specific patterns only)
+            sed -i "s/- ${service}-data:/- ${new_name}-data:/" "$temp_file"
+            sed -i "s/- ${service}_data:/- ${new_name}_data:/" "$temp_file"
+            sed -i "s/^  ${service}-data:/  ${new_name}-data:/" "$temp_file"
+            sed -i "s/^  ${service}_data:/  ${new_name}_data:/" "$temp_file"
+
+            # Replace in network references (when service name is the network)
             sed -i "s/- ${service}$/- ${new_name}/" "$temp_file"
 
-            # Replace in environment variables (best effort)
-            sed -i "s/${service}/${new_name}/g" "$temp_file"
+            # Replace in environment variable values (only specific patterns, not all occurrences)
+            # Match: SERVICE_NAME=value or SERVICE_URL=servicename or similar
+            sed -i "s/\([:=]\)${service}\([: ]\|$\)/\1${new_name}\2/g" "$temp_file"
 
             print_info "  Renamed: $service -> $new_name"
         done <<< "$services"
