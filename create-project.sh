@@ -218,35 +218,35 @@ list_tools() {
 list_features() {
     print_header "Available Feature Archetypes"
     echo ""
-    
+
     if [ ! -d "$ARCHETYPES_DIR" ]; then
         print_error "Archetypes directory not found: $ARCHETYPES_DIR"
         exit 1
     fi
-    
+
     print_info "Feature archetypes can be added to base archetypes using --add-features"
     echo ""
-    
+
     # List all archetypes and identify features
     for archetype_dir in "$ARCHETYPES_DIR"/*/; do
         [ -d "$archetype_dir" ] || continue
         local archetype_name=$(basename "$archetype_dir")
-        
+
         # Skip metadata directories
         [[ "$archetype_name" == __* ]] && continue
-        
+
         # Check if it's a feature archetype
         local metadata_file="$archetype_dir/__archetype__.json"
         if [ -f "$metadata_file" ]; then
             local archetype_type=$(jq -r '.type // "base"' "$metadata_file" 2>/dev/null)
-            
+
             if [ "$archetype_type" = "feature" ]; then
                 local description=$(jq -r '.description // "No description"' "$metadata_file" 2>/dev/null)
                 local version=$(jq -r '.version // "unknown"' "$metadata_file" 2>/dev/null)
-                
+
                 echo "  📦 $archetype_name (v$version)"
                 echo "     $description"
-                
+
                 # Show compatible base archetypes if available
                 local compatible=$(jq -r '.compatible_with[]? // empty' "$metadata_file" 2>/dev/null)
                 if [ -n "$compatible" ]; then
@@ -256,7 +256,7 @@ list_features() {
             fi
         fi
     done
-    
+
     echo "Usage:"
     echo "  $0 --name my-app --archetype base --add-features monitoring"
     echo "  $0 --name my-app --archetype rag-project --add-features monitoring,agentic-workflows"
@@ -529,6 +529,9 @@ EOF
 apply_optional_tools() {
     local project_path=$1
 
+    # Temporarily disable exit on error for this function
+    set +e
+
     if [ ${#OPTIONAL_TOOLS[@]} -eq 0 ] && [ -z "$USE_PRESET" ]; then
         return
     fi
@@ -628,7 +631,7 @@ EOF
 
     # Create docker-compose.project.yml with services
     if [ -n "$compose_services" ] || [ -n "$compose_volumes" ]; then
-        cat > "$project_path/docker-compose.project.yml" << 'EOF'
+        cat > "$project_path/docker-compose.project.yml" << 'EOF' || { print_error "Failed to create docker-compose.project.yml"; return 1; }
 version: '3.8'
 
 services:
@@ -640,7 +643,9 @@ EOF
 
         # Add services
         if [ -n "$compose_services" ]; then
-            echo "$compose_services" | jq -r 'to_entries[] | "  \(.key):\n    \(.value | to_entries[] | "    \(.key): \(.value | @json)")"' >> "$project_path/docker-compose.project.yml" 2>/dev/null || echo "  # Services configuration" >> "$project_path/docker-compose.project.yml"
+            if ! echo "$compose_services" | jq -r 'to_entries[] | "  \(.key):\n    \(.value | to_entries[] | "    \(.key): \(.value | @json)")"' >> "$project_path/docker-compose.project.yml" 2>/dev/null; then
+                echo "  # Services configuration" >> "$project_path/docker-compose.project.yml"
+            fi
         fi
 
         # Add volumes
@@ -655,12 +660,13 @@ EOF
     fi
 
     # Create installation instructions
-    cat > "$project_path/OPTIONAL_TOOLS.md" << EOF
+    {
+        cat << EOF
 # Optional Tools Installed
 
 This project was created with the following optional tools:
 
-$(printf '%s\n' "${OPTIONAL_TOOLS[@]}" | sed 's/^/- /')
+$(for tool in "${OPTIONAL_TOOLS[@]}"; do echo "- $tool"; done)
 
 ## Installation Instructions
 
@@ -687,18 +693,28 @@ If \`Dockerfile.additions\` was created, add those lines to your Dockerfile.
 
 ## Tool Documentation
 
-$(for tool in "${OPTIONAL_TOOLS[@]}"; do
-    tool_name=$(jq -r ".tools[\"$tool\"].name" "$TOOLS_CONFIG" 2>/dev/null)
-    tool_desc=$(jq -r ".tools[\"$tool\"].description" "$TOOLS_CONFIG" 2>/dev/null)
-    echo "### $tool_name"
-    echo "$tool_desc"
-    echo ""
-done)
 EOF
+
+        # Add tool documentation outside of the main here-doc
+        for tool in "${OPTIONAL_TOOLS[@]}"; do
+            tool_name=$(jq -r ".tools[\"$tool\"].name" "$TOOLS_CONFIG" 2>/dev/null || echo "$tool")
+            tool_desc=$(jq -r ".tools[\"$tool\"].description" "$TOOLS_CONFIG" 2>/dev/null || echo "")
+            if [ -n "$tool_name" ] && [ "$tool_name" != "null" ]; then
+                echo "### $tool_name"
+                if [ -n "$tool_desc" ] && [ "$tool_desc" != "null" ]; then
+                    echo "$tool_desc"
+                fi
+                echo ""
+            fi
+        done
+    } > "$project_path/OPTIONAL_TOOLS.md"
 
     print_success "Created OPTIONAL_TOOLS.md with installation instructions"
     echo ""
     print_info "Optional tools configured. See OPTIONAL_TOOLS.md for details."
+
+    # Re-enable exit on error
+    set -e
 }
 
 # Parse command line arguments
@@ -839,7 +855,9 @@ show_dry_run_preview() {
         fi
         if [ ${#FEATURE_ARCHETYPES[@]} -gt 0 ]; then
             echo "  Features:"
-            printf '    - %s\n' "${FEATURE_ARCHETYPES[@]}"
+            for feat in "${FEATURE_ARCHETYPES[@]}"; do
+                echo "    - $feat"
+            done
         fi
         echo ""
     fi
@@ -851,7 +869,9 @@ show_dry_run_preview() {
             echo "  Preset: $USE_PRESET"
         fi
         if [ ${#OPTIONAL_TOOLS[@]} -gt 0 ]; then
-            printf '  - %s\n' "${OPTIONAL_TOOLS[@]}"
+            for tool in "${OPTIONAL_TOOLS[@]}"; do
+                echo "  - $tool"
+            done
         fi
         echo ""
     fi
@@ -1014,7 +1034,9 @@ EOF
 
         if [ ${#OPTIONAL_TOOLS[@]} -gt 0 ]; then
             echo "Additional tools:" >> "$project_path/README.md"
-            printf '- %s\n' "${OPTIONAL_TOOLS[@]}" >> "$project_path/README.md"
+            for tool in "${OPTIONAL_TOOLS[@]}"; do
+                echo "- $tool" >> "$project_path/README.md"
+            done
             echo "" >> "$project_path/README.md"
         fi
 
@@ -1302,7 +1324,9 @@ EOF
     if [ ${#OPTIONAL_TOOLS[@]} -gt 0 ]; then
         echo ""
         echo "  🛠️  Optional Tools:"
-        printf '     - %s\n' "${OPTIONAL_TOOLS[@]}"
+        for tool in "${OPTIONAL_TOOLS[@]}"; do
+            echo "     - $tool"
+        done
     fi
 
     if [ "$CREATE_GITHUB_REPO" = true ] && [ "$SKIP_GIT" != true ]; then
