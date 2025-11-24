@@ -2,9 +2,9 @@
 
 import httpx
 
-from ..models import RAGQuery, RAGResponse, settings
-from .embeddings import EmbeddingService
-from .vector_store import VectorStore
+from src.models import RAGQuery, RAGResponse, settings
+from src.services.embeddings import EmbeddingService
+from src.services.vector_store import VectorStore
 
 
 class RAGService:

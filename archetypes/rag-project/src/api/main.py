@@ -4,9 +4,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-from .models import settings
-from .services import RAGService
+from src.models import settings
+from src.services import RAGService
 
 
 # Lifespan context manager

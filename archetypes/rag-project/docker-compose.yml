@@ -9,7 +9,7 @@ services:
       - '8000:8000'
     environment:
       - VECTOR_DB_HOST=vector-db
-      - VECTOR_DB_PORT=8001
+      - VECTOR_DB_PORT=8000
       - OLLAMA_HOST=http://ollama:11434
       - EMBEDDING_MODEL=all-MiniLM-L6-v2
       - OLLAMA_MODEL=llama2

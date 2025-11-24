@@ -4,7 +4,7 @@ from typing import List
 
 from sentence_transformers import SentenceTransformer
 
-from ..models import settings
+from src.models import settings
 
 
 class EmbeddingService:

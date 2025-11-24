@@ -4,7 +4,7 @@ from typing import List
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-from ..models import DocumentChunk, settings
+from src.models import DocumentChunk, settings
 
 
 class DocumentProcessor:
