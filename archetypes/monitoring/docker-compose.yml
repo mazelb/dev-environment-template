@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   prometheus:
     image: prom/prometheus:latest
-    container_name: prometheus
+    container_name: ${PROJECT_NAME:-monitoring}-prometheus
     ports:
       - '9090:9090'
     volumes:
@@ -20,7 +18,7 @@ services:
 
   grafana:
     image: grafana/grafana:latest
-    container_name: grafana
+    container_name: ${PROJECT_NAME:-monitoring}-grafana
     ports:
       - '3000:3000'
     environment:
@@ -39,7 +37,7 @@ services:
 
   loki:
     image: grafana/loki:latest
-    container_name: loki
+    container_name: ${PROJECT_NAME:-monitoring}-loki
     ports:
       - '3100:3100'
     volumes:
@@ -51,7 +49,7 @@ services:
 
   promtail:
     image: grafana/promtail:latest
-    container_name: promtail
+    container_name: ${PROJECT_NAME:-monitoring}-promtail
     volumes:
       - ./loki/promtail-config.yml:/etc/promtail/config.yml
       - /var/log:/var/log:ro

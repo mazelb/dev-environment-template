@@ -3,7 +3,6 @@
 from typing import List
 
 from sentence_transformers import SentenceTransformer
-
 from src.models import settings
 
 

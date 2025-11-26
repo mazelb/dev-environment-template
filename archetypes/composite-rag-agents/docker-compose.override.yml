@@ -6,8 +6,6 @@
 # Usage:
 #   docker-compose -f docker-compose.yml -f docker-compose.override.yml up -d
 
-version: '3.8'
-
 services:
   api:
     # Add agent-specific environment variables

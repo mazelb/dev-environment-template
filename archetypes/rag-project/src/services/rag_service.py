@@ -1,7 +1,6 @@
 """RAG service orchestrating retrieval and generation."""
 
 import httpx
-
 from src.models import RAGQuery, RAGResponse, settings
 from src.services.embeddings import EmbeddingService
 from src.services.vector_store import VectorStore

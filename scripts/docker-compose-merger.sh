@@ -154,9 +154,8 @@ merge_with_fallback() {
         return 1
     fi
 
-    # Extract version and start services section
-    grep "^version:" "$base_file" > "$temp_file" || echo "version: '3.8'" > "$temp_file"
-    echo "services:" >> "$temp_file"
+    # Start services section (no version field - deprecated in Compose v2)
+    echo "services:" > "$temp_file"
 
     # Track seen services to avoid duplicates
     declare -A seen_services
@@ -252,7 +251,7 @@ merge_with_fallback() {
 
     # Create output directory if needed
     mkdir -p "$(dirname "$output_file")"
-    
+
     mv "$temp_file" "$output_file"
     print_success "Docker Compose merge complete: $output_file"
     return 0

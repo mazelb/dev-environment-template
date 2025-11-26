@@ -4,7 +4,6 @@ from typing import Any, Dict, List
 
 import chromadb
 from chromadb.config import Settings as ChromaSettings
-
 from src.models import DocumentChunk, SearchResult, settings
 
 

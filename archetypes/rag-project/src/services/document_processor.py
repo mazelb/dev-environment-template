@@ -3,7 +3,6 @@
 from typing import List
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-
 from src.models import DocumentChunk, settings
 
 

@@ -22,6 +22,7 @@
 - **[IMPLEMENTATION_STRATEGY.md](IMPLEMENTATION_STRATEGY.md)** - Phase-by-phase implementation
 - **[IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md)** - Technical implementation details
 - **[MULTI_ARCHETYPE_COMPOSITION_DESIGN.md](MULTI_ARCHETYPE_COMPOSITION_DESIGN.md)** - Archetype system design
+- **[NAMING_CONVENTIONS.md](NAMING_CONVENTIONS.md)** - Naming standards for scripts, functions, and containers
 
 ### Specific Features
 - **[GIT_GITHUB_INTEGRATION.md](GIT_GITHUB_INTEGRATION.md)** - GitHub integration guide
