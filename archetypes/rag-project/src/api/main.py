@@ -4,16 +4,16 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.models import settings
-from src.services import RAGService
+from src.config import get_settings
+from src.routers import rag
+
+settings = get_settings()
 
 
 # Lifespan context manager
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initialize services on startup."""
-    # Initialize RAG service
-    app.state.rag_service = RAGService()
     yield
     # Cleanup on shutdown
     pass
@@ -21,8 +21,8 @@ async def lifespan(app: FastAPI):
 
 # Create FastAPI app
 app = FastAPI(
-    title=settings.app_name,
-    version=settings.app_version,
+    title=settings.APP_NAME,
+    version=settings.APP_VERSION,
     description="RAG system with vector search and LLM integration",
     lifespan=lifespan,
 )
@@ -36,6 +36,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include routers
+app.include_router(rag.router)
+
 
 # Health check
 @app.get("/health")
@@ -43,12 +46,23 @@ async def health_check():
     """Health check endpoint."""
     return {
         "status": "healthy",
-        "app": settings.app_name,
-        "version": settings.app_version,
+        "app": settings.APP_NAME,
+        "version": settings.APP_VERSION,
     }
 
 
 @app.get("/")
 async def root():
     """Root endpoint."""
-    return {"message": "RAG API", "docs": "/docs", "health": "/health"}
+    return {
+        "message": "RAG API",
+        "docs": "/docs",
+        "redoc": "/redoc",
+        "health": "/health",
+        "rag_endpoints": {
+            "ask": "/rag/ask",
+            "search": "/rag/search",
+            "index": "/rag/index",
+            "chat": "/rag/chat",
+        },
+    }

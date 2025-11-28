@@ -1,10 +1,19 @@
 {
-  "name": "api-service",
+  "name": "microservice-api",
   "version": "1.0.0",
   "description": "Production-ready FastAPI service with authentication, rate limiting, API versioning, and common middleware patterns",
   "type": "feature",
   "category": "backend",
-  "tags": ["fastapi", "api", "rest", "authentication", "rate-limiting", "middleware"],
+  "tags": [
+    "fastapi",
+    "api",
+    "rest",
+    "graphql",
+    "authentication",
+    "rate-limiting",
+    "middleware",
+    "microservice"
+  ],
   "author": "Dev Environment Template",
   "license": "MIT",
   "portOffset": 300,
@@ -14,6 +23,12 @@
       "type": "fastapi",
       "port": 8000,
       "healthCheck": "/health"
+    },
+    {
+      "name": "postgres",
+      "type": "postgres",
+      "port": 5432,
+      "purpose": "primary-database"
     },
     {
       "name": "redis",
@@ -34,7 +49,10 @@
       "python-multipart>=0.0.9",
       "redis>=5.0.0",
       "slowapi>=0.1.9",
-      "prometheus-fastapi-instrumentator>=7.0.0"
+      "prometheus-fastapi-instrumentator>=7.0.0",
+      "sqlalchemy>=2.0.0",
+      "psycopg2-binary>=2.9.10",
+      "alembic>=1.13.3"
     ],
     "dev": [
       "pytest>=8.0.0",

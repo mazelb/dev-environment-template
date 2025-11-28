@@ -31,6 +31,16 @@ class Settings(BaseSettings):
     # Logging
     LOG_LEVEL: str = "INFO"
 
+    # Database (PostgreSQL)
+    POSTGRES_DB: str = "api_db"
+    POSTGRES_USER: str = "api_user"
+    POSTGRES_PASSWORD: str = "api_password"
+    POSTGRES_HOST: str = "postgres"
+    POSTGRES_PORT: int = 5432
+    DATABASE_URL: str = (
+        "postgresql+psycopg2://api_user:api_password@postgres:5432/api_db"
+    )
+
     class Config:
         env_file = ".env"
         case_sensitive = True
