@@ -1,7 +1,7 @@
 # Implementation Progress Tracker
 
-**Last Updated:** November 28, 2025
-**Current Phase:** ✅ Phase 2 Complete → Phase 3 Ready to Start
+**Last Updated:** December 2025
+**Current Phase:** ✅ Phase 4 Complete → Phase 5 Ready to Start
 
 ---
 
@@ -433,11 +433,208 @@
 
 ## 🔄 IN PROGRESS
 
-### Phase 1B - API-Service Archetype
-- [ ] Rename to microservice-api
-- [ ] Add PostgreSQL service
-- [ ] Configure database utilities
-- [ ] Set up Alembic
+### Phase 5 - Frontend Development
+- [ ] Next.js/SvelteKit TypeScript frontend
+- [ ] REST and GraphQL clients
+- [ ] WebSocket streaming support
+
+---
+
+## ✅ PHASE 4: API-SERVICE ENHANCEMENTS **COMPLETE**
+
+**Completion Date:** December 2025
+**Status:** Background tasks, GraphQL, async database, and repository pattern implemented
+
+### Completed Tasks
+
+#### 1. Celery Background Task Processing ✅
+
+**Files Created:**
+- ✅ `src/celery_app/__init__.py` - Package initialization
+- ✅ `src/celery_app/celery.py` - Celery app configuration
+- ✅ `src/celery_app/tasks.py` - Task definitions with CallbackTask base
+- ✅ `src/api/v1/endpoints/tasks.py` - REST endpoints for task management
+
+**Docker Services Added:**
+- ✅ **celery-worker** - Background task processor
+- ✅ **flower** - Celery monitoring dashboard (port 5555)
+
+**Features Implemented:**
+- Redis broker and result backend
+- JSON task serialization
+- 30-minute task time limits
+- 5 sample tasks:
+  - `send_email` - Email sending simulation
+  - `process_data` - Progress tracking with update_state
+  - `generate_report` - PDF generation simulation
+  - `cleanup_old_data` - Database cleanup
+  - `scheduled_health_check` - Service health monitoring
+
+**API Endpoints:**
+- `POST /api/v1/tasks/send-email` - Submit email task
+- `POST /api/v1/tasks/process-data` - Submit processing task
+- `POST /api/v1/tasks/generate-report` - Submit report task
+- `POST /api/v1/tasks/cleanup` - Submit cleanup task
+- `GET /api/v1/tasks/status/{task_id}` - Get task status
+- `DELETE /api/v1/tasks/{task_id}` - Cancel running task
+
+**Dependencies Added:**
+- celery>=5.3.0
+- flower>=2.0.0
+
+#### 2. GraphQL API Support ✅
+
+**Files Created:**
+- ✅ `src/graphql/__init__.py` - Package exports
+- ✅ `src/graphql/types.py` - Strawberry GraphQL types
+- ✅ `src/graphql/queries.py` - Query resolvers
+- ✅ `src/graphql/mutations.py` - Mutation resolvers
+- ✅ `src/graphql/schema.py` - Schema definition and router
+
+**Features Implemented:**
+- Strawberry GraphQL framework integration
+- GraphQL Playground at `/graphql`
+- Type definitions:
+  - `User` - User data with ID, email, name
+  - `Task` - Task status with ID, name, status
+  - `HealthStatus` - Service health information
+  - `UserInput` / `UserUpdateInput` - Input types
+
+**Queries:**
+- `hello` - Basic health check
+- `health` - Service health status
+- `users` - List all users
+- `user(id)` - Get user by ID
+- `tasks` - List all tasks
+- `task(id)` - Get task by ID
+
+**Mutations:**
+- `createUser(input)` - Create new user
+- `updateUser(id, input)` - Update user
+- `deleteUser(id)` - Delete user
+- `submitTask(name, payload)` - Submit background task
+- `cancelTask(taskId)` - Cancel task
+
+**Dependencies Added:**
+- strawberry-graphql[fastapi]>=0.219.0
+
+#### 3. Async Database Support ✅
+
+**Files Modified:**
+- ✅ `src/db/base.py` - Added async engine and session support
+
+**Features Implemented:**
+- asyncpg driver for PostgreSQL
+- Separate async engine configuration
+- `AsyncSessionLocal` with async_sessionmaker
+- `get_async_db()` async generator for dependency injection
+- Dual engine approach:
+  - Sync engine (psycopg2) for Alembic migrations
+  - Async engine (asyncpg) for FastAPI async endpoints
+- Connection pooling:
+  - pool_size=20
+  - max_overflow=10
+  - pool_pre_ping=True
+
+**Dependencies Added:**
+- asyncpg>=0.29.0
+
+#### 4. Repository Pattern ✅
+
+**Files Created:**
+- ✅ `src/repositories/__init__.py` - Package exports
+- ✅ `src/repositories/base.py` - BaseRepository with Generic[ModelType]
+
+**Features Implemented:**
+- Generic base repository class
+- Sync CRUD operations:
+  - `get(id)` - Get single record
+  - `get_multi(skip, limit)` - Get multiple records with pagination
+  - `create(obj_in)` - Create from dict
+  - `update(db_obj, obj_in)` - Update from dict
+  - `delete(id)` - Delete by ID
+- Async CRUD operations:
+  - `async_get(id)`
+  - `async_get_multi(skip, limit)`
+  - `async_create(obj_in)`
+  - `async_update(db_obj, obj_in)`
+  - `async_delete(id)`
+- Type-safe with Generic[ModelType]
+- Uses SQLAlchemy `select()` for async queries
+
+#### 5. Makefile Enhancements ✅
+
+**File Created:**
+- ✅ `archetypes/api-service/Makefile` - Comprehensive command suite
+
+**Command Categories:**
+- **Service Management:** start, stop, restart, status, health, logs
+- **Development:** shell, redis-cli, db-shell
+- **Database Operations:** db-migrate, db-upgrade, db-downgrade, db-history, db-current, db-reset
+- **Celery Operations:** celery-status, celery-inspect, celery-purge, celery-logs, flower-logs
+- **Code Quality:** format, lint
+- **Testing:** test, test-cov, test-unit, test-integration
+- **Setup & Installation:** setup, setup-dev
+- **Cleanup:** clean, clean-docker
+- **Monitoring:** metrics, celery-flower
+
+### Usage Examples
+
+1. **Submit Background Task**
+   ```bash
+   curl -X POST http://localhost:8000/api/v1/tasks/send-email \
+     -H "Content-Type: application/json" \
+     -d '{"to": "user@example.com", "subject": "Hello", "body": "Test"}'
+   ```
+
+2. **GraphQL Query**
+   ```graphql
+   query {
+     users {
+       id
+       email
+       name
+     }
+   }
+   ```
+
+3. **Async Repository Usage**
+   ```python
+   from src.repositories.base import BaseRepository
+   from src.models.user import User
+
+   class UserRepository(BaseRepository[User]):
+       pass
+
+   # Async operations
+   async with get_async_db() as db:
+       user_repo = UserRepository(User, db)
+       users = await user_repo.async_get_multi(skip=0, limit=10)
+   ```
+
+4. **Celery Task Management**
+   ```bash
+   # Start Celery worker
+   make start
+
+   # Check worker status
+   make celery-status
+
+   # View Flower dashboard
+   make celery-flower
+   ```
+
+---
+
+## 🔄 PREVIOUSLY COMPLETED
+
+### Phase 3: Observability & Workflow Orchestration
+Focus areas:
+1. Langfuse tracing integration in RAG pipeline
+2. Airflow service configuration
+3. Basic DAG templates for document ingestion
+4. OpenSearch Dashboards configuration
+5. Makefile enhancements for new services
 
 ---
 

@@ -13,13 +13,21 @@ python-multipart>=0.0.9
 redis>=5.0.0
 slowapi>=0.1.9
 
+# Background Tasks
+celery>=5.3.0
+flower>=2.0.0  # Celery monitoring
+
 # Monitoring
 prometheus-fastapi-instrumentator>=7.0.0
 
 # Database & Migrations
 sqlalchemy>=2.0.0
 psycopg2-binary>=2.9.10
+asyncpg>=0.29.0  # Async PostgreSQL driver
 alembic>=1.13.3
+
+# GraphQL
+strawberry-graphql[fastapi]>=0.219.0
 
 # Development
 pytest>=8.0.0

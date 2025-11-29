@@ -41,6 +41,10 @@ class Settings(BaseSettings):
         "postgresql+psycopg2://api_user:api_password@postgres:5432/api_db"
     )
 
+    # Celery
+    CELERY_BROKER_URL: str = "redis://redis:6379/0"
+    CELERY_RESULT_BACKEND: str = "redis://redis:6379/1"
+
     class Config:
         env_file = ".env"
         case_sensitive = True

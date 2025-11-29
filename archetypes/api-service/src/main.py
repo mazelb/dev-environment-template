@@ -10,6 +10,7 @@ from src.api.v1.router import api_router
 from src.core.config import settings
 from src.middleware.logging import setup_logging
 from src.middleware.rate_limiter import limiter
+from src.graphql.schema import get_graphql_router
 
 # Setup logging
 setup_logging()
@@ -17,7 +18,7 @@ setup_logging()
 # Create FastAPI application
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    description="Production-ready FastAPI service with authentication and rate limiting",
+    description="Production-ready FastAPI service with authentication, Celery, and GraphQL",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
@@ -40,6 +41,10 @@ Instrumentator().instrument(app).expose(app)
 
 # Include API router
 app.include_router(api_router, prefix="/api/v1")
+
+# Include GraphQL router
+graphql_app = get_graphql_router()
+app.include_router(graphql_app, prefix="", tags=["graphql"])
 
 
 @app.get("/health")
