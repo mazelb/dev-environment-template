@@ -181,7 +181,6 @@ Apply offset:
 ### Known Limitations
 - ⚠️ File merging (Phase 4) not yet implemented
 - ⚠️ Advanced source code merging not yet implemented
-- ⚠️ GitHub integration (Phase 5) not yet implemented
 
 ## Troubleshooting
 
@@ -233,12 +232,7 @@ After Phase 3 is complete and tested:
    - Makefile merger
    - Source code smart merger
 
-2. **Phase 5: GitHub Integration**
-   - Automatic repository creation
-   - Initial push with metadata
-   - CI/CD workflow generation
-
-3. **Phase 6: Create Real Archetypes**
+2. **Phase 6: Create Real Archetypes**
    - RAG project archetype (from arxiv-curator)
    - Agentic workflows archetype
    - Monitoring archetype

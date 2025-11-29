@@ -1,43 +1,93 @@
 # Test Suite Documentation
 
-This directory contains comprehensive tests for the dev-environment-template project, covering both the RAG and API-Service archetypes.
+This directory contains comprehensive tests for the dev-environment-template project. There are **two distinct test suites**:
 
-## Test Structure
+1. **Template System Tests** (PowerShell/Bash) - Test the project creation system
+2. **Archetype Implementation Tests** (pytest) - Test the actual archetype code
 
-```
+---
+
+## 1. Template System Tests
+
+These tests validate the `create-project.sh` script and archetype composition system.
+
+### Files Structure
+
+```plaintext
 tests/
-├── e2e/                           # End-to-end tests
-│   └── test_archetype_creation.py # Archetype creation and validation
-│
+├── Test-Phase1.ps1                # Foundation & infrastructure tests
+├── Test-Phase2.ps1                # Git integration tests
+├── Test-Phase3.ps1                # Multi-archetype composition tests
+├── Test-Phase4.ps1                # File merging system tests
+├── Test-Phase6.ps1                # Archetype validation tests
+├── Test-CreateProject.ps1         # End-to-end project creation
+├── Test-MultiProjectWorkflow.ps1  # Multi-project workflow tests
+├── test-phase1.sh                 # Bash version of Phase 1 tests
+├── test-phase4-integration.sh     # Bash integration tests
+├── TESTING_PHASE1.md              # Phase 1 test documentation
+├── TESTING_PHASE2.md              # Phase 2 test documentation
+├── TESTING_PHASE3.md              # Phase 3 test documentation
+├── TESTING_PHASE4.md              # Phase 4 test documentation
+├── TESTING_PHASE6.md              # Phase 6 test documentation
+├── TESTING_CREATE_PROJECT.md      # Project creation test docs
+└── TESTING_GUIDE.md               # Comprehensive testing guide
+```
+
+### Running Template Tests
+
+```powershell
+# Run all phase tests
+pwsh tests/Test-Phase1.ps1  # Config & archetype structure
+pwsh tests/Test-Phase2.ps1  # Git integration
+pwsh tests/Test-Phase3.ps1  # Multi-archetype composition
+pwsh tests/Test-Phase4.ps1  # File merging
+pwsh tests/Test-Phase6.ps1  # Archetype validation
+
+# Run project creation tests
+pwsh tests/Test-CreateProject.ps1
+pwsh tests/Test-MultiProjectWorkflow.ps1
+```
+
+**Note:** Phase 5 (GitHub CLI integration) is not implemented and has been removed from the test suite.
+
+---
+
+## 2. Archetype Implementation Tests
+
+These tests validate the actual code within each archetype using pytest.
+
+### Test File Structure
+
+```plaintext
 archetypes/
 ├── rag-project/
 │   ├── pytest.ini                 # RAG pytest configuration
 │   ├── conftest.py                # RAG test fixtures
 │   └── tests/
-│       ├── unit/                  # RAG unit tests
-│       │   ├── test_cache.py
-│       │   ├── test_database.py
-│       │   ├── test_opensearch.py
-│       │   ├── test_ollama.py
-│       │   ├── test_embeddings.py
-│       │   └── test_chunking.py
+│       ├── unit/                  # RAG unit tests (138+ tests)
+│       │   ├── test_cache.py         # Redis cache tests (9 tests)
+│       │   ├── test_database.py      # SQLAlchemy tests (9 tests)
+│       │   ├── test_opensearch.py    # OpenSearch client (9 tests)
+│       │   ├── test_ollama.py        # Ollama LLM client (7 tests)
+│       │   ├── test_embeddings.py    # Embedding service (7 tests)
+│       │   └── test_chunking.py      # Chunking service (10 tests)
 │       └── integration/           # RAG integration tests
-│           ├── test_rag_pipeline.py
-│           ├── test_api_endpoints.py
-│           └── test_docker_services.py
+│           ├── test_rag_pipeline.py      # End-to-end RAG (15+ tests)
+│           ├── test_api_endpoints.py     # FastAPI endpoints (10+ tests)
+│           └── test_docker_services.py   # Docker connectivity (8+ tests)
 │
 └── api-service/
     ├── pytest.ini                 # API pytest configuration
     ├── conftest.py                # API test fixtures
     └── tests/
         ├── unit/                  # API unit tests
-        │   ├── test_auth.py
-        │   ├── test_database.py
-        │   ├── test_middleware.py
-        │   └── test_config.py
+        │   ├── test_auth.py           # JWT authentication
+        │   ├── test_database.py       # Database layer
+        │   ├── test_middleware.py     # Middleware
+        │   └── test_config.py         # Configuration
         └── integration/           # API integration tests
-            ├── test_api_endpoints.py
-            └── test_docker_services.py
+            ├── test_api_endpoints.py  # API endpoints
+            └── test_docker_services.py # Docker services
 ```
 
 ## Test Categories

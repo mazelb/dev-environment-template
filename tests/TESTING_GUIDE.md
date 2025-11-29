@@ -6,17 +6,20 @@ Complete guide for testing the dev-environment-template and projects created fro
 
 ## Overview
 
-The template includes comprehensive test suites for all phases of implementation:
+The template includes comprehensive test suites:
 
-- **Phase 1-6 Tests**: PowerShell test scripts
-- **Integration Tests**: End-to-end project creation tests
+- **Template System Tests (Phases 1-4, 6)**: PowerShell/Bash tests for project creation system
+- **Archetype Implementation Tests**: pytest tests for RAG/API archetype code
+- **Integration Tests**: End-to-end workflow tests
 - **Manual Testing**: Guidelines for manual verification
+
+**Note:** Phase 5 (GitHub CLI integration) is not implemented and has been removed.
 
 ---
 
 ## Running Tests
 
-### PowerShell Tests (Windows/Linux/macOS)
+### 1. Template System Tests (PowerShell)
 
 ```powershell
 # Run all phase tests
@@ -24,14 +27,14 @@ pwsh tests/Test-Phase1.ps1  # Foundation & Infrastructure
 pwsh tests/Test-Phase2.ps1  # Git Integration
 pwsh tests/Test-Phase3.ps1  # Multi-Archetype Core
 pwsh tests/Test-Phase4.ps1  # File Merging System
-pwsh tests/Test-Phase5.ps1  # GitHub Integration
-pwsh tests/Test-Phase6.ps1  # Archetypes
+pwsh tests/Test-Phase6.ps1  # Archetypes Validation
 
-# Run specific test
-pwsh tests/Test-Phase5.ps1
+# Run project creation tests
+pwsh tests/Test-CreateProject.ps1
+pwsh tests/Test-MultiProjectWorkflow.ps1
 ```
 
-### Bash Tests (Linux/macOS/WSL)
+### 2. Template System Tests (Bash)
 
 ```bash
 # Run bash integration tests
@@ -39,43 +42,52 @@ bash tests/test-phase1.sh
 bash tests/test-phase4-integration.sh
 ```
 
+### 3. Archetype Implementation Tests (pytest)
+
+```bash
+# RAG archetype tests
+cd archetypes/rag-project
+pytest                    # Run all tests
+pytest -m unit           # Unit tests only
+pytest -m integration    # Integration tests only
+pytest --cov=src         # With coverage
+
+# API archetype tests
+cd archetypes/api-service
+pytest
+```
+
 ---
 
 ## Test Coverage
 
-###  Phase 1: Foundation & Infrastructure
+### Template System Tests
+
+#### Phase 1: Foundation & Infrastructure
 - Configuration file validation
 - Archetype directory structure
 - Archetype loader functionality
 - JSON schema validation
 
-### Phase 2: Git Integration
+#### Phase 2: Git Integration
 - Automatic Git initialization
 - Smart commit message generation
 - .gitignore generation
 - Git helper script functionality
 
-### Phase 3: Multi-Archetype Core
+#### Phase 3: Multi-Archetype Core
 - Conflict detection
 - Port offset resolution
 - Service name prefixing
 - Archetype composition
 
-### Phase 4: File Merging System
+#### Phase 4: File Merging System
 - Docker Compose merging
 - .env file merging
 - Makefile merging
 - Source file merging
 
-### Phase 5: GitHub Integration (100% Pass Rate)
-- **24/24 tests passing**
-- GitHub CLI integration
-- Repository creation
-- Authentication checks
-- Error handling
-- Documentation
-
-### Phase 6: Archetypes (100% Pass Rate)
+#### Phase 6: Archetypes (100% Pass Rate)
 - **46/46 tests passing**
 - Base archetype
 - RAG project archetype
@@ -83,6 +95,18 @@ bash tests/test-phase4-integration.sh
 - Agentic workflows archetype
 - Monitoring archetype
 - Composite archetypes
+
+### Archetype Implementation Tests
+
+#### RAG Archetype (138+ tests)
+- **Unit Tests:** Cache, Database, OpenSearch, Ollama, Embeddings, Chunking
+- **Integration Tests:** RAG Pipeline, API Endpoints, Docker Services
+- **Coverage:** Core services and RAG pipeline functionality
+
+#### API Archetype
+- **Unit Tests:** Auth, Database, Middleware, Config
+- **Integration Tests:** API Endpoints, Docker Services
+- **Coverage:** Authentication and API functionality
 
 ---
 
@@ -187,12 +211,9 @@ ls preview2 2>/dev/null || echo "✓ No directory created"
 | Phase 2 | TBD | TBD | TBD | - |
 | Phase 3 | TBD | TBD | TBD | - |
 | Phase 4 | TBD | TBD | TBD | - |
-| Phase 5 | 27 | 24 | 0 | 100% |
 | Phase 6 | 46 | 46 | 0 | 100% |
 
-**Overall Test Coverage:** ~90%
-
----
+**Overall Test Coverage:** ~90%---
 
 ## Troubleshooting Tests
 
@@ -305,8 +326,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Run Phase 5 Tests
-        run: pwsh tests/Test-Phase5.ps1
       - name: Run Phase 6 Tests
         run: pwsh tests/Test-Phase6.ps1
 ```
@@ -345,8 +364,8 @@ For detailed test specifications, see:
 - `TESTING_PHASE2.md` - Phase 2 test details
 - `TESTING_PHASE3.md` - Phase 3 test details
 - `TESTING_PHASE4.md` - Phase 4 test details
-- `TESTING_PHASE5.md` - Phase 5 test details
 - `TESTING_PHASE6.md` - Phase 6 test details
+- `TESTING_CREATE_PROJECT.md` - Project creation test details
 
 ---
 
