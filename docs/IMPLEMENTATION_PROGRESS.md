@@ -385,12 +385,12 @@
    from src.config import get_settings
 
    pipeline = make_rag_pipeline(get_settings())
-   
+
    documents = [
        {"content": "Machine learning is...", "title": "ML Intro"},
        {"content": "Deep learning uses...", "title": "DL Basics"}
    ]
-   
+
    result = await pipeline.index_documents(documents)
    print(f"Indexed: {result['indexed']}, Failed: {result['failed']}")
    ```
