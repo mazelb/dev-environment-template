@@ -1,8 +1,8 @@
 # Example: Migrated /test Command
 
 ---
-description: Generate, fix, and improve test coverage for Python, TypeScript, Go, C++, Kotlin
-allowed-tools: ["Read", "Write", "Edit", "Bash(npm test)", "Bash(pytest .*)"]
+description: Generate, fix, and improve test coverage for Python, TypeScript/JavaScript, Kotlin
+allowed-tools: ["Read", "Write", "Edit", "Bash(npm test)", "Bash(pytest .*)", "Bash(./gradlew test)"]
 model: claude-sonnet-4-5
 argument-hint: "[file or directory to test]"
 ---
@@ -73,57 +73,6 @@ def test_create_user_with_invalid_email_raises_error(user_service):
         user_service.create(email='invalid')
 ```
 
-### Go
-- **Framework**: testing package (standard library), testify (assertions)
-- **Structure**: `Test*` functions, table-driven tests
-- **Example**:
-```go
-func TestUserService_Create(t *testing.T) {
-    tests := []struct {
-        name    string
-        email   string
-        wantErr bool
-    }{
-        {"valid email", "test@example.com", false},
-        {"invalid email", "invalid", true},
-    }
-
-    for _, tt := range tests {
-        t.Run(tt.name, func(t *testing.T) {
-            svc := NewUserService()
-            user, err := svc.Create(tt.email)
-
-            if tt.wantErr {
-                assert.Error(t, err)
-            } else {
-                assert.NoError(t, err)
-                assert.NotEmpty(t, user.ID)
-            }
-        })
-    }
-}
-```
-
-### C++
-- **Framework**: Google Test, Catch2
-- **Structure**: `TEST()`, `TEST_F()` macros
-- **Example**:
-```cpp
-TEST(UserServiceTest, CreateUserWithValidData) {
-    UserService service;
-    auto user = service.create("test@example.com");
-
-    EXPECT_NE(user.id, 0);
-    EXPECT_EQ(user.email, "test@example.com");
-}
-
-TEST(UserServiceTest, CreateUserWithInvalidEmailThrows) {
-    UserService service;
-
-    EXPECT_THROW(service.create("invalid"), std::invalid_argument);
-}
-```
-
 ### Kotlin
 - **Framework**: JUnit 5, Kotest
 - **Structure**: `@Test` annotations, descriptive names
@@ -186,11 +135,8 @@ After generating tests:
 # Python
 !pytest -v 2>&1
 
-# Go
-!go test ./... -v 2>&1
-
-# C++
-!make test 2>&1
+# Kotlin
+!./gradlew test 2>&1
 ```
 
 2. **Analyze failures**: If tests fail, explain why and suggest fixes

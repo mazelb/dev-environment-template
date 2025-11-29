@@ -1008,7 +1008,7 @@ ws.send(JSON.stringify({
 // Receive stream
 ws.onmessage = (event) => {
   const message = JSON.parse(event.data);
-  
+
   if (message.type === 'token') {
     console.log('Token:', message.data);
   } else if (message.type === 'done') {
@@ -1105,7 +1105,7 @@ import requests
 class RAGClient:
     def __init__(self, base_url="http://localhost:8000"):
         self.base_url = base_url
-    
+
     def ask(self, query, top_k=5, search_type="hybrid"):
         response = requests.post(
             f"{self.base_url}/rag/ask",

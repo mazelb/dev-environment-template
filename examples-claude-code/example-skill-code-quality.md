@@ -12,7 +12,7 @@ description: |
   - Mention performance profiling or optimization
   - Discuss technical debt or code smells
 
-  Supports: Python, TypeScript/JavaScript, Go, C++, Kotlin
+  Supports: Python, TypeScript/JavaScript, Kotlin
   Checks: Code style, security, dependencies, performance, testing
 
   Outputs prioritized findings (Critical → High → Medium → Low) with
@@ -57,6 +57,8 @@ Claude will invoke this skill when you:
 - List comprehensions vs loops
 - Context managers for resources
 - Async/await patterns
+- FastAPI best practices
+- SQLAlchemy query optimization
 
 **TypeScript/JavaScript**:
 - ESLint rule violations
@@ -65,22 +67,7 @@ Claude will invoke this skill when you:
 - Immutability patterns
 - React hooks rules
 - Module imports organization
-
-**Go**:
-- gofmt compliance
-- Error return conventions
-- Defer usage
-- Interface definitions
-- Goroutine leaks
-- Context usage
-
-**C++**:
-- RAII principle
-- Smart pointers vs raw pointers
-- Const correctness
-- Move semantics
-- Memory leaks
-- Template usage
+- Next.js best practices (App Router, Server Components)
 
 **Kotlin**:
 - Kotlin idioms
@@ -88,15 +75,14 @@ Claude will invoke this skill when you:
 - Data classes
 - Extension functions
 - Coroutines best practices
+- Spring Boot patterns
 
 ### 2. Dependency Auditing
 
 **Scans package files:**
-- `package.json` / `package-lock.json` (Node.js)
+- `package.json` / `package-lock.json` (Node.js/TypeScript)
 - `requirements.txt` / `pyproject.toml` (Python)
-- `go.mod` / `go.sum` (Go)
-- `Cargo.toml` / `Cargo.lock` (Rust)
-- `pom.xml` / `build.gradle` (Java/Kotlin)
+- `build.gradle` / `build.gradle.kts` (Kotlin)
 
 **Checks for:**
 - 🔴 **Critical**: Known CVEs and security vulnerabilities
@@ -173,32 +159,25 @@ function UserList({ users }) {
 ```
 
 **Algorithm efficiency:**
-```go
-// ❌ BAD: O(n²) nested loops
-func findDuplicates(nums []int) []int {
-    duplicates := []int{}
-    for i := 0; i < len(nums); i++ {
-        for j := i + 1; j < len(nums); j++ {
-            if nums[i] == nums[j] {
-                duplicates = append(duplicates, nums[i])
-            }
-        }
-    }
+```python
+# ❌ BAD: O(n²) nested loops
+def find_duplicates(nums: list[int]) -> list[int]:
+    duplicates = []
+    for i in range(len(nums)):
+        for j in range(i + 1, len(nums)):
+            if nums[i] == nums[j] and nums[i] not in duplicates:
+                duplicates.append(nums[i])
     return duplicates
-}
 
-// ✅ GOOD: O(n) with hash map
-func findDuplicates(nums []int) []int {
-    seen := make(map[int]bool)
-    duplicates := []int{}
-    for _, num := range nums {
-        if seen[num] {
-            duplicates = append(duplicates, num)
-        }
-        seen[num] = true
-    }
+# ✅ GOOD: O(n) with set
+def find_duplicates(nums: list[int]) -> list[int]:
+    seen = set()
+    duplicates = []
+    for num in nums:
+        if num in seen and num not in duplicates:
+            duplicates.append(num)
+        seen.add(num)
     return duplicates
-}
 ```
 
 ### 4. Security Scanning

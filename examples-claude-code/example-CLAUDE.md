@@ -17,7 +17,7 @@ A portable, production-ready development environment template that works seamles
 
 - **Team Size**: ~8-12 developers
 - **Experience Levels**: Junior to Senior
-- **Primary Languages**: Python (FastAPI, Django), TypeScript (React, Next.js), Go, C++, Kotlin
+- **Primary Languages**: Python (FastAPI, RAG), TypeScript/JavaScript (React, Next.js), Kotlin (Spring Boot)
 - **Deployment**: Docker Compose (dev), AWS ECS (prod)
 - **CI/CD**: GitHub Actions
 - **Code Review**: Required for all PRs
@@ -99,6 +99,7 @@ dev-environment-template/
 - pytest (testing)
 - Black (formatting)
 - Ruff (linting)
+- Ollama/LangChain (RAG & LLM)
 
 **TypeScript/JavaScript**
 - Next.js 14 (frontend framework)
@@ -108,21 +109,11 @@ dev-environment-template/
 - Jest/Vitest (testing)
 - ESLint + Prettier (code quality)
 
-**Go 1.21+**
-- Standard library for services
-- gRPC for inter-service communication
-- sqlc for type-safe SQL
-- testing package
-
-**C++ 17+**
-- CMake (build system)
-- Google Test (testing)
-- clang-format (formatting)
-
 **Kotlin**
 - Spring Boot (backends)
 - JUnit + Kotest (testing)
 - Gradle (build)
+- Coroutines (async)
 
 ### Infrastructure
 
@@ -250,77 +241,6 @@ export const useUserService = ({ apiClient }: UserServiceProps) => {
 - React Testing Library
 - Minimum 70% coverage
 - E2E tests with Playwright (optional)
-
-### Go
-
-**Style**:
-- gofmt standard
-- golangci-lint for linting
-- Effective Go guidelines
-- Table-driven tests
-
-**Example**:
-```go
-package user
-
-import (
-    "context"
-    "errors"
-)
-
-var ErrUserNotFound = errors.New("user not found")
-
-type Service struct {
-    repo Repository
-}
-
-func NewService(repo Repository) *Service {
-    return &Service{repo: repo}
-}
-
-func (s *Service) GetUser(ctx context.Context, id string) (*User, error) {
-    user, err := s.repo.FindByID(ctx, id)
-    if err != nil {
-        return nil, err
-    }
-    if user == nil {
-        return nil, ErrUserNotFound
-    }
-    return user, nil
-}
-```
-
-### C++
-
-**Style**:
-- Google C++ Style Guide
-- clang-format for formatting
-- Modern C++17 features
-- RAII and smart pointers
-
-**Example**:
-```cpp
-#include <memory>
-#include <string>
-#include <vector>
-
-class UserService {
-public:
-    explicit UserService(std::unique_ptr<UserRepository> repo)
-        : repo_(std::move(repo)) {}
-
-    std::unique_ptr<User> GetUser(const std::string& id) const {
-        auto user = repo_->FindById(id);
-        if (!user) {
-            throw UserNotFoundException("User not found: " + id);
-        }
-        return user;
-    }
-
-private:
-    std::unique_ptr<UserRepository> repo_;
-};
-```
 
 ### Kotlin
 
