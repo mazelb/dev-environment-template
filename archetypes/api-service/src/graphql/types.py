@@ -2,14 +2,16 @@
 GraphQL type definitions.
 """
 
-import strawberry
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+
+import strawberry
 
 
 @strawberry.type
 class User:
     """User type."""
+
     id: int
     username: str
     email: str
@@ -20,6 +22,7 @@ class User:
 @strawberry.type
 class Task:
     """Task type."""
+
     id: str
     name: str
     status: str
@@ -31,6 +34,7 @@ class Task:
 @strawberry.type
 class HealthStatus:
     """Health status type."""
+
     status: str
     version: str
     timestamp: datetime
@@ -40,6 +44,7 @@ class HealthStatus:
 @strawberry.input
 class UserInput:
     """User input type."""
+
     username: str
     email: str
     password: str
@@ -48,6 +53,7 @@ class UserInput:
 @strawberry.input
 class UserUpdateInput:
     """User update input type."""
+
     username: Optional[str] = None
     email: Optional[str] = None
     is_active: Optional[bool] = None

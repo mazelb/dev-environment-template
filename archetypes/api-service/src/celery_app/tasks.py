@@ -3,8 +3,10 @@ Celery tasks for background processing.
 """
 
 import time
-from typing import Dict, Any
+from typing import Any, Dict
+
 from celery import Task
+
 from src.celery_app.celery import celery_app
 
 
@@ -24,19 +26,19 @@ class CallbackTask(Task):
 def send_email(to: str, subject: str, body: str) -> Dict[str, Any]:
     """
     Send an email asynchronously.
-    
+
     Args:
         to: Recipient email address
         subject: Email subject
         body: Email body
-        
+
     Returns:
         Dict with status and message
     """
     # Simulate email sending
     time.sleep(2)
     print(f"Sending email to {to}: {subject}")
-    
+
     return {
         "status": "sent",
         "to": to,
@@ -49,11 +51,11 @@ def send_email(to: str, subject: str, body: str) -> Dict[str, Any]:
 def process_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
     """
     Process data asynchronously with progress tracking.
-    
+
     Args:
         self: Task instance (bound)
         data: Data to process
-        
+
     Returns:
         Processed data
     """
@@ -64,7 +66,7 @@ def process_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
             state="PROGRESS",
             meta={"current": i, "total": total, "percent": (i / total) * 100},
         )
-    
+
     return {"status": "completed", "result": data, "processed_items": total}
 
 
@@ -72,16 +74,16 @@ def process_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
 def generate_report(report_type: str, filters: Dict[str, Any]) -> Dict[str, Any]:
     """
     Generate a report asynchronously.
-    
+
     Args:
         report_type: Type of report to generate
         filters: Report filters
-        
+
     Returns:
         Report metadata
     """
     time.sleep(5)  # Simulate report generation
-    
+
     return {
         "status": "completed",
         "report_type": report_type,
@@ -95,15 +97,15 @@ def generate_report(report_type: str, filters: Dict[str, Any]) -> Dict[str, Any]
 def cleanup_old_data(days: int = 30) -> Dict[str, Any]:
     """
     Clean up old data from the database.
-    
+
     Args:
         days: Number of days to retain
-        
+
     Returns:
         Cleanup statistics
     """
     time.sleep(3)  # Simulate cleanup
-    
+
     return {
         "status": "completed",
         "days_retained": days,
@@ -116,7 +118,7 @@ def cleanup_old_data(days: int = 30) -> Dict[str, Any]:
 def scheduled_health_check() -> Dict[str, Any]:
     """
     Perform scheduled health check of external services.
-    
+
     Returns:
         Health check results
     """

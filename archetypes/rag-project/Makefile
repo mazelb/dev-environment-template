@@ -40,6 +40,37 @@ health: ## Check all services health
 	@curl -s http://localhost:11434/api/version | python -m json.tool || echo "Ollama not responding"
 	@echo "\n=== Langfuse Health ==="
 	@curl -s http://localhost:3000/api/public/health || echo "Langfuse not responding"
+	@echo "\n=== Airflow Health ==="
+	@curl -s http://localhost:8080/health || echo "Airflow not responding"
+
+# Airflow management
+airflow-ui: ## Open Airflow UI in browser
+	@echo "Opening Airflow UI at http://localhost:8080"
+	@echo "Username: admin | Password: admin (default)"
+	@open http://localhost:8080 2>/dev/null || xdg-open http://localhost:8080 2>/dev/null || start http://localhost:8080
+
+airflow-logs: ## View Airflow logs
+	docker compose logs -f airflow-scheduler airflow-webserver
+
+airflow-shell: ## Open shell in Airflow scheduler container
+	docker compose exec airflow-scheduler /bin/bash
+
+airflow-dags: ## List all DAGs
+	docker compose exec airflow-scheduler airflow dags list
+
+airflow-test-dag: ## Test a DAG (use: make airflow-test-dag DAG_ID=hello_world_dag)
+	@if [ -z "$(DAG_ID)" ]; then \
+		echo "Error: DAG_ID is required. Usage: make airflow-test-dag DAG_ID=hello_world_dag"; \
+		exit 1; \
+	fi
+	docker compose exec airflow-scheduler airflow dags test $(DAG_ID)
+
+airflow-trigger-dag: ## Trigger a DAG manually (use: make airflow-trigger-dag DAG_ID=document_ingestion_dag)
+	@if [ -z "$(DAG_ID)" ]; then \
+		echo "Error: DAG_ID is required. Usage: make airflow-trigger-dag DAG_ID=document_ingestion_dag"; \
+		exit 1; \
+	fi
+	docker compose exec airflow-scheduler airflow dags trigger $(DAG_ID)
 
 # Development setup
 setup: ## Install Python dependencies

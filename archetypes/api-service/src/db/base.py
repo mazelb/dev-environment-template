@@ -1,9 +1,11 @@
 """Database base and session for microservice-api with sync and async support."""
-from typing import Generator, AsyncGenerator
+
+from typing import AsyncGenerator, Generator
 
 from sqlalchemy import create_engine
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import Session, declarative_base, sessionmaker
+
 from src.core.config import settings
 
 # Sync engine (for Alembic migrations and sync operations)

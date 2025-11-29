@@ -1,8 +1,8 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import { ApolloProvider } from '@apollo/client';
 import { getApolloClient } from '@/lib/graphql-client';
 import '@/styles/globals.css';
+import { ApolloProvider } from '@apollo/client';
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
 
 const inter = Inter({ subsets: ['latin'] });
 

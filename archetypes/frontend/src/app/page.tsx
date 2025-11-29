@@ -5,7 +5,7 @@ export default function HomePage() {
         <h1 className="text-4xl font-bold text-center mb-8">
           Welcome to Frontend Archetype
         </h1>
-        
+
         <div className="grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-3 lg:text-left gap-4">
           <a
             href="/search"

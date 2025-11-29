@@ -74,6 +74,7 @@ services:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres-init:/docker-entrypoint-initdb.d
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-rag_user} -d ${POSTGRES_DB:-rag_db}']
       interval: 5s
@@ -218,12 +219,146 @@ services:
     networks:
       - rag-network
 
+  # ClickHouse - Analytics Database for Langfuse (Optional)
+  # Uncomment to enable advanced analytics features
+  # clickhouse:
+  #   image: clickhouse/clickhouse-server:24.8-alpine
+  #   container_name: ${PROJECT_NAME:-rag}-clickhouse
+  #   environment:
+  #     - CLICKHOUSE_DB=langfuse
+  #     - CLICKHOUSE_USER=langfuse
+  #     - CLICKHOUSE_PASSWORD=langfuse
+  #     - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+  #   ports:
+  #     - '8123:8123'
+  #     - '9000:9000'
+  #   volumes:
+  #     - clickhouse_data:/var/lib/clickhouse
+  #   healthcheck:
+  #     test: ['CMD', 'wget', '--spider', '-q', 'localhost:8123/ping']
+  #     interval: 30s
+  #     timeout: 5s
+  #     retries: 3
+  #     start_period: 30s
+  #   restart: unless-stopped
+  #   networks:
+  #     - rag-network
+  #   ulimits:
+  #     nofile:
+  #       soft: 262144
+  #       hard: 262144
+
+  # Apache Airflow - Workflow Orchestration
+  airflow-init:
+    build:
+      context: ./airflow
+      dockerfile: Dockerfile
+    container_name: ${PROJECT_NAME:-rag}-airflow-init
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW__CORE__FERNET_KEY=${AIRFLOW_FERNET_KEY:-}
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth
+      - _AIRFLOW_DB_MIGRATE=true
+      - _AIRFLOW_WWW_USER_CREATE=true
+      - _AIRFLOW_WWW_USER_USERNAME=${AIRFLOW_USERNAME:-admin}
+      - _AIRFLOW_WWW_USER_PASSWORD=${AIRFLOW_PASSWORD:-admin}
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/plugins:/opt/airflow/plugins
+      - ./src:/opt/airflow/src
+      - airflow_logs:/opt/airflow/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - rag-network
+    command: >
+      bash -c "airflow db migrate &&
+               airflow users create --username $${_AIRFLOW_WWW_USER_USERNAME} --password
+      $${_AIRFLOW_WWW_USER_PASSWORD} --firstname Admin --lastname User --role Admin --email
+      admin@example.com || true"
+
+  airflow-webserver:
+    build:
+      context: ./airflow
+      dockerfile: Dockerfile
+    container_name: ${PROJECT_NAME:-rag}-airflow-webserver
+    ports:
+      - '8080:8080'
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW__CORE__FERNET_KEY=${AIRFLOW_FERNET_KEY:-}
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth
+      - AIRFLOW__WEBSERVER__SECRET_KEY=${AIRFLOW_WEBSERVER_SECRET_KEY:-}
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/plugins:/opt/airflow/plugins
+      - ./src:/opt/airflow/src
+      - airflow_logs:/opt/airflow/logs
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'curl', '--fail', 'http://localhost:8080/health']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - rag-network
+    command: webserver
+
+  airflow-scheduler:
+    build:
+      context: ./airflow
+      dockerfile: Dockerfile
+    container_name: ${PROJECT_NAME:-rag}-airflow-scheduler
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW__CORE__FERNET_KEY=${AIRFLOW_FERNET_KEY:-}
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/plugins:/opt/airflow/plugins
+      - ./src:/opt/airflow/src
+      - airflow_logs:/opt/airflow/logs
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        ['CMD', 'airflow', 'jobs', 'check', '--job-type', 'SchedulerJob', '--hostname', '$HOSTNAME']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - rag-network
+    command: scheduler
+
 volumes:
   postgres_data:
   redis_data:
   opensearch_data:
   ollama_data:
   langfuse_postgres_data:
+  airflow_logs:
+  # clickhouse_data:  # Uncomment if using ClickHouse
 
 networks:
   rag-network:

@@ -2,10 +2,12 @@
 Base repository with common CRUD operations.
 """
 
-from typing import Generic, TypeVar, Type, Optional, List, Any, Dict
-from sqlalchemy.orm import Session
+from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
+
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, delete
+from sqlalchemy.orm import Session
+
 from src.db.base import Base
 
 ModelType = TypeVar("ModelType", bound=Base)
@@ -14,14 +16,14 @@ ModelType = TypeVar("ModelType", bound=Base)
 class BaseRepository(Generic[ModelType]):
     """
     Base repository providing common CRUD operations.
-    
+
     Supports both synchronous and asynchronous operations.
     """
 
     def __init__(self, model: Type[ModelType]):
         """
         Initialize repository with model class.
-        
+
         Args:
             model: SQLAlchemy model class
         """
@@ -31,11 +33,11 @@ class BaseRepository(Generic[ModelType]):
     def get(self, db: Session, id: Any) -> Optional[ModelType]:
         """
         Get a single record by ID.
-        
+
         Args:
             db: Database session
             id: Record ID
-            
+
         Returns:
             Model instance or None
         """
@@ -46,12 +48,12 @@ class BaseRepository(Generic[ModelType]):
     ) -> List[ModelType]:
         """
         Get multiple records with pagination.
-        
+
         Args:
             db: Database session
             skip: Number of records to skip
             limit: Maximum number of records to return
-            
+
         Returns:
             List of model instances
         """
@@ -60,11 +62,11 @@ class BaseRepository(Generic[ModelType]):
     def create(self, db: Session, *, obj_in: Dict[str, Any]) -> ModelType:
         """
         Create a new record.
-        
+
         Args:
             db: Database session
             obj_in: Dictionary with model attributes
-            
+
         Returns:
             Created model instance
         """
@@ -79,12 +81,12 @@ class BaseRepository(Generic[ModelType]):
     ) -> ModelType:
         """
         Update an existing record.
-        
+
         Args:
             db: Database session
             db_obj: Existing model instance
             obj_in: Dictionary with updated attributes
-            
+
         Returns:
             Updated model instance
         """
@@ -99,11 +101,11 @@ class BaseRepository(Generic[ModelType]):
     def delete(self, db: Session, *, id: Any) -> ModelType:
         """
         Delete a record by ID.
-        
+
         Args:
             db: Database session
             id: Record ID
-            
+
         Returns:
             Deleted model instance
         """
@@ -116,11 +118,11 @@ class BaseRepository(Generic[ModelType]):
     async def async_get(self, db: AsyncSession, id: Any) -> Optional[ModelType]:
         """
         Get a single record by ID (async).
-        
+
         Args:
             db: Async database session
             id: Record ID
-            
+
         Returns:
             Model instance or None
         """
@@ -132,18 +134,16 @@ class BaseRepository(Generic[ModelType]):
     ) -> List[ModelType]:
         """
         Get multiple records with pagination (async).
-        
+
         Args:
             db: Async database session
             skip: Number of records to skip
             limit: Maximum number of records to return
-            
+
         Returns:
             List of model instances
         """
-        result = await db.execute(
-            select(self.model).offset(skip).limit(limit)
-        )
+        result = await db.execute(select(self.model).offset(skip).limit(limit))
         return result.scalars().all()
 
     async def async_create(
@@ -151,11 +151,11 @@ class BaseRepository(Generic[ModelType]):
     ) -> ModelType:
         """
         Create a new record (async).
-        
+
         Args:
             db: Async database session
             obj_in: Dictionary with model attributes
-            
+
         Returns:
             Created model instance
         """
@@ -170,12 +170,12 @@ class BaseRepository(Generic[ModelType]):
     ) -> ModelType:
         """
         Update an existing record (async).
-        
+
         Args:
             db: Async database session
             db_obj: Existing model instance
             obj_in: Dictionary with updated attributes
-            
+
         Returns:
             Updated model instance
         """
@@ -190,11 +190,11 @@ class BaseRepository(Generic[ModelType]):
     async def async_delete(self, db: AsyncSession, *, id: Any) -> ModelType:
         """
         Delete a record by ID (async).
-        
+
         Args:
             db: Async database session
             id: Record ID
-            
+
         Returns:
             Deleted model instance
         """

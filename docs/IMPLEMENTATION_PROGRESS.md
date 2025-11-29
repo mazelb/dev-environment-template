@@ -608,7 +608,7 @@
 2. **REST API Call**
    ```typescript
    import { apiClient } from '@/lib/http-client';
-   
+
    const users = await apiClient.get<User[]>('/api/users');
    ```
 
@@ -616,14 +616,14 @@
    ```typescript
    import { useQuery } from '@apollo/client';
    import { GET_USERS } from '@/lib/graphql-queries';
-   
+
    const { data, loading } = useQuery(GET_USERS);
    ```
 
 4. **WebSocket Connection**
    ```typescript
    import { wsClient } from '@/lib/websocket';
-   
+
    wsClient.connect();
    wsClient.on('message', (data) => console.log(data));
    ```

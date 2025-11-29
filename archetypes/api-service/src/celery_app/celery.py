@@ -3,6 +3,7 @@ Celery application configuration and initialization.
 """
 
 from celery import Celery
+
 from src.core.config import settings
 
 # Create Celery instance

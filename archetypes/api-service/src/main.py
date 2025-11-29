@@ -8,9 +8,9 @@ from prometheus_fastapi_instrumentator import Instrumentator
 
 from src.api.v1.router import api_router
 from src.core.config import settings
+from src.graphql.schema import get_graphql_router
 from src.middleware.logging import setup_logging
 from src.middleware.rate_limiter import limiter
-from src.graphql.schema import get_graphql_router
 
 # Setup logging
 setup_logging()

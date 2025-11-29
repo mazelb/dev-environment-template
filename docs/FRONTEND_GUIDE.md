@@ -12,7 +12,7 @@ This frontend archetype provides a production-ready TypeScript frontend built wi
 - **Language**: TypeScript 5.6
 - **Styling**: Tailwind CSS 3.4
 - **Components**: shadcn/ui (Radix UI primitives)
-- **State Management**: 
+- **State Management**:
   - Zustand (client state)
   - TanStack Query (server state)
 - **API Clients**:

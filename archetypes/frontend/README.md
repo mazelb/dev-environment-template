@@ -107,7 +107,7 @@ import { GET_USERS, CREATE_USER } from '@/lib/graphql-queries';
 function Users() {
   const { data, loading } = useQuery(GET_USERS);
   const [createUser] = useMutation(CREATE_USER);
-  
+
   // ...
 }
 ```
@@ -119,7 +119,7 @@ import { useWebSocket } from '@/hooks/use-websocket';
 
 function StreamingComponent() {
   const { socket, isConnected } = useWebSocket();
-  
+
   useEffect(() => {
     socket?.on('message', (data) => {
       console.log('Received:', data);

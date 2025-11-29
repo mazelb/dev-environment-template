@@ -2,11 +2,12 @@
 GraphQL query resolvers.
 """
 
-import strawberry
-from typing import List, Optional
 from datetime import datetime
+from typing import List, Optional
 
-from src.graphql.types import User, Task, HealthStatus
+import strawberry
+
+from src.graphql.types import HealthStatus, Task, User
 
 
 @strawberry.type

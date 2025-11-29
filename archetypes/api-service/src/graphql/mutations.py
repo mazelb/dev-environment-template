@@ -2,11 +2,12 @@
 GraphQL mutation resolvers.
 """
 
-import strawberry
-from typing import Optional
 from datetime import datetime
+from typing import Optional
 
-from src.graphql.types import User, Task, UserInput, UserUpdateInput
+import strawberry
+
+from src.graphql.types import Task, User, UserInput, UserUpdateInput
 
 
 @strawberry.type

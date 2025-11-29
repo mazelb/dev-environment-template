@@ -2,16 +2,16 @@
 API endpoints for task management.
 """
 
-from typing import Dict, Any
+from typing import Any, Dict
+
+from celery.result import AsyncResult
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
-from celery.result import AsyncResult
-
 from src.celery_app.tasks import (
-    send_email,
-    process_data,
-    generate_report,
     cleanup_old_data,
+    generate_report,
+    process_data,
+    send_email,
 )
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
@@ -19,6 +19,7 @@ router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 class EmailRequest(BaseModel):
     """Email sending request."""
+
     to: str = Field(..., description="Recipient email address")
     subject: str = Field(..., description="Email subject")
     body: str = Field(..., description="Email body")
@@ -26,22 +27,26 @@ class EmailRequest(BaseModel):
 
 class DataProcessRequest(BaseModel):
     """Data processing request."""
+
     data: Dict[str, Any] = Field(..., description="Data to process")
 
 
 class ReportRequest(BaseModel):
     """Report generation request."""
+
     report_type: str = Field(..., description="Type of report")
     filters: Dict[str, Any] = Field(default_factory=dict, description="Report filters")
 
 
 class CleanupRequest(BaseModel):
     """Cleanup request."""
+
     days: int = Field(default=30, description="Days to retain")
 
 
 class TaskResponse(BaseModel):
     """Task submission response."""
+
     task_id: str = Field(..., description="Task ID")
     status: str = Field(..., description="Task status")
     message: str = Field(..., description="Status message")
@@ -95,15 +100,15 @@ async def cleanup_task(request: CleanupRequest):
 async def get_task_status(task_id: str) -> Dict[str, Any]:
     """
     Get task status by ID.
-    
+
     Args:
         task_id: Task ID
-        
+
     Returns:
         Task status information
     """
     task_result = AsyncResult(task_id)
-    
+
     if task_result.state == "PENDING":
         return {
             "task_id": task_id,
@@ -140,15 +145,15 @@ async def get_task_status(task_id: str) -> Dict[str, Any]:
 async def cancel_task(task_id: str) -> Dict[str, str]:
     """
     Cancel a running task.
-    
+
     Args:
         task_id: Task ID
-        
+
     Returns:
         Cancellation status
     """
     task_result = AsyncResult(task_id)
-    
+
     if task_result.state in ["PENDING", "PROGRESS"]:
         task_result.revoke(terminate=True)
         return {
