@@ -1,0 +1,343 @@
+{
+  "info": {
+    "name": "RAG API",
+    "_postman_id": "rag-api-collection",
+    "description": "Complete API collection for RAG Archetype with retrieval-augmented generation endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health & Status",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Check if the service is healthy and running"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has status field', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('status');",
+                  "    pm.expect(jsonData.status).to.equal('healthy');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Root Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "Get API information and available endpoints"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "RAG Operations",
+      "item": [
+        {
+          "name": "Ask Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"What is machine learning?\",\n  \"top_k\": 5,\n  \"search_type\": \"hybrid\",\n  \"temperature\": 0.7,\n  \"stream\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/rag/ask",
+              "host": ["{{base_url}}"],
+              "path": ["rag", "ask"]
+            },
+            "description": "Ask a question and get an AI-generated answer with retrieved context"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has answer field', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('answer');",
+                  "    pm.expect(jsonData).to.have.property('context');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ask with Custom System Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Explain neural networks\",\n  \"top_k\": 3,\n  \"search_type\": \"hybrid\",\n  \"system_message\": \"You are an expert AI educator. Explain concepts clearly and concisely.\",\n  \"temperature\": 0.5,\n  \"max_tokens\": 300\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/rag/ask",
+              "host": ["{{base_url}}"],
+              "path": ["rag", "ask"]
+            },
+            "description": "Ask with custom system message and parameters"
+          },
+          "response": []
+        },
+        {
+          "name": "Search Documents",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"machine learning algorithms\",\n  \"top_k\": 10,\n  \"search_type\": \"hybrid\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/rag/search",
+              "host": ["{{base_url}}"],
+              "path": ["rag", "search"]
+            },
+            "description": "Search for relevant documents without LLM generation"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has results array', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('results');",
+                  "    pm.expect(jsonData.results).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Search with Filters",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"deep learning\",\n  \"top_k\": 15,\n  \"search_type\": \"vector\",\n  \"filters\": {\n    \"category\": \"ai\",\n    \"year\": 2023\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/rag/search",
+              "host": ["{{base_url}}"],
+              "path": ["rag", "search"]
+            },
+            "description": "Search with metadata filters"
+          },
+          "response": []
+        },
+        {
+          "name": "Index Documents",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documents\": [\n    {\n      \"id\": \"doc-1\",\n      \"content\": \"Machine learning is a method of data analysis that automates analytical model building.\",\n      \"metadata\": {\n        \"source\": \"ml-intro.txt\",\n        \"category\": \"ai\",\n        \"year\": 2023\n      }\n    },\n    {\n      \"id\": \"doc-2\",\n      \"content\": \"Deep learning is a subset of machine learning that uses neural networks with multiple layers.\",\n      \"metadata\": {\n        \"source\": \"dl-basics.txt\",\n        \"category\": \"ai\",\n        \"year\": 2023\n      }\n    }\n  ],\n  \"text_field\": \"content\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/rag/index",
+              "host": ["{{base_url}}"],
+              "path": ["rag", "index"]
+            },
+            "description": "Index documents for retrieval"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Documents indexed successfully', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('indexed');",
+                  "    pm.expect(jsonData.indexed).to.be.above(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Chat with Context",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"What is machine learning?\"\n    },\n    {\n      \"role\": \"assistant\",\n      \"content\": \"Machine learning is a subset of artificial intelligence that enables systems to learn and improve from experience without being explicitly programmed.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Can you give me a practical example?\"\n    }\n  ],\n  \"top_k\": 5,\n  \"search_type\": \"hybrid\",\n  \"temperature\": 0.7\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/rag/chat",
+              "host": ["{{base_url}}"],
+              "path": ["rag", "chat"]
+            },
+            "description": "Chat with context retrieval from conversation history"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Search Types",
+      "item": [
+        {
+          "name": "Keyword Search",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"neural networks\",\n  \"top_k\": 10,\n  \"search_type\": \"keyword\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/rag/search",
+              "host": ["{{base_url}}"],
+              "path": ["rag", "search"]
+            },
+            "description": "BM25 keyword-based search"
+          },
+          "response": []
+        },
+        {
+          "name": "Vector Search",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"neural networks\",\n  \"top_k\": 10,\n  \"search_type\": \"vector\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/rag/search",
+              "host": ["{{base_url}}"],
+              "path": ["rag", "search"]
+            },
+            "description": "Semantic vector similarity search"
+          },
+          "response": []
+        },
+        {
+          "name": "Hybrid Search",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"neural networks\",\n  \"top_k\": 10,\n  \"search_type\": \"hybrid\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/rag/search",
+              "host": ["{{base_url}}"],
+              "path": ["rag", "search"]
+            },
+            "description": "Hybrid search combining BM25 and vector similarity with RRF fusion"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ]
+}

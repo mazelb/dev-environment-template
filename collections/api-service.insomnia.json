@@ -1,0 +1,346 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-11-29T12:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2023.5.0",
+  "resources": [
+    {
+      "_id": "req_graphql_health",
+      "parentId": "fld_queries",
+      "modified": 1701259200000,
+      "created": 1701259200000,
+      "url": "{{ _.base_url }}/graphql",
+      "name": "Health Check",
+      "description": "Check service health and status",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"query\": \"query { health { status version timestamp services } }\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1701259200000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_graphql_users",
+      "parentId": "fld_queries",
+      "modified": 1701259200000,
+      "created": 1701259200000,
+      "url": "{{ _.base_url }}/graphql",
+      "name": "Get All Users",
+      "description": "Retrieve all users from the system",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"query\": \"query { users { id username email isActive createdAt } }\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.jwt_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1701259190000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_graphql_user_by_id",
+      "parentId": "fld_queries",
+      "modified": 1701259200000,
+      "created": 1701259200000,
+      "url": "{{ _.base_url }}/graphql",
+      "name": "Get User by ID",
+      "description": "Retrieve a single user by ID",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"query\": \"query GetUser($id: Int!) { user(id: $id) { id username email isActive createdAt } }\",\n  \"variables\": {\n    \"id\": 1\n  }\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.jwt_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1701259180000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_graphql_tasks",
+      "parentId": "fld_queries",
+      "modified": 1701259200000,
+      "created": 1701259200000,
+      "url": "{{ _.base_url }}/graphql",
+      "name": "Get All Tasks",
+      "description": "Retrieve all background tasks",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"query\": \"query { tasks { id name status createdAt completedAt result error } }\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.jwt_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1701259170000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_graphql_task_by_id",
+      "parentId": "fld_queries",
+      "modified": 1701259200000,
+      "created": 1701259200000,
+      "url": "{{ _.base_url }}/graphql",
+      "name": "Get Task by ID",
+      "description": "Retrieve a single task by ID",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"query\": \"query GetTask($id: String!) { task(id: $id) { id name status createdAt completedAt result error } }\",\n  \"variables\": {\n    \"id\": \"task-123\"\n  }\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.jwt_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1701259160000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_graphql_create_user",
+      "parentId": "fld_mutations",
+      "modified": 1701259200000,
+      "created": 1701259200000,
+      "url": "{{ _.base_url }}/graphql",
+      "name": "Create User",
+      "description": "Create a new user",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"query\": \"mutation CreateUser($input: UserInput!) { createUser(input: $input) { id username email isActive createdAt } }\",\n  \"variables\": {\n    \"input\": {\n      \"username\": \"newuser\",\n      \"email\": \"newuser@example.com\",\n      \"password\": \"securepassword123\"\n    }\n  }\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.jwt_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1701259150000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_graphql_update_user",
+      "parentId": "fld_mutations",
+      "modified": 1701259200000,
+      "created": 1701259200000,
+      "url": "{{ _.base_url }}/graphql",
+      "name": "Update User",
+      "description": "Update an existing user",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"query\": \"mutation UpdateUser($id: Int!, $input: UserUpdateInput!) { updateUser(id: $id, input: $input) { id username email isActive } }\",\n  \"variables\": {\n    \"id\": 1,\n    \"input\": {\n      \"username\": \"updateduser\",\n      \"email\": \"updated@example.com\",\n      \"isActive\": true\n    }\n  }\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.jwt_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1701259140000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_graphql_delete_user",
+      "parentId": "fld_mutations",
+      "modified": 1701259200000,
+      "created": 1701259200000,
+      "url": "{{ _.base_url }}/graphql",
+      "name": "Delete User",
+      "description": "Delete a user",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"query\": \"mutation DeleteUser($id: Int!) { deleteUser(id: $id) }\",\n  \"variables\": {\n    \"id\": 3\n  }\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.jwt_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1701259130000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_graphql_submit_task",
+      "parentId": "fld_mutations",
+      "modified": 1701259200000,
+      "created": 1701259200000,
+      "url": "{{ _.base_url }}/graphql",
+      "name": "Submit Task",
+      "description": "Submit a new background task",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"query\": \"mutation SubmitTask($name: String!, $data: JSON!) { submitTask(name: $name, data: $data) { id name status createdAt } }\",\n  \"variables\": {\n    \"name\": \"process_data\",\n    \"data\": {\n      \"file\": \"data.csv\",\n      \"operation\": \"aggregate\"\n    }\n  }\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.jwt_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1701259120000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_graphql_cancel_task",
+      "parentId": "fld_mutations",
+      "modified": 1701259200000,
+      "created": 1701259200000,
+      "url": "{{ _.base_url }}/graphql",
+      "name": "Cancel Task",
+      "description": "Cancel a running task",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"query\": \"mutation CancelTask($id: String!) { cancelTask(id: $id) }\",\n  \"variables\": {\n    \"id\": \"task-456\"\n  }\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.jwt_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1701259110000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "fld_queries",
+      "parentId": "wrk_api_service",
+      "modified": 1701259200000,
+      "created": 1701259200000,
+      "name": "Queries",
+      "description": "GraphQL query operations",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1701259200000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_mutations",
+      "parentId": "wrk_api_service",
+      "modified": 1701259200000,
+      "created": 1701259200000,
+      "name": "Mutations",
+      "description": "GraphQL mutation operations",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1701259100000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "wrk_api_service",
+      "parentId": null,
+      "modified": 1701259200000,
+      "created": 1701259200000,
+      "name": "API-Service GraphQL",
+      "description": "Complete GraphQL API collection for API-Service archetype",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "env_base",
+      "parentId": "wrk_api_service",
+      "modified": 1701259200000,
+      "created": 1701259200000,
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:8001",
+        "jwt_token": "your-jwt-token-here"
+      },
+      "dataPropertyOrder": {
+        "&": ["base_url", "jwt_token"]
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1701259200000,
+      "_type": "environment"
+    }
+  ]
+}
