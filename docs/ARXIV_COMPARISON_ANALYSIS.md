@@ -92,11 +92,13 @@ This document tracks missing components, files, scripts, features, and container
    - Status: Configured with AOF persistence, 256MB max memory, LRU eviction
    - Completed: Nov 28, 2025
 
-3. ~~**Apache Airflow**~~ ⚠️ **PARTIALLY IMPLEMENTED** - Workflow orchestration
-   - Status: Files created (Dockerfile, DAGs, entrypoint.sh) in `airflow/` directory
-   - Components: hello_world, document_ingestion, health_check DAGs exist
-   - ❌ **NOT DEPLOYED**: Missing from docker-compose.yml (not running as service)
-   - Priority: **HIGH** - Need to add service definition to docker-compose.yml
+3. ~~**Apache Airflow**~~ ✅ **FULLY IMPLEMENTED** - Workflow orchestration
+   - Version: Custom build based on Apache Airflow 2.x
+   - Status: Scheduler, webserver, and init services deployed in docker-compose.yml
+   - Components: hello_world, document_ingestion, health_check DAGs
+   - Features: LocalExecutor with PostgreSQL backend, web UI on port 8080
+   - Makefile commands: airflow-ui, airflow-logs, airflow-dags, airflow-trigger-dag
+   - Completed: Nov 28, 2025
 
 **Observability & Monitoring:**
 
@@ -110,10 +112,12 @@ This document tracks missing components, files, scripts, features, and container
    - Status: Separate database running
    - Completed: Nov 28, 2025
 
-6. **ClickHouse** ❌ **NOT IMPLEMENTED** - Analytics database for Langfuse
+6. **ClickHouse** ⚠️ **AVAILABLE (OPTIONAL)** - Analytics database for Langfuse
    - Version: `clickhouse/clickhouse-server:24.8-alpine`
+   - Status: Configured in docker-compose.yml but commented out (optional service)
    - Purpose: Store and query Langfuse analytics data
-   - Priority: **MEDIUM** - Optional enhancement
+   - To enable: Uncomment ClickHouse service in docker-compose.yml
+   - Priority: **LOW** - Optional enhancement
 
 **UI & Dashboards:**
 
@@ -195,73 +199,95 @@ This document tracks missing components, files, scripts, features, and container
 ## 2. CONTAINER & SERVICE DEFINITIONS
 
 
-### 2.1 Missing Docker Services in RAG Archetype
+### 2.1 Docker Services Status in RAG Archetype
 
-| Service | Image/Build | Ports | Status | Priority |
-|---------|-------------|-------|--------|----------|
-| postgres | `postgres:16-alpine` | 5432 | ❌ Missing | **CRITICAL** |
-| redis | `redis:7-alpine` | 6379 | ❌ Missing | **CRITICAL** |
-| airflow | Custom build | 8080 | ❌ Missing | **HIGH** |
-| langfuse | `langfuse/langfuse:2` | 3000 | ❌ Missing | **HIGH** |
-| langfuse-postgres | `postgres:16-alpine` | Internal | ❌ Missing | **HIGH** |
-| clickhouse | `clickhouse/clickhouse-server:24.8-alpine` | Internal | ❌ Missing | **MEDIUM** |
-| opensearch-dashboards | `opensearchproject/opensearch-dashboards:2.19.0` | 5601 | ❌ Missing | **MEDIUM** |
+| Service | Status | Image/Version | Ports | Notes |
+|---------|--------|---------------|-------|-------|
+| ~~PostgreSQL~~ | ✅ | 16-alpine | 5432 | Core + Langfuse + Airflow DB |
+| ~~Redis~~ | ✅ | 7-alpine | 6379 | Cache + queues |
+| ~~OpenSearch~~ | ✅ | 2.19.0 | 9200 | Vector search |
+| ~~Ollama~~ | ✅ | 0.11.2 | 11434 | Local LLM |
+| ~~Langfuse~~ | ✅ | v2 | 3000 | Observability |
+| ~~Airflow~~ | ✅ | 2.x | 8080 | Scheduler + webserver + init |
+| ClickHouse | ⚠️ | 24.8 | 8123/9000 | Optional (commented out) |
+| ~~OpenSearch Dashboards~~ | ✅ | 2.19.0 | 5601 | Visualization |
 
-### 2.2 Docker Compose Configuration Gaps
+### 2.2 Docker Compose Configuration Status
 
-**Missing in Current RAG:**
-- Health checks for all services
-- Service dependencies (`depends_on` with conditions)
-- Proper network configuration (`rag-network` bridge)
-- Volume definitions for persistence
-- Resource limits and ulimits
-- Restart policies
-- Environment variable organization
-- Multi-stage builds for optimization
+**✅ Implemented in Current RAG:**
+- ✅ Health checks for all critical services (PostgreSQL, Redis, OpenSearch, Langfuse, Airflow)
+- ✅ Service dependencies with `depends_on` conditions (`service_healthy`, `service_completed_successfully`)
+- ✅ Proper network configuration (`rag-network` bridge with driver bridge)
+- ✅ Volume definitions for data persistence (postgres_data, redis_data, opensearch_data, ollama_models, langfuse_data, airflow_logs)
+- ✅ Resource limits and ulimits (ClickHouse nofile: 262144)
+- ✅ Restart policies (`unless-stopped` for all services)
+- ✅ Environment variable organization (via .env.example with all required vars)
+- ✅ PostgreSQL multi-database initialization script (01-init-airflow-db.sh)
+
+**⚠️ Remaining Improvements:**
+- Multi-stage builds for custom services (if needed)
+- Resource limits for memory/CPU (can be added per deployment needs)
 
 ---
 
 ## 3. FILE STRUCTURE COMPARISON
 
-### 3.1 Missing Files/Directories in RAG Archetype
+### 3.1 RAG Archetype File Structure Status
 
 ```
 archetypes/rag-project/
-├── airflow/                          ❌ MISSING
-│   ├── dags/                        ❌ MISSING
-│   │   ├── arxiv_ingestion/        ❌ MISSING
-│   │   ├── arxiv_paper_ingestion.py ❌ MISSING
-│   │   └── hello_world_dag.py      ❌ MISSING
-│   ├── plugins/                     ❌ MISSING
-│   ├── Dockerfile                   ❌ MISSING
-│   ├── entrypoint.sh               ❌ MISSING
-│   ├── requirements-airflow.txt    ❌ MISSING
-│   └── README.md                    ❌ MISSING
+├── ✅ airflow/                      # Workflow orchestration (DEPLOYED)
+│   ├── ✅ dags/                     # DAG definitions (hello_world, document_ingestion, health_check)
+│   ├── ✅ plugins/                  # Custom Airflow plugins directory
+│   ├── ✅ Dockerfile                # Airflow container build
+│   ├── ✅ entrypoint.sh             # Airflow startup script
+│   └── ⚠️ requirements-airflow.txt  # (Using main requirements.txt)
+├── ✅ config/                       # Configuration files
+│   ├── ✅ opensearch.yml            # OpenSearch settings
+│   └── ✅ settings.py               # Application config
+├── ✅ docker/                       # Docker-related files
+│   ├── ✅ postgres-init/            # PostgreSQL initialization scripts
+│   │   └── ✅ 01-init-airflow-db.sh # Airflow DB setup
+│   └── ✅ entrypoint.sh             # Container startup scripts
+├── ✅ docs/                         # Documentation
+│   ├── ✅ AIRFLOW_GUIDE.md          # Airflow setup & usage (NEW)
+│   ├── ⚠️ API.md                    # API documentation (needs expansion)
+│   └── ⚠️ ARCHITECTURE.md           # System architecture (needs diagrams)
 ├── src/
-│   ├── db/                          ❌ MISSING (database models)
-│   │   ├── factory.py              ❌ MISSING
-│   │   └── base.py                 ❌ MISSING
-│   ├── repositories/                ❌ MISSING (data access layer)
+│   ├── ❌ db/                       # Database models (TODO)
+│   │   ├── ❌ factory.py            # DB factory pattern
+│   │   └── ❌ base.py               # Base models
+│   ├── ❌ repositories/             # Data access layer (TODO)
 │   ├── routers/
-│   │   ├── ask.py                   ❌ MISSING (RAG Q&A)
-│   │   ├── hybrid_search.py         ❌ MISSING
-│   │   └── ping.py                  ⚠️ Partial (health)
-│   ├── schemas/                     ❌ MISSING (Pydantic models)
+│   │   ├── ❌ ask.py                # RAG Q&A endpoint (TODO)
+│   │   ├── ❌ hybrid_search.py      # Search endpoint (TODO)
+│   │   └── ⚠️ ping.py               # Health check (basic implementation)
+│   ├── ❌ schemas/                  # Pydantic models (TODO)
 │   ├── services/
-│   │   ├── arxiv/                   ❌ MISSING (domain-specific)
-│   │   ├── cache/                   ❌ MISSING (Redis integration)
-│   │   ├── embeddings/              ❌ MISSING (embedding service)
-│   │   ├── indexing/                ❌ MISSING (OpenSearch indexing)
-│   │   ├── langfuse/                ❌ MISSING (tracing)
-│   │   ├── ollama/                  ❌ MISSING (LLM client)
-│   │   ├── opensearch/              ❌ MISSING (search client)
-│   │   ├── pdf_parser/              ❌ MISSING (document parsing)
-│   │   └── metadata_fetcher.py      ❌ MISSING
-│   ├── config.py                    ⚠️ Needs enhancement
-│   ├── database.py                  ❌ MISSING
-│   ├── dependencies.py              ❌ MISSING
-│   ├── exceptions.py                ❌ MISSING
-│   └── middlewares.py               ❌ MISSING
+│   │   ├── ❌ arxiv/                # Domain-specific Arxiv service (TODO)
+│   │   ├── ❌ cache/                # Redis integration (TODO)
+│   │   ├── ❌ embeddings/           # Embedding service (TODO)
+│   │   ├── ❌ indexing/             # OpenSearch indexing (TODO)
+│   │   ├── ❌ langfuse/             # Tracing integration (TODO)
+│   │   ├── ❌ ollama/               # LLM client (TODO)
+│   │   ├── ❌ opensearch/           # Search client (TODO)
+│   │   ├── ❌ pdf_parser/           # Document parsing (TODO)
+│   │   └── ❌ metadata_fetcher.py   # Metadata extraction (TODO)
+│   ├── ⚠️ config.py                 # Configuration (needs enhancement)
+│   ├── ❌ database.py               # Database connection (TODO)
+│   ├── ❌ dependencies.py           # FastAPI dependencies (TODO)
+│   ├── ❌ exceptions.py             # Custom exceptions (TODO)
+│   └── ❌ middlewares.py            # Request middleware (TODO)
+├── ⚠️ tests/                        # Test suites (basic structure exists)
+│   ├── ✅ unit/                     # Unit tests (some coverage)
+│   ├── ⚠️ integration/              # Integration tests (needs expansion)
+│   └── ❌ e2e/                      # End-to-end tests (TODO)
+├── ✅ .env.example                  # Environment template (includes all services)
+├── ✅ docker-compose.yml            # Container orchestration (all services deployed)
+├── ✅ Makefile                      # Development commands (50+ commands)
+├── ✅ requirements.txt              # Python dependencies
+└── ✅ alembic.ini                   # Database migrations config
+```
 ├── notebooks/                       ❌ MISSING (Jupyter demos)
 ├── static/                          ❌ MISSING (assets)
 ├── Makefile                         ❌ MISSING (dev commands)
