@@ -4,6 +4,7 @@ import logging
 from typing import Optional
 
 from src.config import Settings
+
 from .client import LangfuseClient
 
 logger = logging.getLogger(__name__)

@@ -1,11 +1,11 @@
 """Langfuse client for LLM observability and tracing."""
 
 import logging
-from typing import Any, Dict, List, Optional
 from contextlib import contextmanager
+from typing import Any, Dict, List, Optional
 
 from langfuse import Langfuse
-from langfuse.decorators import observe, langfuse_context
+from langfuse.decorators import langfuse_context, observe
 
 logger = logging.getLogger(__name__)
 
@@ -163,9 +163,11 @@ def trace_operation(name: Optional[str] = None):
             # Function code
             pass
     """
+
     def decorator(func):
         # Use Langfuse observe decorator
         return observe(name=name or func.__name__)(func)
+
     return decorator
 
 

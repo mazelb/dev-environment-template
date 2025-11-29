@@ -24,7 +24,7 @@ class CustomOperator(BaseOperator):
     def __init__(self, param1, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.param1 = param1
-    
+
     def execute(self, context):
         self.log.info(f"Executing with param: {self.param1}")
         # Your logic here

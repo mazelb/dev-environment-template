@@ -2,7 +2,7 @@
 
 **Complete guide to all documentation for the dev environment template**
 
-**Last Updated:** November 21, 2025
+**Last Updated:** November 28, 2025
 
 ---
 
@@ -19,7 +19,8 @@
 - **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Common issues and solutions
 
 ### Technical Documentation
-- **[IMPLEMENTATION_STRATEGY.md](IMPLEMENTATION_STRATEGY.md)** - Phase-by-phase implementation
+- **[ARXIV_COMPARISON_ANALYSIS.md](ARXIV_COMPARISON_ANALYSIS.md)** - Feature comparison and implementation roadmap
+- **[IMPLEMENTATION_PROGRESS.md](IMPLEMENTATION_PROGRESS.md)** - Current implementation status (Phases 1-3 complete)
 - **[IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md)** - Technical implementation details
 - **[MULTI_ARCHETYPE_COMPOSITION_DESIGN.md](MULTI_ARCHETYPE_COMPOSITION_DESIGN.md)** - Archetype system design
 - **[NAMING_CONVENTIONS.md](NAMING_CONVENTIONS.md)** - Naming standards for scripts, functions, and containers
@@ -30,8 +31,8 @@
 - **[UPDATES_GUIDE.md](UPDATES_GUIDE.md)** - Template update procedures
 
 ### Testing
-- **[tests/TESTING_GUIDE.md](../tests/TESTING_GUIDE.md)** - Comprehensive testing documentation
-- **[tests/TESTING_PHASE*.md](../tests/)** - Detailed test specifications
+- **[TEST_SUITE_SUMMARY.md](TEST_SUITE_SUMMARY.md)** - Test implementation summary
+- **[tests/README.md](../tests/README.md)** - Testing guide and documentation
 
 ---
 
@@ -59,13 +60,14 @@
 
 ### For Template Maintainers
 **Implementation:**
-- [IMPLEMENTATION_STRATEGY.md](IMPLEMENTATION_STRATEGY.md) - Overall strategy
+- [ARXIV_COMPARISON_ANALYSIS.md](ARXIV_COMPARISON_ANALYSIS.md) - Feature comparison and roadmap
+- [IMPLEMENTATION_PROGRESS.md](IMPLEMENTATION_PROGRESS.md) - Current status (Phases 1-3 complete)
 - [IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md) - Technical details
 - [MULTI_ARCHETYPE_COMPOSITION_DESIGN.md](MULTI_ARCHETYPE_COMPOSITION_DESIGN.md) - Design specs
 
 **Maintenance:**
 - [UPDATES_GUIDE.md](UPDATES_GUIDE.md) - Managing updates
-- [tests/TESTING_GUIDE.md](../tests/TESTING_GUIDE.md) - Testing procedures
+- [TEST_SUITE_SUMMARY.md](TEST_SUITE_SUMMARY.md) - Test implementation summary
 
 ---
 
@@ -170,18 +172,29 @@
 
 ---
 
-### IMPLEMENTATION_STRATEGY.md
-**Purpose:** Overall implementation roadmap
+### ARXIV_COMPARISON_ANALYSIS.md
+**Purpose:** Feature comparison and implementation roadmap
 **Contents:**
-- Phase 0-7 overview
-- Each phase broken down:
-  - Goals
-  - Tasks
-  - Deliverables
-  - Testing
-  - Success criteria
-- Implementation timeline
-- Risk mitigation
+- Technical stack comparison (RAG and API-Service archetypes)
+- Container and service definitions
+- Feature gaps analysis
+- Implementation plan (Phases 1-6)
+- Priority action items
+- Current status: Phases 1-3 complete (~70% done)
+
+**Who:** Maintainers, contributors, implementers
+
+---
+
+### IMPLEMENTATION_PROGRESS.md
+**Purpose:** Track current implementation progress
+**Contents:**
+- Phase 1: Core Infrastructure ✅ COMPLETE
+- Phase 2: RAG Services ✅ COMPLETE
+- Phase 3: Observability & Workflow ✅ COMPLETE
+- Detailed file inventories
+- Statistics and metrics
+- What's ready to use
 
 **Who:** Maintainers, contributors
 
@@ -298,23 +311,23 @@
 - [SETUP_GUIDE.md](SETUP_GUIDE.md) - "Part 4: Setup Secrets Management"
 
 #### Testing
-- [tests/TESTING_GUIDE.md](../tests/TESTING_GUIDE.md)
-- [tests/TESTING_PHASE*.md](../tests/)
+- [TEST_SUITE_SUMMARY.md](TEST_SUITE_SUMMARY.md) - Test implementation overview
+- [tests/README.md](../tests/README.md) - Testing guide
 
 #### Template Development
-- [IMPLEMENTATION_STRATEGY.md](IMPLEMENTATION_STRATEGY.md)
-- [IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md)
-- [MULTI_ARCHETYPE_COMPOSITION_DESIGN.md](MULTI_ARCHETYPE_COMPOSITION_DESIGN.md)
+- [ARXIV_COMPARISON_ANALYSIS.md](ARXIV_COMPARISON_ANALYSIS.md) - Feature comparison and roadmap
+- [IMPLEMENTATION_PROGRESS.md](IMPLEMENTATION_PROGRESS.md) - Current status
+- [IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md) - Implementation details
+- [MULTI_ARCHETYPE_COMPOSITION_DESIGN.md](MULTI_ARCHETYPE_COMPOSITION_DESIGN.md) - System design
 
 ---
 
 ## 📊 Documentation Stats
 
-**Total Documents:** 13 core documents
-**Total Words:** ~45,000+ words
+**Total Documents:** 15 core documents
 **Coverage:**
 - User guides: 5 documents
-- Technical docs: 4 documents
+- Technical docs: 5 documents
 - Support docs: 2 documents
 - Testing docs: 2+ documents
 
