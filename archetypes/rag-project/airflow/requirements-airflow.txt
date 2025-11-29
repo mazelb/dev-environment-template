@@ -1,0 +1,17 @@
+# Airflow Python dependencies
+
+# Core Airflow providers
+apache-airflow-providers-postgres>=5.10.0
+apache-airflow-providers-http>=4.11.0
+apache-airflow-providers-docker>=3.10.0
+
+# Additional libraries for DAGs
+requests>=2.31.0
+psycopg2-binary>=2.9.10
+opensearch-py>=2.7.1
+redis>=5.0.8
+
+# RAG project dependencies (subset needed for Airflow)
+langchain>=0.3.0
+langchain-community>=0.3.0
+sentence-transformers>=3.3.1

@@ -136,6 +136,60 @@ ollama-pull: ## Pull Ollama model (use: make ollama-pull MODEL=llama2)
 ollama-list: ## List downloaded Ollama models
 	docker compose exec ollama ollama list
 
+# Airflow utilities
+airflow-init: ## Initialize Airflow database (first time setup)
+	docker compose run --rm airflow-webserver db init || echo "Database already initialized"
+	docker compose run --rm airflow-webserver users create \
+		--username airflow \
+		--firstname Airflow \
+		--lastname Admin \
+		--role Admin \
+		--email admin@example.com \
+		--password airflow || echo "User already exists"
+
+airflow-start: ## Start Airflow services (scheduler + webserver)
+	docker compose up -d airflow-scheduler airflow-webserver
+	@echo "Airflow is starting..."
+	@echo "Webserver: http://localhost:8080 (user: airflow, pass: airflow)"
+
+airflow-stop: ## Stop Airflow services
+	docker compose stop airflow-scheduler airflow-webserver
+
+airflow-logs: ## View Airflow logs (use: make airflow-logs SERVICE=scheduler)
+	@if [ -z "$(SERVICE)" ]; then \
+		docker compose logs -f airflow-scheduler airflow-webserver; \
+	else \
+		docker compose logs -f airflow-$(SERVICE); \
+	fi
+
+airflow-shell: ## Open shell in Airflow webserver
+	docker compose exec airflow-webserver /bin/bash
+
+airflow-list-dags: ## List all DAGs
+	docker compose exec airflow-webserver airflow dags list
+
+airflow-trigger: ## Trigger a DAG (use: make airflow-trigger DAG_ID=hello_world)
+	@if [ -z "$(DAG_ID)" ]; then \
+		echo "Error: DAG_ID is required. Usage: make airflow-trigger DAG_ID=hello_world"; \
+		exit 1; \
+	fi
+	docker compose exec airflow-webserver airflow dags trigger $(DAG_ID)
+
+airflow-test-dag: ## Test a DAG (use: make airflow-test-dag DAG_ID=hello_world)
+	@if [ -z "$(DAG_ID)" ]; then \
+		echo "Error: DAG_ID is required. Usage: make airflow-test-dag DAG_ID=hello_world"; \
+		exit 1; \
+	fi
+	docker compose exec airflow-webserver airflow dags test $(DAG_ID) $(shell date +%Y-%m-%d)
+
+# Langfuse utilities
+langfuse-status: ## Check Langfuse status
+	@echo "Langfuse UI: http://localhost:3000"
+	@curl -s http://localhost:3000/api/public/health || echo "Langfuse not responding"
+
+langfuse-logs: ## View Langfuse logs
+	docker compose logs -f langfuse
+
 # Full stack operations
 full-start: ## Start all services and run migrations
 	docker compose up -d
