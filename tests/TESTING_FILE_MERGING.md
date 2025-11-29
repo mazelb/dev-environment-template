@@ -1,12 +1,12 @@
-# Phase 4 Testing Documentation
+# File Merging System Testing Guide
 
 ## Overview
 
-This document describes the testing strategy, test cases, and procedures for validating Phase 4 (File Merging System) of the dev-environment-template project.
+This test suite validates the file merging system including Docker Compose merger, environment file merger, Makefile merger, and source code merger with conflict resolution.
 
-## Test Suite: Test-Phase4.ps1
+## Test Suite: Test-FileMerging.ps1
 
-**Location**: `tests/Test-Phase4.ps1`
+**Location**: `tests/Test-FileMerging.ps1`
 **Total Tests**: 15
 **Execution Time**: ~30-60 seconds
 **Language**: PowerShell

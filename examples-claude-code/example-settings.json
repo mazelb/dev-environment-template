@@ -1,0 +1,93 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git show:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git status:*)",
+      "Bash(git branch:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker-compose logs:*)",
+      "Bash(docker-compose ps:*)",
+      "Bash(npm test)",
+      "Bash(npm run *)",
+      "Bash(pytest .*)",
+      "Bash(pytest --cov=*)",
+      "Bash(go test .*)",
+      "Bash(make test)",
+      "Bash(make *-test)",
+      "Bash(black .*\\.py)",
+      "Bash(prettier .* --write)",
+      "Bash(eslint .*)",
+      "Bash(ruff check .*)",
+      "Bash(grep -r)",
+      "Bash(find .)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(sudo *)",
+      "Bash(chmod 777 *)",
+      "Bash(git push --force *)",
+      "Bash(docker-compose down -v)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(docker-compose down)",
+      "Bash(npm install *)",
+      "Bash(pip install *)"
+    ]
+  },
+
+  "terminal": {
+    "line-breaks": "shift-enter",
+    "notifications": "enabled",
+    "vim-mode": false
+  },
+
+  "hooks": {
+    "PostToolUse": [
+      {
+        "tool": "Edit",
+        "matcher": {
+          "glob": "**/*.py"
+        },
+        "hook": "black \"${file}\" --quiet",
+        "description": "Auto-format Python files with Black after editing"
+      },
+      {
+        "tool": "Edit",
+        "matcher": {
+          "glob": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"]
+        },
+        "hook": "prettier \"${file}\" --write",
+        "description": "Auto-format TypeScript/JavaScript files after editing"
+      },
+      {
+        "tool": "Edit",
+        "matcher": {
+          "glob": "**/*.go"
+        },
+        "hook": "gofmt -w \"${file}\"",
+        "description": "Auto-format Go files after editing"
+      }
+    ]
+  },
+
+  "context": {
+    "max_tokens": 100000,
+    "auto_import": {
+      "CLAUDE.md": true,
+      "README.md": true,
+      ".env.example": false
+    }
+  },
+
+  "agents": {
+    "delegation": {
+      "enabled": true,
+      "max_depth": 3
+    }
+  }
+}

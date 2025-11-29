@@ -1,19 +1,23 @@
-# Phase 1 Testing Guide
+# Archetype Structure Testing Guide
+
+## Overview
+
+This test suite validates the foundational archetype system: configuration directory structure, archetype metadata schema, and base archetype implementation.
 
 ## Quick Test
 
-To verify Phase 1 implementation is working:
+To verify archetype structure is working:
 
 ### PowerShell (Recommended for Windows)
 
 ```powershell
-.\tests\Test-Phase1.ps1
+.\tests\Test-ArchetypeStructure.ps1
 ```
 
 ### Bash (Requires jq)
 
 ```bash
-bash tests/test-phase1.sh
+bash tests/test-archetype-structure.sh
 ```
 
 ## Expected Results

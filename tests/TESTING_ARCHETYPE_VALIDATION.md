@@ -1,17 +1,17 @@
-# Phase 6 Testing Documentation: Archetypes Creation
+# Archetype Validation Testing Guide
 
 ## Overview
 
-This document describes the test suite for **Phase 6: Archetypes Creation** as defined in `IMPLEMENTATION_STRATEGY.md`. Phase 6 implements a library of production-ready archetypes including RAG, Agentic Workflows, API services, monitoring, and composite archetypes.
+This test suite validates the production-ready archetype library including RAG, Agentic Workflows, API services, monitoring, and composite archetypes. It verifies archetype metadata, service definitions, file structure, and Docker configurations.
 
-**Status:** ✅ **Phase 6 IMPLEMENTED** - Test suite validates existing implementation.
+**Status:** ✅ **IMPLEMENTED** - Test suite validates all existing archetypes.
 
 ## Test File
 
-- **Location:** `tests/Test-Phase6.ps1`
+- **Location:** `tests/Test-ArchetypeValidation.ps1`
 - **Type:** PowerShell test script
 - **Purpose:** Validate archetype system implementation
-- **Execution:** `pwsh tests/Test-Phase6.ps1`
+- **Execution:** `pwsh tests/Test-ArchetypeValidation.ps1`
 
 ## Test Coverage
 

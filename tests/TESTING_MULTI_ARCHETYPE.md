@@ -1,8 +1,8 @@
-# Phase 3 Testing Guide - Multi-Archetype Core
+# Multi-Archetype Composition Testing Guide
 
 ## Overview
 
-Phase 3 implements the core multi-archetype composition system with automatic conflict detection and resolution. This document describes how to test the Phase 3 functionality.
+This test suite validates the core multi-archetype composition system with automatic conflict detection and resolution, including port offset resolution, service name prefixing, and archetype compatibility checking.
 
 ## Test Results
 
@@ -57,7 +57,7 @@ Phase 3 implements the core multi-archetype composition system with automatic co
 
 ### Quick Test
 ```bash
-./tests/Test-Phase3.ps1
+./tests/Test-MultiArchetype.ps1
 ```
 
 ### Expected Output

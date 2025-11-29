@@ -1,11 +1,15 @@
-# Phase 2 Testing Guide - Git Integration
+# Git Integration Testing Guide
+
+## Overview
+
+This test suite validates Git integration features: smart commit message generation, .gitignore generation, and default Git initialization.
 
 ## Quick Test
 
-To verify Phase 2 implementation:
+To verify Git integration:
 
 ```powershell
-.\tests\Test-Phase2.ps1
+.\tests\Test-GitIntegration.ps1
 ```
 
 ## Expected Results

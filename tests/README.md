@@ -15,33 +15,32 @@ These tests validate the `create-project.sh` script and archetype composition sy
 
 ```plaintext
 tests/
-├── Test-Phase1.ps1                # Foundation & infrastructure tests
-├── Test-Phase2.ps1                # Git integration tests
-├── Test-Phase3.ps1                # Multi-archetype composition tests
-├── Test-Phase4.ps1                # File merging system tests
-├── Test-Phase6.ps1                # Archetype validation tests
-├── Test-CreateProject.ps1         # End-to-end project creation
-├── Test-MultiProjectWorkflow.ps1  # Multi-project workflow tests
-├── test-phase1.sh                 # Bash version of Phase 1 tests
-├── test-phase4-integration.sh     # Bash integration tests
-├── TESTING_PHASE1.md              # Phase 1 test documentation
-├── TESTING_PHASE2.md              # Phase 2 test documentation
-├── TESTING_PHASE3.md              # Phase 3 test documentation
-├── TESTING_PHASE4.md              # Phase 4 test documentation
-├── TESTING_PHASE6.md              # Phase 6 test documentation
-├── TESTING_CREATE_PROJECT.md      # Project creation test docs
-└── TESTING_GUIDE.md               # Comprehensive testing guide
+├── Test-ArchetypeStructure.ps1         # Archetype structure & config tests
+├── Test-GitIntegration.ps1             # Git integration tests
+├── Test-MultiArchetype.ps1             # Multi-archetype composition tests
+├── Test-FileMerging.ps1                # File merging system tests
+├── Test-ArchetypeValidation.ps1        # Archetype validation tests
+├── Test-CreateProject.ps1              # End-to-end project creation
+├── Test-MultiProjectWorkflow.ps1       # Multi-project workflow tests
+├── test-archetype-structure.sh         # Bash version of archetype tests
+├── test-file-merging-integration.sh    # Bash file merging tests
+├── TESTING_ARCHETYPE_STRUCTURE.md      # Archetype structure tests docs
+├── TESTING_GIT_INTEGRATION.md          # Git integration tests docs
+├── TESTING_MULTI_ARCHETYPE.md          # Multi-archetype composition docs
+├── TESTING_FILE_MERGING.md             # File merging system docs
+├── TESTING_ARCHETYPE_VALIDATION.md     # Archetype validation docs
+└── TESTING_GUIDE.md                    # Comprehensive testing guide
 ```
 
 ### Running Template Tests
 
 ```powershell
-# Run all phase tests
-pwsh tests/Test-Phase1.ps1  # Config & archetype structure
-pwsh tests/Test-Phase2.ps1  # Git integration
-pwsh tests/Test-Phase3.ps1  # Multi-archetype composition
-pwsh tests/Test-Phase4.ps1  # File merging
-pwsh tests/Test-Phase6.ps1  # Archetype validation
+# Run all tests
+pwsh tests/Test-ArchetypeStructure.ps1  # Config & archetype structure
+pwsh tests/Test-GitIntegration.ps1      # Git integration
+pwsh tests/Test-MultiArchetype.ps1      # Multi-archetype composition
+pwsh tests/Test-FileMerging.ps1         # File merging
+pwsh tests/Test-ArchetypeValidation.ps1 # Archetype validation
 
 # Run project creation tests
 pwsh tests/Test-CreateProject.ps1

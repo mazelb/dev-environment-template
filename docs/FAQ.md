@@ -156,6 +156,198 @@ See [MULTI_ARCHETYPE_COMPOSITION_DESIGN.md](MULTI_ARCHETYPE_COMPOSITION_DESIGN.m
 
 ## Getting Started
 
+### When should I use which archetype?
+
+**Choose based on your project type:**
+
+| Archetype | Use When | Key Features |
+|-----------|----------|--------------|
+| **base** | Starting from scratch, simple scripts | Minimal setup, no services |
+| **rag-project** | Building AI search/Q&A systems | OpenSearch, Ollama, Langfuse, Airflow |
+| **api-service** | Creating REST/GraphQL APIs | FastAPI, PostgreSQL, Celery, Redis |
+| **frontend** | Building web UIs | Next.js, TypeScript, Apollo, Tailwind |
+| **monitoring** | Adding observability | Prometheus, Grafana, Alertmanager |
+| **agentic-workflows** | AI agents with complex workflows | Agent framework, orchestration |
+| **composite-rag-agents** | Full AI platform | RAG + Agents + Monitoring combined |
+
+**Examples:**
+- **Document search app:** Use `rag-project`
+- **REST API backend:** Use `api-service`
+- **Chat application:** Use `rag-project` + `frontend`
+- **Enterprise AI platform:** Use `composite-rag-agents`
+
+### How do I customize an archetype after creation?
+
+**1. Add new services to docker-compose.yml:**
+```yaml
+services:
+  my-new-service:
+    image: custom-image:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - CONFIG=value
+```
+
+**2. Add dependencies:**
+```bash
+# Python
+echo "new-package>=1.0.0" >> requirements.txt
+pip install -r requirements.txt
+
+# Node.js (in frontend)
+cd frontend && npm install new-package
+```
+
+**3. Modify configurations:**
+```bash
+# Edit environment variables
+nano .env
+
+# Update application config
+nano config/settings.py
+```
+
+**4. Add database migrations:**
+```bash
+# Create migration
+alembic revision --autogenerate -m "Add feature"
+
+# Apply migration
+alembic upgrade head
+```
+
+**5. Extend the Makefile:**
+```makefile
+# Add custom commands
+.PHONY: my-command
+my-command:
+	@echo "Running custom command"
+	docker-compose exec app python scripts/my_script.py
+```
+
+### How do I add new services to an existing project?
+
+**Option 1: Manual addition (recommended for custom services)**
+```bash
+# 1. Edit docker-compose.yml
+nano docker-compose.yml
+
+# 2. Add service definition
+services:
+  my-service:
+    image: service:latest
+    # ... configuration
+
+# 3. Update .env with new variables
+echo "MY_SERVICE_PORT=8080" >> .env
+
+# 4. Start the new service
+docker-compose up -d my-service
+```
+
+**Option 2: Merge from another archetype**
+```bash
+# Use the composition system
+./scripts/docker-compose-merger.sh \
+  --base docker-compose.yml \
+  --overlay archetypes/monitoring/docker-compose.yml \
+  --output docker-compose.merged.yml
+
+# Review and apply
+mv docker-compose.merged.yml docker-compose.yml
+docker-compose up -d
+```
+
+### How do I handle template updates?
+
+**Check for updates:**
+```bash
+./scripts/check-template-updates.sh
+```
+
+**Apply updates (safe method):**
+```bash
+# 1. Check what changed
+./scripts/manage-template-updates.sh --check
+
+# 2. Preview changes
+./scripts/manage-template-updates.sh --preview
+
+# 3. Apply non-conflicting updates
+./scripts/manage-template-updates.sh --apply-safe
+
+# 4. Manually review conflicts
+./scripts/conflict-resolver.sh
+```
+
+**Selective updates:**
+```bash
+# Update only specific components
+./scripts/sync-template.sh --only=docker-compose
+./scripts/sync-template.sh --only=.devcontainer
+./scripts/sync-template.sh --only=scripts
+```
+
+**See [UPDATES_GUIDE.md](UPDATES_GUIDE.md) for full details.**
+
+### What are production deployment considerations?
+
+**Security:**
+- ❌ Don't use `.env` files in production (use secrets manager)
+- ✅ Use environment-specific configs
+- ✅ Enable HTTPS/TLS
+- ✅ Implement authentication & authorization
+- ✅ Set up rate limiting
+- ✅ Configure CORS properly
+
+**Performance:**
+- ✅ Use production ASGI server (uvicorn/gunicorn)
+- ✅ Enable connection pooling (database, Redis)
+- ✅ Configure caching strategies
+- ✅ Set up CDN for static assets
+- ✅ Optimize Docker images (multi-stage builds)
+- ✅ Set resource limits (CPU, memory)
+
+**Monitoring:**
+- ✅ Add health check endpoints
+- ✅ Enable application logging
+- ✅ Set up Prometheus/Grafana (use monitoring archetype)
+- ✅ Configure alerting
+- ✅ Track LLM costs (Langfuse)
+
+**Infrastructure:**
+- ✅ Use container orchestration (Kubernetes, ECS)
+- ✅ Set up load balancing
+- ✅ Configure auto-scaling
+- ✅ Implement backup strategy
+- ✅ Plan disaster recovery
+
+**Docker changes for production:**
+```dockerfile
+# Development
+FROM python:3.11
+
+# Production
+FROM python:3.11-slim AS builder
+# Build dependencies
+FROM python:3.11-slim
+COPY --from=builder /app /app
+USER nobody
+```
+
+**Environment separation:**
+```bash
+# Development
+docker-compose.yml
+
+# Production
+docker-compose.prod.yml  # Optimized for production
+docker-compose up -f docker-compose.prod.yml
+```
+
+**See our production deployment guide** (coming soon) for cloud-specific instructions (AWS, Azure, GCP).
+
 ### What are the prerequisites?
 
 **Required:**

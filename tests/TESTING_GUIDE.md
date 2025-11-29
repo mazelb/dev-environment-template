@@ -1,19 +1,114 @@
 # Testing Guide
 
-Complete guide for testing the dev-environment-template and projects created from it.
+**Version:** 2.0
+**Last Updated:** November 28, 2025
+
+Complete guide for testing the dev-environment-template and projects created from it, including unit tests, integration tests, end-to-end tests, coverage reporting, and CI/CD integration.
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Test Suite Structure](#test-suite-structure)
+- [Running Tests](#running-tests)
+- [Unit Testing](#unit-testing)
+- [Integration Testing](#integration-testing)
+- [End-to-End Testing](#end-to-end-testing)
+- [Coverage Reporting](#coverage-reporting)
+- [CI/CD Integration](#cicd-integration)
+- [Writing New Tests](#writing-new-tests)
+- [Troubleshooting](#troubleshooting)
 
 ---
 
 ## Overview
 
-The template includes comprehensive test suites:
+The template includes comprehensive test suites across multiple layers:
 
 - **Template System Tests (Phases 1-4, 6)**: PowerShell/Bash tests for project creation system
-- **Archetype Implementation Tests**: pytest tests for RAG/API archetype code
-- **Integration Tests**: End-to-end workflow tests
+- **Unit Tests**: Test individual components in isolation (pytest, vitest)
+- **Integration Tests**: Test service interactions (RAG pipeline, API flows, database)
+- **E2E Tests**: Test complete user workflows across all services
 - **Manual Testing**: Guidelines for manual verification
 
-**Note:** Phase 5 (GitHub CLI integration) is not implemented and has been removed.
+**Test Coverage Goals:**
+- **Unit Tests:** >80% code coverage
+- **Integration Tests:** Critical paths covered
+- **E2E Tests:** Key user workflows covered
+- **Template System:** 100% (Phase 6: 46/46 passing)
+
+---
+
+## Test Suite Structure
+
+```
+tests/
+├── README.md                           # This file
+├── TESTING_GUIDE.md                    # Detailed guide
+├── unit/                               # Unit tests
+│   ├── test_cache.py                  # Cache service tests
+│   ├── test_database.py               # Database tests
+│   ├── test_opensearch.py             # OpenSearch tests
+│   ├── test_ollama.py                 # Ollama client tests
+│   ├── test_embeddings.py             # Embedding service tests
+│   └── test_chunking.py               # Chunking service tests
+├── integration/                        # Integration tests
+│   ├── rag/                           # RAG archetype integration
+│   │   ├── test_rag_pipeline.py       # Full RAG pipeline tests
+│   │   ├── test_hybrid_search.py      # Hybrid search tests
+│   │   ├── test_document_ingestion.py # Document processing
+│   │   └── test_langfuse_integration.py # Tracing tests
+│   ├── api/                           # API-Service integration
+│   │   ├── test_rest_api.py           # REST endpoints
+│   │   ├── test_graphql_api.py        # GraphQL queries/mutations
+│   │   ├── test_celery_tasks.py       # Background tasks
+│   │   └── test_auth_flow.py          # Authentication flow
+│   └── frontend/                      # Frontend integration
+│       ├── test_http_client.test.ts   # REST client tests
+│       └── test_graphql_client.test.ts # GraphQL client tests
+├── e2e/                               # End-to-end tests
+│   ├── test_rag_workflow.py          # Complete RAG workflow
+│   ├── test_airflow_dags.py          # Airflow execution
+│   ├── test_service_health.py        # Health check validation
+│   └── test_multi_service.py         # Cross-service tests
+├── fixtures/                          # Test data and fixtures
+│   ├── sample_documents.json
+│   ├── sample_queries.json
+│   └── mock_responses.json
+├── conftest.py                        # pytest configuration
+├── pytest.ini                         # pytest settings
+└── template_tests/                    # Template system tests
+    ├── Test-Phase1.ps1
+    ├── Test-Phase2.ps1
+    ├── Test-Phase3.ps1
+    ├── Test-Phase4.ps1
+    └── Test-Phase6.ps1
+```
+
+---
+
+## Unit Testing
+
+### RAG Archetype Unit Tests
+
+#### Running Unit Tests
+
+```bash
+cd archetypes/rag-project
+
+# Run all unit tests
+pytest tests/unit/ -v
+
+# Run specific test file
+pytest tests/unit/test_cache.py -v
+
+# Run with coverage
+pytest tests/unit/ --cov=src --cov-report=html
+
+# Run specific test function
+pytest tests/unit/test_cache.py::test_cache_set_get -v
+```
 
 ---
 
@@ -360,12 +455,12 @@ du -sh test-project/
 
 For detailed test specifications, see:
 
-- `TESTING_PHASE1.md` - Phase 1 test details
-- `TESTING_PHASE2.md` - Phase 2 test details
-- `TESTING_PHASE3.md` - Phase 3 test details
-- `TESTING_PHASE4.md` - Phase 4 test details
-- `TESTING_PHASE6.md` - Phase 6 test details
-- `TESTING_CREATE_PROJECT.md` - Project creation test details
+- `TESTING_ARCHETYPE_STRUCTURE.md` - Archetype structure & configuration tests
+- `TESTING_GIT_INTEGRATION.md` - Git integration tests
+- `TESTING_MULTI_ARCHETYPE.md` - Multi-archetype composition tests
+- `TESTING_FILE_MERGING.md` - File merging system tests
+- `TESTING_ARCHETYPE_VALIDATION.md` - Archetype validation tests
+- `TESTING_MULTI_PROJECTS.md` - Multi-project workflow tests
 
 ---
 
