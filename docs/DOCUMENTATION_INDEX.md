@@ -31,12 +31,6 @@
 - **[SECRETS_MANAGEMENT.md](SECRETS_MANAGEMENT.md)** - Secrets and environment vars
 - **[UPDATES_GUIDE.md](UPDATES_GUIDE.md)** - Template update procedures
 
-### 📐 Design & Planning
-- **[MULTI_ARCHETYPE_COMPOSITION_DESIGN.md](MULTI_ARCHETYPE_COMPOSITION_DESIGN.md)** - Archetype system design
-- **[NAMING_CONVENTIONS.md](archive/NAMING_CONVENTIONS.md)** - Naming standards (archived)
-- **[COMPLETION_ROADMAP.md](COMPLETION_ROADMAP.md)** - Progress tracking (95% → 100%)
-- **[ARXIV_COMPARISON_ANALYSIS.md](ARXIV_COMPARISON_ANALYSIS.md)** - Feature comparison
-
 ---
 
 ## 📋 Documentation by Audience
@@ -68,18 +62,6 @@
 - [TECHNICAL_REFERENCE.md](TECHNICAL_REFERENCE.md) - API documentation ⭐
 - [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture ⭐
 - [TESTING_GUIDE.md](../tests/TESTING_GUIDE.md) - Testing ⭐
-
-### 🔧 For Template Maintainers
-
-**Implementation & design:**
-- [COMPLETION_ROADMAP.md](COMPLETION_ROADMAP.md) - Roadmap to 100%
-- [ARXIV_COMPARISON_ANALYSIS.md](ARXIV_COMPARISON_ANALYSIS.md) - Feature tracking
-- [archive/MULTI_ARCHETYPE_COMPOSITION_DESIGN.md](archive/MULTI_ARCHETYPE_COMPOSITION_DESIGN.md) - System design (archived)
-- [archive/NAMING_CONVENTIONS.md](archive/NAMING_CONVENTIONS.md) - Standards (archived)
-
-**Testing & quality:**
-- [TESTING_GUIDE.md](../tests/TESTING_GUIDE.md) - Comprehensive testing
-- [../tests/TESTING_MULTI_PROJECTS.md](../tests/TESTING_MULTI_PROJECTS.md) - Multi-project tests
 
 ---
 
@@ -269,54 +251,6 @@
 
 ---
 
-### MULTI_ARCHETYPE_COMPOSITION_DESIGN.md
-**Purpose:** System design for archetype composition
-**Who:** Maintainers, contributors
-**Contents:**
-- Design philosophy
-- Metadata structure
-- Conflict resolution
-- Port management
-- File merging strategies
-
----
-
-### NAMING_CONVENTIONS.md
-**Purpose:** Naming standards and conventions
-**Who:** Contributors, maintainers
-**Contents:**
-- Script naming
-- Function naming
-- Container naming
-- File naming
-- Consistency guidelines
-
----
-
-### COMPLETION_ROADMAP.md
-**Purpose:** Track progress to 100% completion
-**Who:** Maintainers, contributors
-**Contents:**
-- Completed work (Phases 1-5)
-- Remaining work (documentation, testing, API docs)
-- Priority breakdown
-- Time estimates
-- Definition of "100% complete"
-
----
-
-### ARXIV_COMPARISON_ANALYSIS.md
-**Purpose:** Feature comparison and gap analysis
-**Who:** Maintainers, technical planners
-**Contents:**
-- RAG archetype comparison
-- API-Service comparison
-- Missing features
-- Implementation priorities
-- Progress tracking
-
----
-
 ## 🗂️ File Organization
 
 ```
@@ -340,13 +274,6 @@ dev-environment-template/
 │   ├── GIT_GITHUB_INTEGRATION.md          # GitHub workflows
 │   ├── SECRETS_MANAGEMENT.md              # Security
 │   ├── UPDATES_GUIDE.md                   # Template updates
-│   │
-│   ├── archive/                           # Archived design docs
-│   │   ├── MULTI_ARCHETYPE_COMPOSITION_DESIGN.md  # System design (archived)
-│   │   └── NAMING_CONVENTIONS.md          # Standards (archived)
-│   │
-│   ├── COMPLETION_ROADMAP.md              # Progress tracking
-│   ├── ARXIV_COMPARISON_ANALYSIS.md       # Feature comparison
 │   └── DOCUMENTATION_INDEX.md             # This file
 │
 └── tests/                                  # Test documentation
@@ -376,13 +303,19 @@ dev-environment-template/
 
 ### ❌ Removed (Obsolete/Redundant)
 - **QUICK_REFERENCE.md** → Superseded by QUICK_START.md
-- **IMPLEMENTATION_GUIDE.md** → Content in MULTI_ARCHETYPE_COMPOSITION_DESIGN.md
-- **IMPLEMENTATION_PROGRESS.md** → Content in COMPLETION_ROADMAP.md
+- **IMPLEMENTATION_GUIDE.md** → Archived
+- **IMPLEMENTATION_PROGRESS.md** → Archived
 - **TEST_SUITE_SUMMARY.md** → Content in TESTING_GUIDE.md
 - **QUICK_TEST_REFERENCE.md** → Consolidated into TESTING_GUIDE.md
 
 ### 📁 Moved
 - **TESTING_MULTI_PROJECTS.md** → Moved from docs/ to tests/
+
+### 📦 Archived (Design/Internal)
+- **MULTI_ARCHETYPE_COMPOSITION_DESIGN.md** → docs/archive/ (design reference)
+- **NAMING_CONVENTIONS.md** → docs/archive/ (conventions reference)
+- **COMPLETION_ROADMAP.md** → Internal tracking (not indexed)
+- **ARXIV_COMPARISON_ANALYSIS.md** → Internal tracking (not indexed)
 
 ---
 
@@ -397,9 +330,6 @@ dev-environment-template/
 ### Path 3: Developer Deep Dive (4 hours)
 1. README.md → QUICK_START.md → ARCHETYPE_GUIDE.md → TECHNICAL_REFERENCE.md → ARCHITECTURE.md → TESTING_GUIDE.md
 
-### Path 4: Maintainer/Contributor (8 hours)
-1. All of Path 3 + MULTI_ARCHETYPE_COMPOSITION_DESIGN.md + COMPLETION_ROADMAP.md + ARXIV_COMPARISON_ANALYSIS.md
-
 ---
 
 ## 📞 Getting Help
@@ -413,9 +343,9 @@ dev-environment-template/
 
 ---
 
-**Last Updated:** November 28, 2025
-**Version:** 3.0 (Consolidated)
-**Total Documents:** 18 (down from 23)
+**Last Updated:** November 29, 2025
+**Version:** 3.1 (Streamlined)
+**Total Documents:** 14 core user-facing documents
 - Complete examples
 - Archetype composition
 - Customization guide

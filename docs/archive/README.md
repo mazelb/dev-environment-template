@@ -5,7 +5,7 @@ This folder contains design documents and references that were used during initi
 ## Contents
 
 ### MULTI_ARCHETYPE_COMPOSITION_DESIGN.md
-**Date:** November 19, 2025  
+**Date:** November 19, 2025
 **Status:** Design Complete - Implementation integrated into ARCHETYPE_GUIDE.md
 
 Comprehensive technical design document (~2177 lines) for the multi-archetype composition system. This document contains:
@@ -24,7 +24,7 @@ Comprehensive technical design document (~2177 lines) for the multi-archetype co
 ---
 
 ### NAMING_CONVENTIONS.md
-**Date:** Project inception  
+**Date:** Project inception
 **Status:** Conventions established and followed throughout codebase
 
 Standardized naming conventions document that defined:
