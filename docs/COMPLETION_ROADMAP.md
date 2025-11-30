@@ -55,7 +55,7 @@ This document provides a clear roadmap for completing the remaining 2% of work t
 
 **Documents Consolidated/Removed:**
 1. ~~QUICK_REFERENCE.md~~ → Superseded by QUICK_START.md
-2. ~~IMPLEMENTATION_GUIDE.md~~ → Content in MULTI_ARCHETYPE_COMPOSITION_DESIGN.md
+2. ~~IMPLEMENTATION_GUIDE.md~~ → Content archived (see archive/MULTI_ARCHETYPE_COMPOSITION_DESIGN.md)
 3. ~~IMPLEMENTATION_PROGRESS.md~~ → Content in COMPLETION_ROADMAP.md
 4. ~~TEST_SUITE_SUMMARY.md~~ → Content in TESTING_GUIDE.md
 5. ~~QUICK_TEST_REFERENCE.md~~ → Content in TESTING_GUIDE.md

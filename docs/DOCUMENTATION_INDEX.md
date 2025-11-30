@@ -33,7 +33,7 @@
 
 ### 📐 Design & Planning
 - **[MULTI_ARCHETYPE_COMPOSITION_DESIGN.md](MULTI_ARCHETYPE_COMPOSITION_DESIGN.md)** - Archetype system design
-- **[NAMING_CONVENTIONS.md](NAMING_CONVENTIONS.md)** - Naming standards
+- **[NAMING_CONVENTIONS.md](archive/NAMING_CONVENTIONS.md)** - Naming standards (archived)
 - **[COMPLETION_ROADMAP.md](COMPLETION_ROADMAP.md)** - Progress tracking (95% → 100%)
 - **[ARXIV_COMPARISON_ANALYSIS.md](ARXIV_COMPARISON_ANALYSIS.md)** - Feature comparison
 
@@ -74,8 +74,8 @@
 **Implementation & design:**
 - [COMPLETION_ROADMAP.md](COMPLETION_ROADMAP.md) - Roadmap to 100%
 - [ARXIV_COMPARISON_ANALYSIS.md](ARXIV_COMPARISON_ANALYSIS.md) - Feature tracking
-- [MULTI_ARCHETYPE_COMPOSITION_DESIGN.md](MULTI_ARCHETYPE_COMPOSITION_DESIGN.md) - System design
-- [NAMING_CONVENTIONS.md](NAMING_CONVENTIONS.md) - Standards
+- [archive/MULTI_ARCHETYPE_COMPOSITION_DESIGN.md](archive/MULTI_ARCHETYPE_COMPOSITION_DESIGN.md) - System design (archived)
+- [archive/NAMING_CONVENTIONS.md](archive/NAMING_CONVENTIONS.md) - Standards (archived)
 
 **Testing & quality:**
 - [TESTING_GUIDE.md](../tests/TESTING_GUIDE.md) - Comprehensive testing
@@ -341,8 +341,10 @@ dev-environment-template/
 │   ├── SECRETS_MANAGEMENT.md              # Security
 │   ├── UPDATES_GUIDE.md                   # Template updates
 │   │
-│   ├── MULTI_ARCHETYPE_COMPOSITION_DESIGN.md  # System design
-│   ├── NAMING_CONVENTIONS.md              # Standards
+│   ├── archive/                           # Archived design docs
+│   │   ├── MULTI_ARCHETYPE_COMPOSITION_DESIGN.md  # System design (archived)
+│   │   └── NAMING_CONVENTIONS.md          # Standards (archived)
+│   │
 │   ├── COMPLETION_ROADMAP.md              # Progress tracking
 │   ├── ARXIV_COMPARISON_ANALYSIS.md       # Feature comparison
 │   └── DOCUMENTATION_INDEX.md             # This file

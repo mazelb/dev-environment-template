@@ -107,3 +107,7 @@ build/
 .cache/
 temp/
 tmp/
+
+# Documentation archives (preserved but not actively indexed)
+# Note: docs/archive/ folder is tracked but excluded from doc tooling
+docs/archive/.gitkeep

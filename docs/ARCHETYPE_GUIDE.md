@@ -484,11 +484,13 @@ docker-compose build --no-cache
 
 ### Creating Custom Archetypes
 
-See [MULTI_ARCHETYPE_COMPOSITION_DESIGN.md](MULTI_ARCHETYPE_COMPOSITION_DESIGN.md) for:
-- Archetype metadata schema
-- Directory structure requirements
-- Conflict resolution strategies
+**Key Concepts:**
+- Archetype metadata schema (__archetype__.json)
+- Directory structure requirements (src/, tests/, docs/)
+- Conflict resolution strategies (port offsetting, service namespacing)
 - Testing custom archetypes
+
+**Advanced Reference:** See [archived design document](archive/MULTI_ARCHETYPE_COMPOSITION_DESIGN.md) for detailed technical specifications
 
 ### Archetype Development
 

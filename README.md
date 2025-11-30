@@ -164,7 +164,7 @@ The template now supports an **archetype-based project creation system** for gen
 **Learn More:**
 - **[Archetype Guide](docs/ARCHETYPE_GUIDE.md)** - Complete usage guide with examples
 - **[Archetype Catalog](archetypes/README.md)** - Detailed archetype reference
-- **[Multi-Archetype Design](docs/MULTI_ARCHETYPE_COMPOSITION_DESIGN.md)** - Technical architecture
+- **[Archetype Guide](docs/ARCHETYPE_GUIDE.md)** - Complete archetype usage and composition guide
 
 ---
 
