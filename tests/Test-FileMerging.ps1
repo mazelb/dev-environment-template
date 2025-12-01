@@ -80,18 +80,23 @@ function Invoke-BashScript {
     )
 
     # Convert Windows path to WSL path using wslpath
-    $unixPath = & wsl wslpath -u $ScriptPath
+    # Convert backslashes to forward slashes first
+    $normalizedPath = $ScriptPath -replace '\\', '/'
+    $unixPath = (wsl wslpath -u "$normalizedPath").Trim()
 
     # Convert argument paths too
     $unixArgs = $Arguments | ForEach-Object {
-        if ($_ -match '^[A-Z]:\\') {
-            & wsl wslpath -u $_
+        if ($_ -match '^[A-Z]:[\\/]') {
+            # Convert backslashes to forward slashes first
+            $normalizedPath = $_ -replace '\\', '/'
+            (wsl wslpath -u "$normalizedPath").Trim()
         } else {
             $_
         }
     }
 
-    $result = & bash $unixPath @unixArgs 2>&1
+    # Execute bash script with converted paths
+    $result = wsl bash "$unixPath" @unixArgs 2>&1
     return @{
         Output = $result
         ExitCode = $LASTEXITCODE

@@ -13,11 +13,11 @@ $TestRootWin = Join-Path $ParentWin 'archetype-matrix-tests'
 if (-not (Test-Path $TestRootWin)) { New-Item -ItemType Directory -Path $TestRootWin | Out-Null }
 
 function Convert-ToWslPath([string]$winPath) {
-    $winPath = $winPath -replace '\\','/'
-    if ($winPath -match '^([A-Za-z]):') {
-        $drive = $Matches[1].ToLower()
-        $rest = $winPath.Substring(2)
-        return "/mnt/$drive$rest"
+    # Use wslpath for reliable conversion
+    if ($winPath -match '^[A-Z]:[\\/]') {
+        # Convert backslashes to forward slashes first
+        $normalizedPath = $winPath -replace '\\', '/'
+        return (wsl wslpath -u "$normalizedPath").Trim()
     }
     return $winPath
 }
