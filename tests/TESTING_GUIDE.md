@@ -137,10 +137,35 @@ bash tests/test-phase1.sh
 bash tests/test-phase4-integration.sh
 ```
 
-### 3. Archetype Implementation Tests (pytest)
+### 3. RAG Archetype Full Stack Test (PowerShell)
+
+This is the **most comprehensive test** that creates a complete RAG project, starts all Docker services, and runs all test suites:
+
+```powershell
+# Run complete RAG archetype test
+pwsh tests/Test-RagArchetypeFull.ps1
+
+# Options:
+pwsh tests/Test-RagArchetypeFull.ps1 -KeepProject    # Keep test project after completion
+pwsh tests/Test-RagArchetypeFull.ps1 -SkipCleanup   # Don't clean up Docker resources
+pwsh tests/Test-RagArchetypeFull.ps1 -Verbose       # Enable verbose output
+```
+
+**What it tests:**
+- ✓ Project creation with RAG archetype
+- ✓ Project structure validation
+- ✓ Docker Compose file validation
+- ✓ All Docker services startup (PostgreSQL, Redis, OpenSearch, Ollama, FastAPI)
+- ✓ Service health checks and readiness
+- ✓ Complete unit test suite
+- ✓ Complete integration test suite
+- ✓ Complete end-to-end test suite
+- ✓ Code coverage reporting
+
+### 4. Archetype Implementation Tests (pytest)
 
 ```bash
-# RAG archetype tests
+# RAG archetype tests (within the archetype directory)
 cd archetypes/rag-project
 pytest                    # Run all tests
 pytest -m unit           # Unit tests only
@@ -246,6 +271,39 @@ cat COMPOSITION.md  # Should exist for archetypes
 cd ..
 rm -rf test-rag
 ```
+
+### RAG Full Stack Test
+
+For the most comprehensive RAG archetype testing, use the automated full stack test:
+
+```powershell
+# Run complete RAG archetype test (creates project, starts services, runs all tests)
+pwsh tests/Test-RagArchetypeFull.ps1
+
+# Options:
+pwsh tests/Test-RagArchetypeFull.ps1 -KeepProject    # Keep test project after completion
+pwsh tests/Test-RagArchetypeFull.ps1 -SkipCleanup   # Don't clean up Docker resources
+pwsh tests/Test-RagArchetypeFull.ps1 -Verbose       # Enable verbose output
+```
+
+**What this test validates:**
+1. Project creation with RAG archetype
+2. Project structure (files, directories)
+3. Docker Compose validation
+4. All Docker services startup (PostgreSQL, Redis, OpenSearch, Ollama, FastAPI)
+5. Service health checks and readiness
+6. Complete unit test suite execution
+7. Complete integration test suite execution
+8. Complete end-to-end test suite execution
+9. Code coverage reporting (target: >70%)
+
+**Expected Results:**
+- ✓ All Docker services start successfully
+- ✓ Health checks pass for all services (may take 3-5 minutes)
+- ✓ Unit tests: >80% pass rate
+- ✓ Integration tests: All critical paths covered
+- ✓ E2E tests: Complete workflows functional
+- ✓ Code coverage: >70%
 
 ### Multi-Archetype Composition
 
@@ -455,12 +513,18 @@ du -sh test-project/
 
 For detailed test specifications, see:
 
+### Template System Tests
 - `TESTING_ARCHETYPE_STRUCTURE.md` - Archetype structure & configuration tests
 - `TESTING_GIT_INTEGRATION.md` - Git integration tests
 - `TESTING_MULTI_ARCHETYPE.md` - Multi-archetype composition tests
 - `TESTING_FILE_MERGING.md` - File merging system tests
 - `TESTING_ARCHETYPE_VALIDATION.md` - Archetype validation tests
 - `TESTING_MULTI_PROJECTS.md` - Multi-project workflow tests
+
+### RAG Archetype Tests
+- `TEST_RAG_FULL_STACK.md` - Complete RAG archetype testing documentation
+- `RAG_ARCHETYPE_TEST_SUMMARY.md` - Current status and summary of RAG testing
+- `QUICK_REFERENCE_RAG_TESTING.md` - Quick reference for running RAG tests
 
 ---
 
