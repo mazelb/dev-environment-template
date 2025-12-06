@@ -63,30 +63,33 @@ Write-Host "║  Phase 1: Foundation & Infrastructure Test Suite     ║" -Foreg
 Write-Host "╚════════════════════════════════════════════════════════╝" -ForegroundColor Blue
 Write-Host ""
 
-$rootDir = $PSScriptRoot + "\.."
+$rootDir = Join-Path $PSScriptRoot ".."
 
 # Test 1.1: Configuration Directory Structure
 Write-TestHeader "Test 1.1: Configuration Directory Structure"
 
 Write-Test "Checking config/ directory exists"
-if (Test-Path "$rootDir\config") {
+$configDir = Join-Path $rootDir "config"
+if (Test-Path $configDir) {
     Write-Pass "config/ directory exists"
 } else {
     Write-Fail "config/ directory not found"
 }
 
 Write-Test "Checking config/optional-tools.json exists"
-if (Test-Path "$rootDir\config\optional-tools.json") {
+$optionalToolsPath = Join-Path $rootDir "config/optional-tools.json"
+if (Test-Path $optionalToolsPath) {
     Write-Pass "optional-tools.json exists"
-    Test-JsonFile "$rootDir\config\optional-tools.json" "optional-tools.json"
+    Test-JsonFile $optionalToolsPath "optional-tools.json"
 } else {
     Write-Fail "optional-tools.json not found"
 }
 
 Write-Test "Checking config/archetypes.json exists"
-if (Test-Path "$rootDir\config\archetypes.json") {
+$archetypesConfigPath = Join-Path $rootDir "config/archetypes.json"
+if (Test-Path $archetypesConfigPath) {
     Write-Pass "archetypes.json exists"
-    Test-JsonFile "$rootDir\config\archetypes.json" "archetypes.json"
+    Test-JsonFile $archetypesConfigPath "archetypes.json"
 } else {
     Write-Fail "archetypes.json not found"
 }

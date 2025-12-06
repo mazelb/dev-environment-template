@@ -6,7 +6,7 @@ Write-Host "║  Phase 3: Multi-Archetype Core Tests  ║" -ForegroundColor Cyan
 Write-Host "╚════════════════════════════════════════╝" -ForegroundColor Cyan
 Write-Host ""
 
-$rootDir = $PSScriptRoot + "\.."
+$rootDir = Join-Path $PSScriptRoot ".."
 
 $script:TestsPassed = 0
 $script:TestsFailed = 0
@@ -26,7 +26,8 @@ function Test-Fail {
 
 # Test 1: Conflict resolver script exists
 Write-Host "Test 1: Conflict resolver script exists..." -NoNewline
-if (Test-Path "$rootDir\scripts\conflict-resolver.sh") {
+$conflictResolverPath = Join-Path $rootDir "scripts/conflict-resolver.sh"
+if (Test-Path $conflictResolverPath) {
     Test-Pass "Conflict resolver script created"
 } else {
     Test-Fail "Conflict resolver script missing" "File scripts/conflict-resolver.sh not found"
@@ -34,7 +35,7 @@ if (Test-Path "$rootDir\scripts\conflict-resolver.sh") {
 
 # Test 2: Check conflict detection functions exist
 Write-Host "Test 2: Conflict detection functions exist..." -NoNewline
-$conflictResolverContent = Get-Content "$rootDir\scripts\conflict-resolver.sh" -Raw
+$conflictResolverContent = Get-Content $conflictResolverPath -Raw
 if ($conflictResolverContent -match "detect_port_conflicts\(\)" -and
     $conflictResolverContent -match "detect_service_name_conflicts\(\)" -and
     $conflictResolverContent -match "detect_dependency_conflicts\(\)") {
@@ -78,7 +79,8 @@ if ($conflictResolverContent -match "YQ_AVAILABLE" -and $conflictResolverContent
 
 # Test 7: compose_archetypes function exists in create-project.sh
 Write-Host "Test 7: compose_archetypes function exists..." -NoNewline
-$createProjectContent = Get-Content "$rootDir\create-project.sh" -Raw
+$createProjectPath = Join-Path $rootDir "create-project.sh"
+$createProjectContent = Get-Content $createProjectPath -Raw
 if ($createProjectContent -match "compose_archetypes\(\)") {
     Test-Pass "compose_archetypes function defined"
 } else {
@@ -111,7 +113,8 @@ if ($createProjectContent -match "source.*conflict-resolver.sh") {
 
 # Test 11: Enhanced check_compatibility function
 Write-Host "Test 11: Enhanced check_compatibility function..." -NoNewline
-$archetypeLoaderContent = Get-Content "$rootDir\scripts\archetype-loader.sh" -Raw
+$archetypeLoaderPath = Join-Path $rootDir "scripts/archetype-loader.sh"
+$archetypeLoaderContent = Get-Content $archetypeLoaderPath -Raw
 if ($archetypeLoaderContent -match "Compatibility Check" -and
     $archetypeLoaderContent -match "detect_all_conflicts") {
     Test-Pass "check_compatibility function enhanced"

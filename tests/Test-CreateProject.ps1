@@ -7,8 +7,8 @@
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $TemplateDir = Split-Path -Parent $ScriptDir
 $CreateProjectScript = Join-Path $TemplateDir "create-project.sh"
-$TestOutputDir = Join-Path $ScriptDir "temp\test-projects"
-$TestResultsFile = Join-Path $ScriptDir "temp\test-results.txt"
+$TestOutputDir = Join-Path $ScriptDir "temp/test-projects"
+$TestResultsFile = Join-Path $ScriptDir "temp/test-results.txt"
 
 # Counters
 $Script:TotalTests = 0

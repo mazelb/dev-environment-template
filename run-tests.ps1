@@ -131,7 +131,7 @@ $results = @{}
 
 # Run RAG archetype tests
 if ($Archetype -eq "rag" -or $Archetype -eq "both") {
-    $ragPath = Join-Path $rootDir "archetypes\rag-project"
+    $ragPath = Join-Path $rootDir "archetypes/rag-project"
     $results["RAG"] = Run-ArchetypeTests -ArchetypeName "RAG" `
                                          -ArchetypePath $ragPath `
                                          -TestTypeArg $TestType `
@@ -141,7 +141,7 @@ if ($Archetype -eq "rag" -or $Archetype -eq "both") {
 
 # Run API archetype tests
 if ($Archetype -eq "api" -or $Archetype -eq "both") {
-    $apiPath = Join-Path $rootDir "archetypes\api-service"
+    $apiPath = Join-Path $rootDir "archetypes/api-service"
     $results["API"] = Run-ArchetypeTests -ArchetypeName "API" `
                                          -ArchetypePath $apiPath `
                                          -TestTypeArg $TestType `
