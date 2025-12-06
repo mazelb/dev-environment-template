@@ -326,6 +326,15 @@ function Test-DockerServicesStartup {
     $envFile = Join-Path $TestProjectPath ".env"
     if (Test-Path $envExample) {
         Copy-Item $envExample $envFile
+
+        # Update PROJECT_NAME in .env to match test project name
+        $envContent = Get-Content $envFile -Raw
+        $envContent = $envContent -replace 'PROJECT_NAME=.*', "PROJECT_NAME=$TestProjectName"
+        Set-Content -Path $envFile -Value $envContent -NoNewline
+
+        if ($Verbose) {
+            Write-Host "  Updated .env with PROJECT_NAME=$TestProjectName" -ForegroundColor Gray
+        }
     }
 
     # Start services
