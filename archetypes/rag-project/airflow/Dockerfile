@@ -20,8 +20,8 @@ COPY requirements-airflow.txt /tmp/requirements-airflow.txt
 # Install Python dependencies
 RUN pip install --no-cache-dir -r /tmp/requirements-airflow.txt
 
-# Copy source code (for importing in DAGs)
-COPY --chown=airflow:airflow ../src /opt/airflow/src
+# Note: The src directory is mounted as a volume at runtime
+# See docker-compose.yml volumes section: - ./src:/opt/airflow/src
 
 # Copy DAGs and plugins
 COPY --chown=airflow:airflow dags /opt/airflow/dags

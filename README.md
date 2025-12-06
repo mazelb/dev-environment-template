@@ -20,14 +20,17 @@ A complete, production-ready development environment that works seamlessly acros
 - Pre-configured build tools and debuggers
 
 ### 🤖 **AI Coding Assistants**
-- **25+ AI models** including:
-  - Claude (Opus 4.1, Sonnet 4.5, Sonnet 4, Haiku)
-  - GPT (4o, o1-preview, o1-mini)
-  - Gemini (2.0 Flash, 1.5 Pro)
-  - Mistral, DeepSeek, Perplexity, and more
-- **8 custom AI prompts** (/explain, /refactor, /test, /document, /optimize, /debug, /architecture, /security)
-- **Tab autocomplete** with Codestral
-- **Context-aware** code assistance
+- **Claude Code CLI** with Claude Sonnet 4.5
+  - 11 slash commands (/explain, /refactor, /test, /document, /optimize, /debug, /security, /architecture, /docker-optimize, /ci-review, /sql-optimize)
+  - 3 auto-invoked skills (code-quality, devops-infrastructure, data-engineering)
+  - Project memory system (.claude/CLAUDE.md)
+  - Runs in VS Code terminal (Ctrl+`)
+- **GitHub Copilot** for real-time autocomplete
+  - Tab completion while typing
+  - Inline suggestions
+- **Division of Labor:**
+  - Copilot: Real-time autocomplete
+  - Claude Code: Complex reasoning, refactoring, architecture
 
 ### ⚙️ **VS Code Integration**
 - Dev Container support (one-click setup)
@@ -90,8 +93,9 @@ code .
 # 7. Reopen in container
 # Press: Cmd/Ctrl+Shift+P → "Remote-Containers: Reopen in Container"
 
-# 8. Start coding with AI assistance!
-# Press: Cmd+L (Mac) or Ctrl+L (Windows/Linux) to open Continue AI
+# 8. Start Claude Code in terminal
+# Press: Ctrl+` to open terminal, then run:
+claude code
 ```
 
 **That's it!** You're now ready to code with a fully configured environment and AI assistance.
@@ -306,17 +310,19 @@ docker-compose up -d
 # 1. Open project in VS Code
 code .
 
-# 2. Open a file with code to review
+# 2. Open terminal (Ctrl+`)
+claude code
 
-# 3. Select code block
-
-# 4. Press Cmd/Ctrl+Shift+E
-
-# 5. Type: /security
+# 3. Use slash commands:
+/security @src/api/
 # AI analyzes for security vulnerabilities
 
-# Or type: /optimize
+/optimize @src/services/
 # AI suggests performance improvements
+
+# Or use natural language:
+"Review this code for security issues"
+# Skills auto-activate based on context
 ```
 
 ---
@@ -342,22 +348,25 @@ code .
 |--------|-------|---------------|
 | Command Palette | `Cmd+Shift+P` | `Ctrl+Shift+P` |
 | Reopen in Container | `Cmd+Shift+P` → "Reopen" | `Ctrl+Shift+P` → "Reopen" |
-| Open Continue AI | `Cmd+L` | `Ctrl+L` |
-| AI Commands | `Cmd+Shift+E` | `Ctrl+Shift+E` |
-| Terminal | ``Cmd+` `` | ``Ctrl+` `` |
+| Open Terminal | ``Cmd+` `` | ``Ctrl+` `` |
+| Start Claude Code | `claude code` (in terminal) | `claude code` (in terminal) |
+| GitHub Copilot | Tab for suggestions | Tab for suggestions |
 
-### AI Prompt Commands
+### Claude Code Commands
 
 | Command | Purpose | Example |
 |---------|---------|---------|
-| `/explain` | Explain code | Select code → `/explain` |
-| `/refactor` | Improve code structure | Select function → `/refactor` |
-| `/test` | Generate tests | Select function → `/test` |
-| `/document` | Add documentation | Select code → `/document` |
-| `/optimize` | Performance tips | Select code → `/optimize` |
-| `/debug` | Debug assistance | Select code → `/debug` |
-| `/architecture` | Analyze design | Select files → `/architecture` |
-| `/security` | Security review | Select code → `/security` |
+| `/explain` | Explain code | `/explain @src/main.py` |
+| `/refactor` | Improve code structure | `/refactor @src/services/user.py` |
+| `/test` | Generate tests | `/test @src/api/endpoints.py` |
+| `/document` | Add documentation | `/document @src/models/` |
+| `/optimize` | Performance tips | `/optimize @src/services/` |
+| `/debug` | Debug assistance | `/debug` (then describe issue) |
+| `/architecture` | Analyze design | `/architecture @archetypes/rag-project/` |
+| `/security` | Security review | `/security @src/api/` |
+| `/docker-optimize` | Optimize Dockerfiles | `/docker-optimize @Dockerfile` |
+| `/ci-review` | CI/CD review | `/ci-review @.github/workflows/` |
+| `/sql-optimize` | SQL optimization | `/sql-optimize` (then show query) |
 
 ---
 
@@ -366,7 +375,7 @@ code .
 ### Add Your API Keys
 
 ```bash
-# Create local secrets file
+# 1. Create local secrets file
 cp .env.local.example .env.local
 
 # Edit with your keys
@@ -375,20 +384,27 @@ nano .env.local
 
 Add your API keys:
 ```bash
-# Anthropic (Claude) - Required for AI features
+# Anthropic (Claude) - Required for Claude Code CLI
 ANTHROPIC_API_KEY=sk-ant-your_key_here
 
-# OpenAI (GPT) - Optional
+# OpenAI (GPT) - Optional, for GitHub Copilot
 OPENAI_API_KEY=sk-your_key_here
-
-# Google (Gemini) - Optional
-GOOGLE_API_KEY=your_google_key_here
 ```
 
 **Get API Keys:**
-- Anthropic: https://console.anthropic.com/
-- OpenAI: https://platform.openai.com/api-keys
-- Google: https://makersuite.google.com/app/apikey
+- Anthropic (Claude Code): https://console.anthropic.com/
+- GitHub Copilot: Enable in VS Code with GitHub account
+
+**Install Claude Code:**
+```bash
+npm install -g @anthropic-ai/claude-code
+
+# Set API key (add to ~/.bashrc or ~/.zshrc)
+export ANTHROPIC_API_KEY="sk-ant-your_key_here"
+
+# Start in project terminal
+claude code
+```
 
 ### Enable VS Code Settings Sync
 
@@ -511,12 +527,12 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 ### Beginner
 - [Docker Getting Started](https://docs.docker.com/get-started/)
 - [VS Code Dev Containers Tutorial](https://code.visualstudio.com/docs/devcontainers/tutorial)
-- [Continue.dev Quickstart](https://continue.dev/docs/quickstart)
+- [Claude Code Documentation](https://docs.anthropic.com/claude-code)
 
 ### Intermediate
 - [Dev Container Feature Development](https://code.visualstudio.com/docs/devcontainers/create-dev-container)
 - [Docker Compose Best Practices](https://docs.docker.com/compose/production/)
-- [AI Coding with Context](https://continue.dev/docs/walkthroughs/codebase-embeddings)
+- [GitHub Copilot Best Practices](https://github.blog/2023-06-20-how-to-write-better-prompts-for-github-copilot/)
 
 ### Advanced
 - [Multi-stage Builds](https://docs.docker.com/build/building/multi-stage/)
@@ -551,7 +567,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ### Third-Party Licenses
 - Docker: [Apache License 2.0](https://github.com/moby/moby/blob/master/LICENSE)
 - VS Code: [MIT License](https://github.com/microsoft/vscode/blob/main/LICENSE.txt)
-- Continue: [Apache License 2.0](https://github.com/continuedev/continue/blob/main/LICENSE)
+- Claude Code: [Anthropic License](https://www.anthropic.com/legal/terms)
 
 ---
 
@@ -560,8 +576,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 Built with and inspired by:
 - [Docker](https://www.docker.com/) - Containerization platform
 - [VS Code Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers) - Development environment
-- [Continue.dev](https://continue.dev/) - AI coding assistant
-- [Anthropic Claude](https://www.anthropic.com/) - AI model provider
+- [Claude Code](https://docs.anthropic.com/claude-code) - AI coding assistant CLI
+- [GitHub Copilot](https://github.com/features/copilot) - AI pair programming
 
 Special thanks to all [contributors](https://github.com/mazelb/dev-environment-template/graphs/contributors)!
 
