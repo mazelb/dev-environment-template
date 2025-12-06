@@ -32,6 +32,7 @@ services:
       - DEBUG=${DEBUG:-false}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - PYTHONPATH=/app
     depends_on:
       postgres:
         condition: service_healthy
@@ -46,7 +47,7 @@ services:
         [
           'CMD-SHELL',
           'python -c "import urllib.request;
-          urllib.request.urlopen(''http://localhost:8000/api/v1/health'')"',
+          urllib.request.urlopen(''http://localhost:8000/health'')"',
         ]
       interval: 30s
       timeout: 10s
@@ -54,6 +55,7 @@ services:
       start_period: 40s
     volumes:
       - ./src:/app/src
+      - ./tests:/app/tests
       - ./uploads:/app/uploads
       - ./data:/app/data
     restart: unless-stopped
@@ -257,7 +259,7 @@ services:
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
-      - AIRFLOW__CORE__FERNET_KEY=${AIRFLOW_FERNET_KEY:-}
+      - AIRFLOW__CORE__FERNET_KEY=${AIRFLOW_FERNET_KEY:-46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=}
       - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true
       - AIRFLOW__CORE__LOAD_EXAMPLES=false
       - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth
@@ -275,11 +277,18 @@ services:
         condition: service_healthy
     networks:
       - rag-network
-    command: >
-      bash -c "airflow db migrate &&
-               airflow users create --username $${_AIRFLOW_WWW_USER_USERNAME} --password
-      $${_AIRFLOW_WWW_USER_PASSWORD} --firstname Admin --lastname User --role Admin --email
-      admin@example.com || true"
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        airflow db migrate && \
+        airflow users create \
+          --username $${_AIRFLOW_WWW_USER_USERNAME} \
+          --password $${_AIRFLOW_WWW_USER_PASSWORD} \
+          --firstname Admin \
+          --lastname User \
+          --role Admin \
+          --email admin@example.com || true
 
   airflow-webserver:
     build:
@@ -291,11 +300,11 @@ services:
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
-      - AIRFLOW__CORE__FERNET_KEY=${AIRFLOW_FERNET_KEY:-}
+      - AIRFLOW__CORE__FERNET_KEY=${AIRFLOW_FERNET_KEY:-46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=}
       - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true
       - AIRFLOW__CORE__LOAD_EXAMPLES=false
       - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth
-      - AIRFLOW__WEBSERVER__SECRET_KEY=${AIRFLOW_WEBSERVER_SECRET_KEY:-}
+      - AIRFLOW__WEBSERVER__SECRET_KEY=${AIRFLOW_WEBSERVER_SECRET_KEY:-a25c5xWymovT3xWmVSKDNdl9jZWxjYnM0ZWxjYnNl}
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/plugins:/opt/airflow/plugins
@@ -325,7 +334,7 @@ services:
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
-      - AIRFLOW__CORE__FERNET_KEY=${AIRFLOW_FERNET_KEY:-}
+      - AIRFLOW__CORE__FERNET_KEY=${AIRFLOW_FERNET_KEY:-46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=}
       - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true
       - AIRFLOW__CORE__LOAD_EXAMPLES=false
       - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth
@@ -341,7 +350,7 @@ services:
         condition: service_healthy
     healthcheck:
       test:
-        ['CMD', 'airflow', 'jobs', 'check', '--job-type', 'SchedulerJob', '--hostname', '$HOSTNAME']
+        ['CMD', 'airflow', 'jobs', 'check', '--job-type', 'SchedulerJob', '--hostname', '$$HOSTNAME']
       interval: 30s
       timeout: 10s
       retries: 5
