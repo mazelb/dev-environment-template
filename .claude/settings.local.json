@@ -1,7 +1,25 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git show:*)"
+      "Bash(git show:*)",
+      "Bash(cmd /c \"rmdir /s /q examples-claude-code\")",
+      "Bash(pwsh tests/Test-RagArchetypeFull.ps1:*)",
+      "Bash(docker ps:*)",
+      "Bash(xargs:*)",
+      "Bash(docker network ls:*)",
+      "Bash(docker volume ls:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker compose:*)",
+      "Bash(python3 -c \"import sys; sys.path.insert(0, ''''.''''); from src.api.main import app\")",
+      "Bash(while read dir)",
+      "Bash(do if [ ! -f \"$dir/__init__.py\" ])",
+      "Bash(then echo \"Missing: $dir/__init__.py\")",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(pwsh:*)",
+      "Bash(curl:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
