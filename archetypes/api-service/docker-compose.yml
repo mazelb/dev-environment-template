@@ -14,6 +14,11 @@ services:
       - REDIS_PORT=6379
       - RATE_LIMIT_PER_MINUTE=${RATE_LIMIT_PER_MINUTE:-60}
       - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
+      - POSTGRES_DB=${POSTGRES_DB:-api_db}
+      - POSTGRES_USER=${POSTGRES_USER:-api_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-api_password}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
     volumes:
       - ./src:/app/src
       - ./logs:/app/logs
@@ -111,9 +116,18 @@ services:
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - POSTGRES_DB=${POSTGRES_DB:-api_db}
+      - POSTGRES_USER=${POSTGRES_USER:-api_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-api_password}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
     depends_on:
-      - redis
-      - celery-worker
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      celery-worker:
+        condition: service_started
     restart: unless-stopped
     networks:
       - api-network
