@@ -57,6 +57,8 @@ The API archetype test suite validates:
 pwsh tests/Test-ApiArchetypeFull.ps1 -Verbose
 
 # Expected: 100% pass rate (10/10 tests)
+# Tests: Project creation, structure, Docker services, health checks, unit tests,
+#        integration tests, API endpoints, background tasks, and coverage
 ```
 
 ### Run Core Infrastructure Test
@@ -66,6 +68,8 @@ pwsh tests/Test-ApiArchetypeFull.ps1 -Verbose
 pwsh tests/Test-ApiArchetypeCore.ps1 -Verbose
 
 # Expected: 100% infrastructure health
+# Tests: Project creation, structure, Docker Compose validation,
+#        services startup, and health checks only
 ```
 
 ### Run E2E Validation
@@ -86,6 +90,7 @@ pwsh run-tests.ps1 -Archetype api -TestType all -SkipDocker
 **Purpose:** Complete full-stack API archetype testing
 **Duration:** ~15-20 minutes
 **Coverage:** Infrastructure + Application + Integration
+**Status:** ✅ Available
 
 **Test Phases:**
 1. Project Creation (from archetype template)
@@ -93,15 +98,29 @@ pwsh run-tests.ps1 -Archetype api -TestType all -SkipDocker
 3. Docker Compose Validation (configuration check)
 4. Docker Services Startup (all 5 services)
 5. Service Health Checks (PostgreSQL, Redis, FastAPI, Celery Worker, Celery Beat)
-6. Unit Tests (inside Docker container)
-7. Integration Tests (service connectivity)
-8. API Endpoint Tests (REST & GraphQL)
-9. Background Task Tests (Celery)
-10. Test Coverage (code coverage reporting)
+6. Unit Tests (pytest inside Docker container)
+7. Integration Tests (service connectivity tests)
+8. API Endpoint Tests (/health, /docs endpoints)
+9. Background Task Tests (Celery worker and task registration)
+10. Test Coverage (code coverage >70% target)
+
+**Features:**
+- Adapts RAG archetype full stack test pattern
+- Comprehensive error handling and logging
+- WSL path conversion support
+- KeepProject, SkipCleanup, Verbose parameters
+- Detailed test results and summary
 
 **Usage:**
 ```powershell
+# Run full stack test
 pwsh tests/Test-ApiArchetypeFull.ps1 -Verbose
+
+# Keep project for manual inspection
+pwsh tests/Test-ApiArchetypeFull.ps1 -KeepProject -Verbose
+
+# Skip cleanup (useful for debugging)
+pwsh tests/Test-ApiArchetypeFull.ps1 -SkipCleanup
 ```
 
 ### Test-ApiArchetypeCore.ps1
@@ -109,17 +128,28 @@ pwsh tests/Test-ApiArchetypeFull.ps1 -Verbose
 **Purpose:** Quick infrastructure validation
 **Duration:** ~5 minutes
 **Coverage:** Infrastructure only
+**Status:** ✅ Available
 
 **Test Phases:**
 1. Project Creation
 2. Structure Validation
 3. Docker Compose Validation
 4. Docker Services Startup
-5. Service Health Checks
+5. Service Health Checks (all 5 services)
+6. Docker Container Inspection
+
+**Features:**
+- Fast infrastructure validation
+- No application tests (use for quick sanity checks)
+- Same parameter support as full test
 
 **Usage:**
 ```powershell
+# Run core infrastructure test
 pwsh tests/Test-ApiArchetypeCore.ps1 -Verbose
+
+# Keep project after test
+pwsh tests/Test-ApiArchetypeCore.ps1 -KeepProject
 ```
 
 ---
