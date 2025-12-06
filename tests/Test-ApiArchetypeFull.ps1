@@ -218,9 +218,19 @@ function Test-ProjectCreation {
 
     Write-Host "Creating API project with all features..." -ForegroundColor Cyan
 
+    # Convert paths to WSL format
+    $projectPath = $TestProjectPath -replace '\\', '/'
+    $projectWSL = (wsl wslpath -u "$projectPath").Trim()
+
+    $command = "./create-project.sh --path '$projectWSL' --archetype api-service --no-git --no-build --verbose"
+
+    if ($Verbose) {
+        Write-Host "  Command: $command" -ForegroundColor Gray
+    }
+
     Push-Location $TemplateDir
     try {
-        $result = Invoke-BashCommand -Command "./create-project.sh --name $TestProjectName --archetype api-service --output '$TestOutputDir'" -WorkingDirectory $TemplateDir
+        $result = Invoke-BashCommand -Command $command -WorkingDirectory $TemplateDir
 
         if ($result.Success -and (Test-Path $TestProjectPath)) {
             Test-Passed "API project created successfully"
