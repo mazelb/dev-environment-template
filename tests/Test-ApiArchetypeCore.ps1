@@ -292,7 +292,7 @@ function Test-ServiceHealth {
     $services = @(
         @{ Name = "PostgreSQL"; Container = "$TestProjectName-postgres"; Check = "docker exec $TestProjectName-postgres pg_isready -U api_user" },
         @{ Name = "Redis"; Container = "$TestProjectName-redis"; Check = "docker exec $TestProjectName-redis redis-cli ping" },
-        @{ Name = "FastAPI"; Url = "http://localhost:8000/health" },
+        @{ Name = "FastAPI"; Url = "http://localhost:8000/api/v1/health" },
         @{ Name = "Celery Worker"; Container = "$TestProjectName-celery-worker"; Check = "docker exec $TestProjectName-celery-worker celery -A src.celery_app.celery inspect ping" },
         @{ Name = "Celery Beat"; Container = "$TestProjectName-celery-beat"; Check = "docker logs $TestProjectName-celery-beat 2>&1 | grep -i 'beat'" }
     )

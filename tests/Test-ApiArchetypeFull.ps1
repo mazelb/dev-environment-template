@@ -366,7 +366,7 @@ function Test-ServiceHealth {
     $services = @(
         @{ Name = "PostgreSQL"; Container = "$TestProjectName-postgres"; Check = "docker exec $TestProjectName-postgres pg_isready -U api_user" },
         @{ Name = "Redis"; Container = "$TestProjectName-redis"; Check = "docker exec $TestProjectName-redis redis-cli ping" },
-        @{ Name = "FastAPI"; Url = "http://localhost:8000/health" },
+        @{ Name = "FastAPI"; Url = "http://localhost:8000/api/v1/health" },
         @{ Name = "Celery Worker"; Container = "$TestProjectName-celery-worker"; Check = "docker exec $TestProjectName-celery-worker celery -A src.celery_app.celery inspect ping" },
         @{ Name = "Celery Beat"; Container = "$TestProjectName-celery-beat"; Check = "docker logs $TestProjectName-celery-beat 2>&1 | grep -i 'beat'" }
     )
@@ -459,9 +459,9 @@ function Test-ApiEndpoints {
     Write-Host "Testing API endpoints..." -ForegroundColor Cyan
 
     # Test health endpoint
-    Write-Host "  Testing /health endpoint..." -ForegroundColor Cyan
+    Write-Host "  Testing /api/v1/health endpoint..." -ForegroundColor Cyan
     try {
-        $response = Invoke-WebRequest -Uri "http://localhost:8000/health" -UseBasicParsing -TimeoutSec 10
+        $response = Invoke-WebRequest -Uri "http://localhost:8000/api/v1/health" -UseBasicParsing -TimeoutSec 10
         if ($response.StatusCode -eq 200) {
             Write-Host "  ✓ Health endpoint responding" -ForegroundColor Green
             $healthPassed = $true
