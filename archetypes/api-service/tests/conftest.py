@@ -14,13 +14,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 @pytest.fixture(scope="session")
 def test_settings():
     """Create test settings with overrides."""
-    os.environ["ENVIRONMENT"] = "test"
-    os.environ["DEBUG"] = "false"
     os.environ["DATABASE_URL"] = "sqlite:///./test_api.db"
-    os.environ["SECRET_KEY"] = "test_secret_key_for_testing_only"
+    os.environ["API_SECRET_KEY"] = "test_secret_key_for_testing_only"
     os.environ["REDIS_HOST"] = "localhost"
     os.environ["REDIS_PORT"] = "6379"
-    os.environ["REDIS_DB"] = "2"
 
     from src.core.config import settings
 
@@ -91,6 +88,14 @@ def docker_compose_up():
     subprocess.run(
         ["docker-compose", "down", "-v"], check=False, cwd=Path(__file__).parent.parent
     )
+
+
+@pytest.fixture(scope="module")
+def celery_app():
+    """Create a Celery app instance for testing."""
+    from src.celery_app import celery
+
+    return celery
 
 
 @pytest.fixture(autouse=True)
