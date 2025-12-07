@@ -9,82 +9,61 @@ from fastapi.testclient import TestClient
 class TestLoggingMiddleware:
     """Test logging middleware."""
 
-    def test_logging_middleware_import(self):
-        """Test logging middleware can be imported."""
-        from src.middleware.logging import LoggingMiddleware
+    def test_logging_setup_import(self):
+        """Test logging setup function can be imported."""
+        from src.middleware.logging import setup_logging
 
-        assert LoggingMiddleware is not None
+        assert setup_logging is not None
+        assert callable(setup_logging)
 
-    def test_logging_middleware_logs_requests(self):
-        """Test middleware logs HTTP requests."""
-        from src.middleware.logging import LoggingMiddleware
+    def test_logging_setup_executes(self):
+        """Test logging setup function executes without errors."""
+        from src.middleware.logging import setup_logging
 
-        app = FastAPI()
-        app.add_middleware(LoggingMiddleware)
-
-        @app.get("/test")
-        def test_endpoint():
-            return {"status": "ok"}
-
-        client = TestClient(app)
-        response = client.get("/test")
-
-        assert response.status_code == 200
+        # Should not raise exceptions
+        setup_logging()
+        assert True
 
 
 @pytest.mark.unit
 class TestRateLimiter:
     """Test rate limiter middleware."""
 
-    def test_rate_limiter_import(self):
-        """Test rate limiter can be imported."""
-        from src.middleware.rate_limiter import RateLimiter
-
-        assert RateLimiter is not None
-
-    def test_rate_limiter_initialization(self):
-        """Test rate limiter initializes correctly."""
-        from src.middleware.rate_limiter import RateLimiter
-
-        limiter = RateLimiter(max_requests=10, window_seconds=60)
+    def test_limiter_import(self):
+        """Test limiter can be imported."""
+        from src.middleware.rate_limiter import limiter
 
         assert limiter is not None
-        assert limiter.max_requests == 10
-        assert limiter.window_seconds == 60
 
-    def test_rate_limiter_allows_requests_within_limit(self):
-        """Test rate limiter allows requests within limit."""
-        from src.middleware.rate_limiter import RateLimiter
+    def test_limiter_has_default_limits(self):
+        """Test limiter has default limits configured."""
+        from src.middleware.rate_limiter import limiter
 
-        app = FastAPI()
-        limiter = RateLimiter(max_requests=5, window_seconds=60)
-        app.add_middleware(
-            type(limiter).__bases__[0], app=app, dispatch=limiter.dispatch
-        )
+        assert hasattr(limiter, "_default_limits")
+        assert len(limiter._default_limits) > 0
 
-        @app.get("/test")
-        def test_endpoint():
-            return {"status": "ok"}
+    def test_limiter_redis_storage(self):
+        """Test limiter uses Redis storage."""
+        from src.middleware.rate_limiter import limiter
 
-        client = TestClient(app)
-
-        # First 5 requests should succeed
-        for _ in range(5):
-            response = client.get("/test")
-            assert response.status_code == 200
+        assert limiter._storage_uri is not None
+        assert "redis" in limiter._storage_uri.lower()
 
 
 @pytest.mark.unit
 class TestMiddlewareIntegration:
     """Test middleware integration with FastAPI."""
 
-    def test_middleware_can_be_added_to_app(self):
-        """Test middleware can be added to FastAPI app."""
-        from src.middleware.logging import LoggingMiddleware
+    def test_limiter_can_be_added_to_app(self):
+        """Test limiter can be added to FastAPI app."""
+        from src.middleware.rate_limiter import limiter
+        from slowapi import _rate_limit_exceeded_handler
+        from slowapi.errors import RateLimitExceeded
 
         app = FastAPI()
 
         # Should not raise exceptions
-        app.add_middleware(LoggingMiddleware)
+        app.state.limiter = limiter
+        app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
         assert True

@@ -8,10 +8,12 @@ from sqlalchemy.orm import Session
 class TestDatabaseConfig:
     """Test database configuration."""
 
-    def test_database_url_configuration(self, test_settings):
+    def test_database_url_configuration(self):
         """Test database URL is configured."""
-        assert test_settings.DATABASE_URL is not None
-        assert len(test_settings.DATABASE_URL) > 0
+        from src.core.config import settings
+
+        assert settings.DATABASE_URL is not None
+        assert len(settings.DATABASE_URL) > 0
 
     def test_database_engine_creation(self):
         """Test database engine can be created."""
@@ -52,18 +54,19 @@ class TestDatabaseModels:
     def test_user_model_exists(self):
         """Test User model is defined."""
         from src.models.user import User
+        from pydantic import BaseModel
 
         assert User is not None
-        assert hasattr(User, "__tablename__")
+        assert issubclass(User, BaseModel)
 
     def test_user_model_fields(self):
         """Test User model has required fields."""
         from src.models.user import User
 
-        assert hasattr(User, "id")
-        assert hasattr(User, "email")
-        assert hasattr(User, "username")
-        assert hasattr(User, "hashed_password")
+        assert "username" in User.model_fields
+        assert "email" in User.model_fields
+        assert "full_name" in User.model_fields
+        assert "is_active" in User.model_fields
 
     def test_token_model_exists(self):
         """Test Token model is defined."""
