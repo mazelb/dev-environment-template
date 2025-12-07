@@ -510,7 +510,7 @@ function Test-BackgroundTasks {
 
     # Check worker status
     Write-Host "  Checking Celery worker status..." -ForegroundColor Cyan
-    $result = Invoke-BashCommand -Command "docker compose exec -T celery-worker celery -A src.tasks inspect ping" -WorkingDirectory $TestProjectPath
+    $result = Invoke-BashCommand -Command "docker compose exec -T celery-worker celery -A src.celery_app.celery inspect ping" -WorkingDirectory $TestProjectPath
 
     if ($result.Success -or $result.Output -match "pong") {
         Write-Host "  ✓ Celery worker is responding" -ForegroundColor Green
@@ -522,7 +522,7 @@ function Test-BackgroundTasks {
 
     # Check registered tasks
     Write-Host "  Checking registered tasks..." -ForegroundColor Cyan
-    $result = Invoke-BashCommand -Command "docker compose exec -T celery-worker celery -A src.tasks inspect registered" -WorkingDirectory $TestProjectPath
+    $result = Invoke-BashCommand -Command "docker compose exec -T celery-worker celery -A src.celery_app.celery inspect registered" -WorkingDirectory $TestProjectPath
 
     if ($result.Success) {
         Write-Host "  ✓ Tasks registered successfully" -ForegroundColor Green
