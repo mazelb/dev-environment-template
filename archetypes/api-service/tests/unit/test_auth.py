@@ -95,7 +95,7 @@ class TestJWT:
 
         # Decode without verification to check structure
         decoded = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+            token, settings.API_SECRET_KEY, algorithms=[settings.API_ALGORITHM]
         )
 
         assert "sub" in decoded
