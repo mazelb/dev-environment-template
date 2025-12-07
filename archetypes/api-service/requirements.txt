@@ -29,6 +29,7 @@ asyncpg>=0.29.0  # Async PostgreSQL driver
 alembic>=1.13.3
 
 # GraphQL
+graphql-core>=3.2.0  # Required by strawberry-graphql
 strawberry-graphql[fastapi]>=0.219.0
 
 # Development
